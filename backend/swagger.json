@@ -1,0 +1,1423 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "BDC API Documentation",
+    "version": "1.0.3",
+    "description": "BDC (Business Data Constructor) API 文档",
+    "contact": {
+      "name": "BDC Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3300",
+      "description": "开发服务器"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Schema Management",
+      "description": "数据结构定义管理 API"
+    },
+    {
+      "name": "Enum Management",
+      "description": "枚举定义管理 API"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "DataStructure": {
+        "type": "object",
+        "required": [
+          "name",
+          "code",
+          "fields"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "数据结构ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "数据结构名称",
+            "example": "production_plan",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "schema": {
+            "type": "object",
+            "description": "数据结构定义（JSON Schema）",
+            "example": {
+              "type": "object",
+              "properties": {
+                "planId": {
+                  "type": "string"
+                },
+                "planName": {
+                  "type": "string"
+                },
+                "startDate": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "endDate": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "draft",
+                    "active",
+                    "completed"
+                  ]
+                }
+              },
+              "required": [
+                "planId",
+                "planName",
+                "startDate",
+                "endDate",
+                "status"
+              ]
+            }
+          },
+          "description": {
+            "type": "string",
+            "description": "数据结构描述",
+            "example": "生产计划数据结构定义"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "是否启用",
+            "default": true
+          },
+          "version": {
+            "type": "integer",
+            "description": "版本号",
+            "minimum": 1
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^[a-zA-Z][a-zA-Z0-9_:]*$",
+            "description": "数据结构代码"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BaseField"
+            },
+            "description": "字段定义列表"
+          }
+        }
+      },
+      "BaseField": {
+        "type": "object",
+        "required": [
+          "name",
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "字段ID（系统自动生成）"
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "字段名称（必须以小写字母开头，只能包含小写字母、数字和下划线）"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "uuid",
+              "auto-increment",
+              "string",
+              "text",
+              "number",
+              "boolean",
+              "date",
+              "enum",
+              "relation",
+              "media",
+              "api"
+            ],
+            "description": "字段类型"
+          },
+          "description": {
+            "type": "string",
+            "description": "字段描述（支持多行文本）"
+          },
+          "isRequired": {
+            "type": "boolean",
+            "description": "是否必填"
+          },
+          "defaultValue": {
+            "type": "string",
+            "description": "默认值"
+          }
+        }
+      },
+      "StringField": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseField"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "string"
+                ],
+                "description": "字符串类型（varchar）"
+              },
+              "length": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 255,
+                "description": "字符串长度限制"
+              }
+            }
+          }
+        ]
+      },
+      "TextField": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseField"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ],
+                "description": "文本类型（text）"
+              },
+              "maxLength": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 65535,
+                "description": "最大文本长度"
+              }
+            }
+          }
+        ]
+      },
+      "NumberField": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseField"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "number"
+                ]
+              },
+              "numberType": {
+                "type": "string",
+                "enum": [
+                  "integer",
+                  "float",
+                  "decimal"
+                ],
+                "description": "数字类型"
+              },
+              "precision": {
+                "type": "integer",
+                "description": "精度"
+              },
+              "scale": {
+                "type": "integer",
+                "description": "小数位数"
+              }
+            }
+          }
+        ]
+      },
+      "DateField": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseField"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "date"
+                ]
+              },
+              "dateType": {
+                "type": "string",
+                "enum": [
+                  "year",
+                  "year-month",
+                  "date",
+                  "datetime"
+                ],
+                "description": "日期类型"
+              },
+              "useNowAsDefault": {
+                "type": "boolean",
+                "description": "是否使用当前时间作为默认值"
+              }
+            }
+          }
+        ]
+      },
+      "EnumField": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseField"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "enum"
+                ]
+              },
+              "enumId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "关联的枚举定义ID"
+              },
+              "multiple": {
+                "type": "boolean",
+                "description": "是否允许多选"
+              },
+              "defaultValues": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "默认选中的枚举值"
+              }
+            }
+          }
+        ]
+      },
+      "RelationField": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseField"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "relation"
+                ]
+              },
+              "targetSchema": {
+                "type": "string",
+                "description": "目标数据表的schema标识"
+              },
+              "targetField": {
+                "type": "string",
+                "description": "关联的目标字段（默认为主键）"
+              },
+              "multiple": {
+                "type": "boolean",
+                "description": "是否允许多选"
+              },
+              "cascadeDelete": {
+                "type": "string",
+                "enum": [
+                  "restrict",
+                  "cascade",
+                  "setNull"
+                ],
+                "description": "关联记录删除时的处理策略"
+              },
+              "displayFields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "选择关联数据时展示的字段列表"
+              }
+            }
+          }
+        ]
+      },
+      "MediaField": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseField"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "media"
+                ]
+              },
+              "mediaType": {
+                "type": "string",
+                "enum": [
+                  "image",
+                  "video",
+                  "audio",
+                  "document",
+                  "file"
+                ],
+                "description": "媒体类型"
+              },
+              "formats": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "允许的文件格式"
+              },
+              "maxSize": {
+                "type": "number",
+                "description": "最大文件大小限制（MB）"
+              },
+              "multiple": {
+                "type": "boolean",
+                "description": "是否允许多个媒体"
+              }
+            }
+          }
+        ]
+      },
+      "ApiField": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseField"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "api"
+                ]
+              },
+              "endpoint": {
+                "type": "string",
+                "description": "API接口地址"
+              },
+              "method": {
+                "type": "string",
+                "enum": [
+                  "GET",
+                  "POST",
+                  "PUT",
+                  "DELETE"
+                ],
+                "description": "请求方法"
+              },
+              "params": {
+                "type": "object",
+                "description": "请求参数配置"
+              },
+              "headers": {
+                "type": "object",
+                "description": "请求头配置"
+              },
+              "resultMapping": {
+                "type": "object",
+                "description": "返回结果映射配置"
+              }
+            }
+          }
+        ]
+      },
+      "EnumOption": {
+        "type": "object",
+        "required": [
+          "key",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "选项键"
+          },
+          "value": {
+            "type": "string",
+            "description": "选项值"
+          },
+          "description": {
+            "type": "string",
+            "description": "选项描述"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "description": "排序号"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "是否启用"
+          }
+        }
+      },
+      "Enum": {
+        "type": "object",
+        "required": [
+          "code",
+          "name",
+          "options"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "枚举ID"
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_:]*$",
+            "description": "枚举代码（使用:分隔的多级结构，如 system:user:status）"
+          },
+          "name": {
+            "type": "string",
+            "description": "枚举名称"
+          },
+          "description": {
+            "type": "string",
+            "description": "枚举描述"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "value",
+                "label"
+              ],
+              "properties": {
+                "value": {
+                  "type": "string",
+                  "description": "枚举值（存储值）"
+                },
+                "label": {
+                  "type": "string",
+                  "description": "显示标签"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "选项描述"
+                },
+                "order": {
+                  "type": "integer",
+                  "description": "排序号（可选）"
+                }
+              }
+            }
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "是否启用",
+            "default": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          }
+        }
+      }
+    },
+    "responses": {
+      "ServerError": {
+        "description": "服务器内部错误",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "服务器内部错误"
+                },
+                "code": {
+                  "type": "string",
+                  "example": "INTERNAL_SERVER_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/enums": {
+      "post": {
+        "summary": "创建枚举",
+        "tags": [
+          "Enum Management"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Enum"
+              },
+              "example": {
+                "code": "system:user:status",
+                "name": "用户状态",
+                "description": "系统用户状态枚举",
+                "options": [
+                  {
+                    "value": "active",
+                    "label": "正常"
+                  },
+                  {
+                    "value": "locked",
+                    "label": "锁定"
+                  },
+                  {
+                    "value": "disabled",
+                    "label": "禁用"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Enum"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "409": {
+            "description": "枚举代码已存在"
+          }
+        }
+      },
+      "get": {
+        "summary": "获取枚举列表",
+        "tags": [
+          "Enum Management"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "isActive",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "是否只返回启用的枚举"
+          },
+          {
+            "in": "query",
+            "name": "code",
+            "schema": {
+              "type": "string"
+            },
+            "description": "按枚举代码模糊搜索"
+          },
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            },
+            "description": "按枚举名称模糊搜索"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Enum"
+                  }
+                },
+                "example": [
+                  {
+                    "id": "550e8400-e29b-41d4-a716-446655440000",
+                    "code": "system:user:status",
+                    "name": "用户状态"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/enums/{id}": {
+      "get": {
+        "summary": "根据ID获取枚举",
+        "tags": [
+          "Enum Management"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "枚举ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Enum"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "枚举不存在"
+          }
+        }
+      },
+      "put": {
+        "summary": "更新枚举",
+        "tags": [
+          "Enum Management"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "枚举ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Enum"
+              },
+              "example": {
+                "name": "用户状态",
+                "description": "系统用户状态枚举-已更新",
+                "options": [
+                  {
+                    "value": "active",
+                    "label": "正常"
+                  },
+                  {
+                    "value": "locked",
+                    "label": "锁定"
+                  },
+                  {
+                    "value": "disabled",
+                    "label": "已禁用"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Enum"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "404": {
+            "description": "枚举不存在"
+          }
+        }
+      },
+      "delete": {
+        "summary": "删除枚举",
+        "tags": [
+          "Enum Management"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "枚举ID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "删除成功"
+          },
+          "404": {
+            "description": "枚举不存在"
+          },
+          "409": {
+            "description": "枚举正在被使用，无法删除"
+          }
+        }
+      }
+    },
+    "/api/enums/code/{code}": {
+      "get": {
+        "summary": "根据代码获取枚举",
+        "tags": [
+          "Enum Management"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "枚举代码",
+            "example": "system:user:status"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Enum"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "枚举不存在"
+          }
+        }
+      }
+    },
+    "/api/schemas": {
+      "post": {
+        "tags": [
+          "Schema Management"
+        ],
+        "summary": "创建新的数据结构定义",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "code",
+                  "fields"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "数据结构名称"
+                  },
+                  "code": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$",
+                    "description": "数据结构代码"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "数据结构描述"
+                  },
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/StringField"
+                        },
+                        {
+                          "$ref": "#/components/schemas/TextField"
+                        },
+                        {
+                          "$ref": "#/components/schemas/NumberField"
+                        },
+                        {
+                          "$ref": "#/components/schemas/DateField"
+                        },
+                        {
+                          "$ref": "#/components/schemas/EnumField"
+                        },
+                        {
+                          "$ref": "#/components/schemas/RelationField"
+                        },
+                        {
+                          "$ref": "#/components/schemas/MediaField"
+                        },
+                        {
+                          "$ref": "#/components/schemas/ApiField"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "example": {
+                "name": "用户信息",
+                "code": "user_info",
+                "description": "系统用户基本信息表",
+                "fields": [
+                  {
+                    "name": "username",
+                    "type": "string",
+                    "description": "用户名",
+                    "isRequired": true,
+                    "length": 50
+                  },
+                  {
+                    "name": "status",
+                    "type": "enum",
+                    "description": "用户状态",
+                    "enumId": "550e8400-e29b-41d4-a716-446655440000",
+                    "isRequired": true
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "创建成功"
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "409": {
+            "description": "数据结构代码已存在"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Schema Management"
+        ],
+        "summary": "获取所有数据结构定义",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "code",
+            "schema": {
+              "type": "string"
+            },
+            "description": "按数据结构代码模糊搜索"
+          },
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            },
+            "description": "按数据结构名称模糊搜索"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "fields": {
+                        "type": "array",
+                        "items": {
+                          "oneOf": [
+                            {
+                              "$ref": "#/components/schemas/StringField"
+                            },
+                            {
+                              "$ref": "#/components/schemas/TextField"
+                            },
+                            {
+                              "$ref": "#/components/schemas/NumberField"
+                            },
+                            {
+                              "$ref": "#/components/schemas/DateField"
+                            },
+                            {
+                              "$ref": "#/components/schemas/EnumField"
+                            },
+                            {
+                              "$ref": "#/components/schemas/RelationField"
+                            },
+                            {
+                              "$ref": "#/components/schemas/MediaField"
+                            },
+                            {
+                              "$ref": "#/components/schemas/ApiField"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "id": "550e8400-e29b-41d4-a716-446655440000",
+                    "name": "用户信息",
+                    "code": "user_info",
+                    "description": "系统用户基本信息表",
+                    "createdAt": "2024-03-20T08:00:00.000Z",
+                    "updatedAt": "2024-03-20T08:00:00.000Z",
+                    "fields": [
+                      {
+                        "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+                        "name": "username",
+                        "type": "string",
+                        "description": "用户名",
+                        "isRequired": true,
+                        "length": 50
+                      },
+                      {
+                        "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                        "name": "email",
+                        "type": "string",
+                        "description": "电子邮箱",
+                        "isRequired": true,
+                        "length": 100
+                      },
+                      {
+                        "id": "550e8400-e29b-41d4-a716-446655440001",
+                        "name": "status",
+                        "type": "enum",
+                        "description": "用户状态",
+                        "enumId": "550e8400-e29b-41d4-a716-446655440000",
+                        "isRequired": true
+                      }
+                    ]
+                  },
+                  {
+                    "id": "550e8400-e29b-41d4-a716-446655440002",
+                    "name": "商品信息",
+                    "code": "product_info",
+                    "description": "商品基本信息表",
+                    "createdAt": "2024-03-20T09:00:00.000Z",
+                    "updatedAt": "2024-03-20T09:00:00.000Z",
+                    "fields": [
+                      {
+                        "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+                        "name": "name",
+                        "type": "string",
+                        "description": "商品名称",
+                        "isRequired": true,
+                        "length": 100
+                      },
+                      {
+                        "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c9",
+                        "name": "price",
+                        "type": "number",
+                        "description": "商品价格",
+                        "isRequired": true,
+                        "numberType": "decimal",
+                        "precision": 10,
+                        "scale": 2
+                      },
+                      {
+                        "id": "6ba7b810-9dad-11d1-80b4-00c04fd430ca",
+                        "name": "description",
+                        "type": "text",
+                        "description": "商品描述",
+                        "maxLength": 1000
+                      },
+                      {
+                        "id": "6ba7b810-9dad-11d1-80b4-00c04fd430cb",
+                        "name": "category",
+                        "type": "enum",
+                        "description": "商品分类",
+                        "enumId": "550e8400-e29b-41d4-a716-446655440003",
+                        "isRequired": true
+                      },
+                      {
+                        "id": "6ba7b810-9dad-11d1-80b4-00c04fd430cc",
+                        "name": "images",
+                        "type": "media",
+                        "description": "商品图片",
+                        "mediaType": "image",
+                        "formats": [
+                          "jpg",
+                          "png",
+                          "webp"
+                        ],
+                        "maxSize": 5,
+                        "multiple": true
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/schemas/{id}": {
+      "get": {
+        "tags": [
+          "Schema Management"
+        ],
+        "summary": "获取指定数据结构定义",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "数据结构定义ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "fields": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/StringField"
+                          },
+                          {
+                            "$ref": "#/components/schemas/TextField"
+                          },
+                          {
+                            "$ref": "#/components/schemas/NumberField"
+                          },
+                          {
+                            "$ref": "#/components/schemas/DateField"
+                          },
+                          {
+                            "$ref": "#/components/schemas/EnumField"
+                          },
+                          {
+                            "$ref": "#/components/schemas/RelationField"
+                          },
+                          {
+                            "$ref": "#/components/schemas/MediaField"
+                          },
+                          {
+                            "$ref": "#/components/schemas/ApiField"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "数据结构定义不存在"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Schema Management"
+        ],
+        "summary": "更新数据结构定义",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "数据结构定义ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/StringField"
+                        },
+                        {
+                          "$ref": "#/components/schemas/TextField"
+                        },
+                        {
+                          "$ref": "#/components/schemas/NumberField"
+                        },
+                        {
+                          "$ref": "#/components/schemas/DateField"
+                        },
+                        {
+                          "$ref": "#/components/schemas/EnumField"
+                        },
+                        {
+                          "$ref": "#/components/schemas/RelationField"
+                        },
+                        {
+                          "$ref": "#/components/schemas/MediaField"
+                        },
+                        {
+                          "$ref": "#/components/schemas/ApiField"
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "example": {
+                "name": "用户信息",
+                "description": "系统用户基本信息表-已更新",
+                "fields": [
+                  {
+                    "name": "username",
+                    "type": "string",
+                    "description": "用户名",
+                    "isRequired": true,
+                    "length": 50
+                  },
+                  {
+                    "name": "email",
+                    "type": "string",
+                    "description": "电子邮箱",
+                    "isRequired": true,
+                    "length": 100
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功"
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "404": {
+            "description": "数据结构定义不存在"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Schema Management"
+        ],
+        "summary": "删除数据结构定义",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "数据结构定义ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功"
+          },
+          "404": {
+            "description": "数据结构定义不存在"
+          },
+          "409": {
+            "description": "数据结构定义正在被使用，无法删除"
+          }
+        }
+      }
+    },
+    "/api/schemas/{id}/validate": {
+      "post": {
+        "tags": [
+          "Schema Management"
+        ],
+        "summary": "验证数据结构定义",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "数据结构定义ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "username": "john_doe",
+                "email": "john@example.com",
+                "status": "active"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "验证成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "404": {
+            "description": "数据结构定义不存在"
+          }
+        }
+      }
+    }
+  }
+}

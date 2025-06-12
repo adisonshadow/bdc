@@ -1,0 +1,648 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "BDC API Documentation",
+    "version": "1.0.0",
+    "description": "BDC 后端服务 API 文档",
+    "contact": {
+      "name": "BDC Team",
+      "email": "support@example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3300",
+      "description": "开发环境"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "错误代码"
+          },
+          "message": {
+            "type": "string",
+            "description": "错误信息"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/enums": {
+      "post": {
+        "tags": [
+          "Enum Management"
+        ],
+        "summary": "创建新的枚举定义",
+        "description": "创建一个新的枚举定义，包含代码、选项和描述",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "code",
+                  "options"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "枚举代码",
+                    "example": "order_status"
+                  },
+                  "options": {
+                    "type": "array",
+                    "description": "枚举选项列表",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "key",
+                        "value"
+                      ],
+                      "properties": {
+                        "key": {
+                          "type": "string",
+                          "description": "选项键"
+                        },
+                        "value": {
+                          "type": "string",
+                          "description": "选项值"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "选项描述"
+                        }
+                      }
+                    }
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "枚举描述"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "枚举创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Enum"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Enum Management"
+        ],
+        "summary": "获取所有枚举定义",
+        "description": "获取所有枚举定义的列表，可以按激活状态筛选",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "isActive",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "是否只返回激活的枚举"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取枚举列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Enum"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/enums/{id}": {
+      "get": {
+        "tags": [
+          "Enum Management"
+        ],
+        "summary": "获取指定枚举定义",
+        "description": "根据ID获取特定的枚举定义",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "枚举ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取枚举",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Enum"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Enum Management"
+        ],
+        "summary": "更新枚举定义",
+        "description": "更新指定ID的枚举定义",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "枚举ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "枚举代码"
+                  },
+                  "options": {
+                    "type": "array",
+                    "description": "枚举选项列表",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "枚举描述"
+                  },
+                  "isActive": {
+                    "type": "boolean",
+                    "description": "是否激活"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "枚举更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Enum"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Enum Management"
+        ],
+        "summary": "删除枚举定义",
+        "description": "删除指定ID的枚举定义",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "枚举ID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "枚举删除成功"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/enums/code/{code}": {
+      "get": {
+        "tags": [
+          "Enum Management"
+        ],
+        "summary": "根据代码获取枚举定义",
+        "description": "根据枚举代码获取特定的枚举定义",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "枚举代码"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取枚举",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Enum"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/schemas": {
+      "post": {
+        "tags": [
+          "Schema Management"
+        ],
+        "summary": "创建新的数据结构定义",
+        "description": "创建一个新的数据结构定义，包含名称、结构定义和描述",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "schema"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "数据结构名称",
+                    "example": "production_plan"
+                  },
+                  "schema": {
+                    "type": "object",
+                    "description": "数据结构定义",
+                    "example": {
+                      "type": "object",
+                      "properties": {
+                        "planId": {
+                          "type": "string"
+                        },
+                        "planName": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "数据结构描述",
+                    "example": "生产计划数据结构定义"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "数据结构创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataStructure"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Schema Management"
+        ],
+        "summary": "获取所有数据结构定义",
+        "description": "获取所有数据结构定义的列表，可以按激活状态筛选",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "isActive",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "是否只返回激活的数据结构"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取数据结构列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DataStructure"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/schemas/{id}": {
+      "get": {
+        "tags": [
+          "Schema Management"
+        ],
+        "summary": "获取指定数据结构定义",
+        "description": "根据ID获取特定的数据结构定义",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "数据结构ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取数据结构",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataStructure"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Schema Management"
+        ],
+        "summary": "更新数据结构定义",
+        "description": "更新指定ID的数据结构定义",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "数据结构ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "数据结构名称"
+                  },
+                  "schema": {
+                    "type": "object",
+                    "description": "数据结构定义"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "数据结构描述"
+                  },
+                  "isActive": {
+                    "type": "boolean",
+                    "description": "是否激活"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "数据结构更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataStructure"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Schema Management"
+        ],
+        "summary": "删除数据结构定义",
+        "description": "删除指定ID的数据结构定义",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "数据结构ID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "数据结构删除成功"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/schemas/{id}/validate": {
+      "post": {
+        "tags": [
+          "Schema Management"
+        ],
+        "summary": "验证数据结构",
+        "description": "验证指定ID的数据结构定义是否有效",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "数据结构ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "验证结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "valid": {
+                      "type": "boolean",
+                      "description": "是否有效"
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "验证错误信息列表"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Schema Management",
+      "description": "数据结构定义管理 API"
+    }
+  ]
+}

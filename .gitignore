@@ -8,7 +8,9 @@
 **/build/
 
 # 环境变量文件
-.env.development
+# .env
+# .env.*
+# !.env.example
 
 # 日志文件
 **/logs/

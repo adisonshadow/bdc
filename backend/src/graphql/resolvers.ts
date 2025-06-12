@@ -25,8 +25,12 @@ export const resolvers = {
     dataStructures: async () => {
       return await dataStructureRepository.find();
     },
-    dataStructure: async (_: unknown, { id }: { id: string }) => {
+    dataStructure: async (_: unknown, { id }: { id?: string }) => {
+      if (!id) return null;
       return await dataStructureRepository.findOneBy({ id });
+    },
+    dataStructureByName: async (_: unknown, { name }: { name: string }) => {
+      return await dataStructureRepository.findOneBy({ name });
     },
   },
   Mutation: {

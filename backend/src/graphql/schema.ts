@@ -1,10 +1,11 @@
-import { gql } from 'apollo-server-express';
+import { gql } from 'graphql-tag';
 
 export const typeDefs = gql`
   type DataStructure {
     id: ID!
     name: String!
     schema: JSON!
+    description: String
     isActive: Boolean!
     version: Int!
     createdAt: String!
@@ -14,11 +15,13 @@ export const typeDefs = gql`
   input DataStructureInput {
     name: String!
     schema: JSON!
+    description: String
   }
 
   type Query {
     dataStructures: [DataStructure!]!
-    dataStructure(id: ID!): DataStructure
+    dataStructure(id: ID): DataStructure
+    dataStructureByName(name: String!): DataStructure
   }
 
   type Mutation {

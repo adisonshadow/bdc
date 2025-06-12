@@ -1,36 +1,49 @@
 {
   "name": "bdc-backend",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "BDC Backend Service",
   "main": "src/index.ts",
   "scripts": {
     "start": "NODE_ENV=production ts-node src/index.ts",
     "dev": "NODE_ENV=development ts-node src/index.ts",
+    "dev:watch": "NODE_ENV=development nodemon --watch src --ext ts,js,json --exec 'ts-node src/index.ts'",
     "build": "tsc",
     "test": "jest",
     "init:schema": "bash ./clis/init_schema.sh",
     "init:schema:dev": "export $(cat .env.development | grep -v '^#' | xargs) && yarn init:schema",
-    "mock:data": "export $(cat .env.development | grep -v '^#' | xargs) && bash ./clis/load_mock_data.sh"
+    "mock:data": "export $(cat .env.development | grep -v '^#' | xargs) && bash ./clis/load_mock_data.sh",
+    "swagger": "node scripts/generate-swagger.js",
+    "swagger:dev": "export $(cat .env.development | grep -v '^#' | xargs) && yarn swagger",
+    "prestart": "npm run swagger",
+    "prebuild": "npm run swagger"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "typeorm": "^0.3.17",
-    "pg": "^8.11.3",
-    "graphql": "^16.8.1",
-    "apollo-server-express": "^3.13.0",
+    "@apollo/server": "^4.12.2",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "winston": "^3.11.0",
-    "reflect-metadata": "^0.2.2"
+    "express": "^5.1.0",
+    "graphql": "^16.11.0",
+    "graphql-playground-middleware-express": "^1.7.23",
+    "graphql-tag": "^2.12.6",
+    "ioredis": "^5.6.1",
+    "pg": "^8.11.3",
+    "reflect-metadata": "^0.2.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "typeorm": "^0.3.17",
+    "typeorm-naming-strategies": "^4.1.0",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/node": "^20.10.5",
     "@types/cors": "^2.8.17",
-    "typescript": "^5.3.3",
-    "ts-node": "^10.9.2",
-    "nodemon": "^3.0.2",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.10.5",
     "jest": "^29.7.0",
-    "@types/jest": "^29.5.11"
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   }
 }
