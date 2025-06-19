@@ -4,7 +4,11 @@ export const typeDefs = gql`
   type DataStructure {
     id: ID!
     name: String!
-    schema: JSON!
+    code: String!
+    fields: JSON!
+    keyIndexes: JSON
+    physicalStorage: JSON
+    validationErrors: [JSON!]
     description: String
     isActive: Boolean!
     version: Int!
@@ -14,8 +18,13 @@ export const typeDefs = gql`
 
   input DataStructureInput {
     name: String!
-    schema: JSON!
+    code: String!
+    fields: JSON!
+    keyIndexes: JSON
+    physicalStorage: JSON
+    validationErrors: [JSON!]
     description: String
+    isActive: Boolean
   }
 
   type Query {

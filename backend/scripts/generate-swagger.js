@@ -1,3 +1,7 @@
+/**
+ * 在构建时生成静态的 swagger.json 文件
+ * 这个文件会被 yarn swagger:dev 命令执行
+*/
 const fs = require('fs');
 const path = require('path');
 const swaggerJSDoc = require('swagger-jsdoc');
@@ -31,71 +35,11 @@ const options = {
         description: '枚举定义管理 API',
       },
     ],
-    components: {
-      schemas: {
-        DataStructure: {
-          type: 'object',
-          required: ['name', 'schema'],
-          properties: {
-            id: {
-              type: 'string',
-              format: 'uuid',
-              description: '数据结构ID',
-            },
-            name: {
-              type: 'string',
-              description: '数据结构名称',
-              example: 'production_plan',
-            },
-            schema: {
-              type: 'object',
-              description: '数据结构定义（JSON Schema）',
-              example: {
-                type: 'object',
-                properties: {
-                  planId: { type: 'string' },
-                  planName: { type: 'string' },
-                  startDate: { type: 'string', format: 'date-time' },
-                  endDate: { type: 'string', format: 'date-time' },
-                  status: { type: 'string', enum: ['draft', 'active', 'completed'] },
-                },
-                required: ['planId', 'planName', 'startDate', 'endDate', 'status'],
-              },
-            },
-            description: {
-              type: 'string',
-              description: '数据结构描述',
-              example: '生产计划数据结构定义',
-            },
-            isActive: {
-              type: 'boolean',
-              description: '是否激活',
-              default: true,
-            },
-            version: {
-              type: 'integer',
-              description: '版本号',
-              minimum: 1,
-            },
-            createdAt: {
-              type: 'string',
-              format: 'date-time',
-              description: '创建时间',
-            },
-            updatedAt: {
-              type: 'string',
-              format: 'date-time',
-              description: '更新时间',
-            },
-          },
-        },
-      },
-    },
   },
   apis: [
     './src/routes/*.ts',
     './src/controllers/*.ts',
-    './src/swagger/schemas.ts'
+    './src/swagger/schemas.ts'  // 从这里读取 schemas 定义
   ],
 };
 

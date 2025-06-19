@@ -6,7 +6,8 @@ export const errorHandler = {
   formatError: (formattedError: GraphQLFormattedError, error: unknown): GraphQLFormattedError => {
     // 记录原始错误
     if (error instanceof Error) {
-      Logger.error('GraphQL Error:', {
+      Logger.error({
+        message: 'GraphQL Error',
         error: error.message,
         stack: error.stack,
         path: formattedError.path,

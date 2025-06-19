@@ -1,14 +1,13 @@
 import { Request, Response } from 'express';
-import { AppDataSource } from '../config/database';
+import { getDataSource } from '../data-source';
 import { Enum } from '../models/Enum';
 import { ValidationError, NotFoundError, ValidationWarning } from '../errors/types';
 import { Logger } from '../utils/logger';
 
-const enumRepository = AppDataSource.getRepository(Enum);
-
 // 创建枚举
 export const createEnum = async (req: Request, res: Response) => {
   try {
+    const enumRepository = getDataSource().getRepository(Enum);
     const { code, name, options, description } = req.body;
     
     // 基本字段验证
@@ -64,6 +63,7 @@ export const createEnum = async (req: Request, res: Response) => {
 // 获取所有枚举
 export const getAllEnums = async (req: Request, res: Response) => {
   try {
+    const enumRepository = getDataSource().getRepository(Enum);
     const { isActive, code, name } = req.query;
     const where: any = {};
     
@@ -94,6 +94,7 @@ export const getAllEnums = async (req: Request, res: Response) => {
 // 根据ID获取枚举
 export const getEnumById = async (req: Request, res: Response) => {
   try {
+    const enumRepository = getDataSource().getRepository(Enum);
     const { id } = req.params;
     const enumEntity = await enumRepository.findOne({ where: { id } });
     if (!enumEntity) {
@@ -113,6 +114,7 @@ export const getEnumById = async (req: Request, res: Response) => {
 // 根据代码获取枚举
 export const getEnumByCode = async (req: Request, res: Response) => {
   try {
+    const enumRepository = getDataSource().getRepository(Enum);
     const { code } = req.params;
     const enumEntity = await enumRepository.findOne({ where: { code } });
     if (!enumEntity) {
@@ -132,6 +134,7 @@ export const getEnumByCode = async (req: Request, res: Response) => {
 // 更新枚举
 export const updateEnum = async (req: Request, res: Response) => {
   try {
+    const enumRepository = getDataSource().getRepository(Enum);
     const { id } = req.params;
     const { code, name, options, description, isActive } = req.body;
     
@@ -213,6 +216,7 @@ export const updateEnum = async (req: Request, res: Response) => {
 // 删除枚举
 export const deleteEnum = async (req: Request, res: Response) => {
   try {
+    const enumRepository = getDataSource().getRepository(Enum);
     const { id } = req.params;
     const enumEntity = await enumRepository.findOne({ where: { id } });
     if (!enumEntity) {

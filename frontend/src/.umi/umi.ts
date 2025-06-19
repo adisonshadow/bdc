@@ -9,7 +9,7 @@ import { getRoutes } from './core/route';
 import { createPluginManager } from './core/plugin';
 import { createHistory } from './core/history';
 import { ApplyPluginsType } from 'umi';
-
+import '@@/core/overrides.css';
 
 const publicPath = "/";
 const runtimePublicPath = false;

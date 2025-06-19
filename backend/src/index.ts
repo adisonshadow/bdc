@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
 import { Logger } from './utils/logger';
+import apiDefinitionRouter from './routes/apiDefinitionRoutes';
 
 // 在最开始就加载环境变量
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -30,6 +31,10 @@ console.log('========== 环境变量信息 ==========');
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('PORT:', process.env.PORT);
 console.log('DB_PORT:', process.env.DB_PORT);
+console.log('DB_USER:', process.env.DB_USER);
+console.log('DB_PASSWORD:', process.env.DB_PASSWORD ? '已设置' : '未设置');
+console.log('DB_NAME:', process.env.DB_NAME);
+console.log('DB_SCHEMA:', process.env.DB_SCHEMA);
 console.log('================================');
 
 // 验证必要的环境变量
@@ -56,6 +61,7 @@ import swaggerRouter from './routes/swagger';
 import expressPlayground from 'graphql-playground-middleware-express';
 import schemaRouter from './routes/schemaRoutes';
 import enumRouter from './routes/enumRoutes';
+import databaseConnectionRouter from './routes/databaseConnectionRoutes';
 
 Logger.info({ 
   message: '环境变量加载完成', 
@@ -79,6 +85,8 @@ app.use(express.json());
 // API 路由
 app.use('/api/schemas', schemaRouter);
 app.use('/api/enums', enumRouter);
+app.use('/api/database-connections', databaseConnectionRouter);
+app.use('/api/api-definitions', apiDefinitionRouter);
 
 // Swagger UI
 app.use('/api-docs', swaggerRouter);
@@ -115,13 +123,28 @@ const startServer = async () => {
     const server = new ApolloServer({
       typeDefs,
       resolvers,
+      formatError: (error) => {
+        console.error('GraphQL Error:', error);
+        return {
+          message: error.message,
+          code: error.extensions?.code || 'INTERNAL_SERVER_ERROR',
+        };
+      },
     });
 
     // 启动 Apollo Server
     await server.start();
     
     // GraphQL 路由
-    app.use('/graphql', expressMiddleware(server));
+    app.use('/graphql', expressMiddleware(server, {
+      context: async ({ req }) => {
+        // 这里可以添加认证逻辑
+        return {
+          req,
+          // 可以添加数据库连接等上下文
+        };
+      },
+    }));
 
     // 启动服务器
     app.listen(PORT, () => {

@@ -2,28 +2,35 @@ declare namespace API {
   type ApiField =
     // #/components/schemas/BaseField
     BaseField & {
+      /** API数据源类型 */
       type?: "api";
-      /** API接口地址 */
-      endpoint?: string;
-      /** 请求方法 */
-      method?: "GET" | "POST" | "PUT" | "DELETE";
-      /** 请求参数配置 */
-      params?: Record<string, any>;
-      /** 请求头配置 */
-      headers?: Record<string, any>;
-      /** 返回结果映射配置 */
-      resultMapping?: Record<string, any>;
+      apiConfig?: {
+        endpoint: string;
+        method: "GET" | "POST" | "PUT" | "DELETE";
+        multiple: boolean;
+        params?: Record<string, any>;
+        headers?: Record<string, any>;
+        resultMapping: { path: string; fields: Record<string, any> };
+        cache?: { ttl?: number; key?: string };
+      };
+    };
+
+  type AutoIncrementField =
+    // #/components/schemas/BaseField
+    BaseField & {
+      /** 自增长ID字段类型 */
+      type?: "auto_increment";
     };
 
   type BaseField = {
-    /** 字段ID（系统自动生成） */
-    id?: string;
-    /** 字段名称（必须以小写字母开头，只能包含小写字母、数字和下划线） */
+    /** 字段唯一标识 */
+    id: string;
+    /** 字段名称 */
     name: string;
     /** 字段类型 */
     type:
       | "uuid"
-      | "auto-increment"
+      | "auto_increment"
       | "string"
       | "text"
       | "number"
@@ -33,12 +40,175 @@ declare namespace API {
       | "relation"
       | "media"
       | "api";
-    /** 字段描述（支持多行文本） */
+    /** 字段描述 */
     description?: string;
     /** 是否必填 */
-    isRequired?: boolean;
-    /** 默认值 */
-    defaultValue?: string;
+    required: boolean;
+    /** 是否为主键 */
+    isPrimaryKey?: boolean;
+    /** 字段长度（适用于字符串类型） */
+    length?: number;
+    /** 日期类型（适用于date类型） */
+    dateType?: "year" | "year-month" | "date" | "datetime";
+  };
+
+  type BooleanField =
+    // #/components/schemas/BaseField
+    BaseField & {
+      /** 布尔类型 */
+      type?: "boolean";
+    };
+
+  type DatabaseConnection = {
+    /** 数据库连接ID */
+    id?: string;
+    /** 连接名称 */
+    name: string;
+    /** 连接描述 */
+    description?: string;
+    /** 数据库类型 */
+    type: "postgresql" | "mysql" | "mongodb" | "sqlserver" | "oracle";
+    /** 主机地址 */
+    host: string;
+    /** 端口号 */
+    port: number;
+    /** 数据库名称 */
+    database: string;
+    /** 用户名 */
+    username: string;
+    /** 密码（加密存储） */
+    password: string;
+    /** Schema名称 */
+    schema?: string;
+    /** SSL配置 */
+    sslConfig?: {
+      enabled?: boolean;
+      verifyServerCert?: boolean;
+      caCert?: string;
+      clientCert?: string;
+      clientKey?: string;
+    };
+    /** 连接池配置 */
+    poolConfig?: {
+      min?: number;
+      max?: number;
+      idleTimeoutMillis?: number;
+      connectionTimeoutMillis?: number;
+    };
+    /** 监控配置 */
+    monitorConfig?: {
+      enabled?: boolean;
+      checkInterval?: number;
+      metrics?: string[];
+      alertThresholds?: {
+        maxConnections?: number;
+        maxQueryTime?: number;
+        maxErrorRate?: number;
+      };
+    };
+    /** 连接状态 */
+    status?: "active" | "inactive" | "testing" | "failed" | "maintenance";
+    /** 是否支持远程连接 */
+    allowRemote?: boolean;
+    /** 允许的IP地址列表，多个用逗号分隔 */
+    allowedIps?: string;
+    /** 最后测试连接时间 */
+    lastTestAt?: string;
+    /** 最后测试是否成功 */
+    lastTestSuccess?: boolean;
+    /** 最后测试错误信息 */
+    lastTestError?: string;
+    /** 连接统计信息 */
+    stats?: {
+      totalConnections?: number;
+      activeConnections?: number;
+      failedConnections?: number;
+      lastErrorAt?: string;
+      lastError?: string;
+      avgQueryTime?: number;
+      maxQueryTime?: number;
+    };
+    /** 是否启用 */
+    isActive?: boolean;
+    /** 创建时间 */
+    createdAt?: string;
+    /** 更新时间 */
+    updatedAt?: string;
+  };
+
+  type DatabaseConnectionCreate = {
+    /** 连接名称 */
+    name: string;
+    /** 连接描述 */
+    description?: string;
+    /** 数据库类型 */
+    type: "postgresql" | "mysql" | "mongodb" | "sqlserver" | "oracle";
+    /** 主机地址 */
+    host: string;
+    /** 端口号 */
+    port: number;
+    /** 数据库名称 */
+    database: string;
+    /** 用户名 */
+    username: string;
+    /** 密码 */
+    password: string;
+    /** Schema名称 */
+    schema?: string;
+    sslConfig?: sslConfig;
+    poolConfig?: poolConfig;
+    monitorConfig?: monitorConfig;
+    /** 是否支持远程连接 */
+    allowRemote?: boolean;
+    /** 允许的IP地址列表，多个用逗号分隔 */
+    allowedIps?: string;
+  };
+
+  type DatabaseConnectionTest = {
+    /** 数据库连接ID */
+    id: string;
+  };
+
+  type DatabaseConnectionTestResult = {
+    /** 测试是否成功 */
+    success?: boolean;
+    /** 测试结果消息 */
+    message?: string;
+    /** 连接信息 */
+    connectionInfo?: {
+      version?: string;
+      serverTime?: string;
+      maxConnections?: number;
+      currentConnections?: number;
+    };
+  };
+
+  type DatabaseConnectionUpdate = {
+    /** 连接名称 */
+    name?: string;
+    /** 连接描述 */
+    description?: string;
+    /** 主机地址 */
+    host?: string;
+    /** 端口号 */
+    port?: number;
+    /** 数据库名称 */
+    database?: string;
+    /** 用户名 */
+    username?: string;
+    /** 密码 */
+    password?: string;
+    /** Schema名称 */
+    schema?: string;
+    sslConfig?: sslConfig;
+    poolConfig?: poolConfig;
+    monitorConfig?: monitorConfig;
+    /** 是否支持远程连接 */
+    allowRemote?: boolean;
+    /** 允许的IP地址列表，多个用逗号分隔 */
+    allowedIps?: string;
+    /** 是否启用 */
+    isActive?: boolean;
   };
 
   type DataStructure = {
@@ -46,8 +216,45 @@ declare namespace API {
     id?: string;
     /** 数据结构名称 */
     name: string;
-    /** 数据结构定义（JSON Schema） */
-    schema?: Record<string, any>;
+    /** 数据结构代码 */
+    code: string;
+    /** 字段定义列表 */
+    fields: (
+      | UuidField
+      | AutoIncrementField
+      | StringField
+      | TextField
+      | NumberField
+      | BooleanField
+      | DateField
+      | EnumField
+      | RelationField
+      | MediaField
+      | ApiField
+    )[];
+    /** 主键和索引信息 */
+    keyIndexes?: {
+      primaryKey?: string;
+      indexes?: {
+        name?: string;
+        fields?: string[];
+        type?: "unique" | "index";
+      }[];
+    };
+    /** 物理存储信息 */
+    physicalStorage?: {
+      database?: string;
+      table?: string;
+      lastMaterializedAt?: string;
+      materializedVersion?: number;
+    };
+    /** 验证错误信息 */
+    validationErrors?: {
+      code?: string;
+      message?: string;
+      timestamp?: string;
+      details?: Record<string, any>;
+    }[];
     /** 数据结构描述 */
     description?: string;
     /** 是否启用 */
@@ -58,21 +265,19 @@ declare namespace API {
     createdAt?: string;
     /** 更新时间 */
     updatedAt?: string;
-    /** 数据结构代码 */
-    code: string;
-    /** 字段定义列表 */
-    fields: BaseField[];
   };
 
   type DateField =
     // #/components/schemas/BaseField
     BaseField & {
-      type?: "date";
       /** 日期类型 */
-      dateType?: "year" | "year-month" | "date" | "datetime";
-      /** 是否使用当前时间作为默认值 */
-      useNowAsDefault?: boolean;
+      type?: "date";
     };
+
+  type deleteDatabaseConnectionsIdParams = {
+    /** 数据库连接ID */
+    id: string;
+  };
 
   type deleteEnumsIdParams = {
     /** 枚举ID */
@@ -86,7 +291,7 @@ declare namespace API {
 
   type Enum = {
     /** 枚举ID */
-    id: string;
+    id?: string;
     /** 枚举代码（使用:分隔的多级结构，如 system:user:status） */
     code: string;
     /** 枚举名称 */
@@ -100,7 +305,7 @@ declare namespace API {
       order?: number;
     }[];
     /** 是否启用 */
-    isActive: boolean;
+    isActive?: boolean;
     /** 创建时间 */
     createdAt?: string;
     /** 更新时间 */
@@ -110,13 +315,13 @@ declare namespace API {
   type EnumField =
     // #/components/schemas/BaseField
     BaseField & {
+      /** 枚举类型 */
       type?: "enum";
-      /** 关联的枚举定义ID */
-      enumId?: string;
-      /** 是否允许多选 */
-      multiple?: boolean;
-      /** 默认选中的枚举值 */
-      defaultValues?: string[];
+      enumConfig?: {
+        targetEnumCode: string;
+        multiple: boolean;
+        defaultValues?: string[];
+      };
     };
 
   type EnumOption = {
@@ -129,6 +334,24 @@ declare namespace API {
     /** 排序号 */
     sortOrder?: number;
     /** 是否启用 */
+    isActive?: boolean;
+  };
+
+  type getDatabaseConnectionsIdParams = {
+    /** 数据库连接ID */
+    id: string;
+  };
+
+  type getDatabaseConnectionsParams = {
+    /** 页码 */
+    page?: number;
+    /** 每页数量 */
+    limit?: number;
+    /** 数据库类型 */
+    type?: "POSTGRESQL" | "MYSQL" | "MONGODB" | "SQLSERVER" | "ORACLE";
+    /** 连接状态 */
+    status?: "INACTIVE" | "ACTIVE" | "TESTING" | "FAILED";
+    /** 是否激活 */
     isActive?: boolean;
   };
 
@@ -166,31 +389,35 @@ declare namespace API {
   type MediaField =
     // #/components/schemas/BaseField
     BaseField & {
-      type?: "media";
       /** 媒体类型 */
-      mediaType?: "image" | "video" | "audio" | "document" | "file";
-      /** 允许的文件格式 */
-      formats?: string[];
-      /** 最大文件大小限制（MB） */
-      maxSize?: number;
-      /** 是否允许多个媒体 */
-      multiple?: boolean;
+      type?: "media";
+      mediaConfig?: {
+        mediaType: "image" | "video" | "audio" | "document" | "file";
+        formats: string[];
+        maxSize: number;
+        multiple: boolean;
+      };
     };
 
   type NumberField =
     // #/components/schemas/BaseField
     BaseField & {
-      type?: "number";
       /** 数字类型 */
-      numberType?: "integer" | "float" | "decimal";
-      /** 精度 */
-      precision?: number;
-      /** 小数位数 */
-      scale?: number;
+      type?: "number";
     };
+
+  type postDatabaseConnectionsIdTestParams = {
+    /** 数据库连接ID */
+    id: string;
+  };
 
   type postSchemasIdValidateParams = {
     /** 数据结构定义ID */
+    id: string;
+  };
+
+  type putDatabaseConnectionsIdParams = {
+    /** 数据库连接ID */
     id: string;
   };
 
@@ -207,17 +434,16 @@ declare namespace API {
   type RelationField =
     // #/components/schemas/BaseField
     BaseField & {
+      /** 关联类型 */
       type?: "relation";
-      /** 目标数据表的schema标识 */
-      targetSchema?: string;
-      /** 关联的目标字段（默认为主键） */
-      targetField?: string;
-      /** 是否允许多选 */
-      multiple?: boolean;
-      /** 关联记录删除时的处理策略 */
-      cascadeDelete?: "restrict" | "cascade" | "setNull";
-      /** 选择关联数据时展示的字段列表 */
-      displayFields?: string[];
+      relationConfig?: {
+        targetSchemaCode: string;
+        targetField?: string;
+        multiple: boolean;
+        cascadeDelete: "restrict" | "cascade" | "setNull";
+        displayFields: string[];
+        filterCondition?: Record<string, any>;
+      };
     };
 
   type StringField =
@@ -225,8 +451,6 @@ declare namespace API {
     BaseField & {
       /** 字符串类型（varchar） */
       type?: "string";
-      /** 字符串长度限制 */
-      length?: number;
     };
 
   type TextField =
@@ -234,31 +458,12 @@ declare namespace API {
     BaseField & {
       /** 文本类型（text） */
       type?: "text";
-      /** 最大文本长度 */
-      maxLength?: number;
     };
 
-  type EnumTreeNode = {
-    /** 节点值（用于级联选择器） */
-    value: string;
-    /** 节点标签（用于显示） */
-    label: string;
-    /** 子节点 */
-    children?: EnumTreeNode[];
-    /** 节点ID（叶子节点为枚举ID，非叶子节点为临时ID） */
-    id: string;
-    /** 是否启用 */
-    isActive: boolean;
-    /** 节点描述（仅叶子节点有） */
-    description?: string;
-    /** 枚举选项（仅叶子节点有） */
-    options?: {
-      value: string;
-      label: string;
-      description?: string;
-      order?: number;
-    }[];
-    /** 原始枚举数据（仅叶子节点有） */
-    rawEnum?: Enum;
-  };
+  type UuidField =
+    // #/components/schemas/BaseField
+    BaseField & {
+      /** UUID类型 */
+      type?: "uuid";
+    };
 }

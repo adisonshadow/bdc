@@ -1,0 +1,23 @@
+.ant-pro-layout .ant-pro-layout-content {
+    padding: 0 !important;
+    padding-block: 0 !important;
+    padding-inline: 0 !important;
+}
+
+.f-fullscreen {
+    position: fixed;
+    top: 57px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+}
+
+.f-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 46px;
+    padding: 0 10px;
+    background-color: #ffffff08;
+}

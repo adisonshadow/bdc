@@ -1,21 +1,20 @@
 import { Request, Response } from 'express';
-import { AppDataSource } from '../config/database';
+import { getDataSource } from '../data-source';
 import { DataStructure, Field } from '../models/DataStructure';
 import { ValidationError, NotFoundError, ValidationWarning } from '../errors/types';
 import { Logger } from '../utils/logger';
 import { FieldValidator } from '../utils/fieldValidator';
 import { v4 as uuidv4 } from 'uuid';
 
-const dataStructureRepository = AppDataSource.getRepository(DataStructure);
-
 // 创建数据结构
 export const createSchema = async (req: Request, res: Response) => {
+  const dataStructureRepository = getDataSource().getRepository(DataStructure);
   try {
-    const { name, code, fields, description } = req.body;
+    const { name, code, fields = [], description } = req.body;
     
     // 验证基本参数
-    if (!name || !code || !fields) {
-      throw new ValidationError('名称、代码和字段定义是必填项');
+    if (!name || !code) {
+      throw new ValidationError('名称和代码是必填项');
     }
 
     // 验证格式
@@ -91,6 +90,7 @@ export const createSchema = async (req: Request, res: Response) => {
 
 // 获取所有数据结构
 export const getAllSchemas = async (req: Request, res: Response) => {
+  const dataStructureRepository = getDataSource().getRepository(DataStructure);
   try {
     const { isActive } = req.query;
     console.log('查询参数:', { isActive });
@@ -118,6 +118,7 @@ export const getAllSchemas = async (req: Request, res: Response) => {
 
 // 根据ID获取数据结构
 export const getSchemaById = async (req: Request, res: Response) => {
+  const dataStructureRepository = getDataSource().getRepository(DataStructure);
   try {
     const { id } = req.params;
     const schema = await dataStructureRepository.findOne({ where: { id } });
@@ -137,9 +138,19 @@ export const getSchemaById = async (req: Request, res: Response) => {
 
 // 更新数据结构
 export const updateSchema = async (req: Request, res: Response) => {
+  const dataStructureRepository = getDataSource().getRepository(DataStructure);
   try {
     const { id } = req.params;
-    const { name, code, fields, description, isActive } = req.body;
+    const { 
+      name, 
+      code, 
+      fields, 
+      description, 
+      isActive,
+      keyIndexes,
+      physicalStorage,
+      validationErrors 
+    } = req.body;
 
     // 查找现有数据结构
     const schema = await dataStructureRepository.findOne({ where: { id } });
@@ -175,7 +186,7 @@ export const updateSchema = async (req: Request, res: Response) => {
     // 如果更新字段定义，验证字段
     let warning = null;
     if (fields) {
-      // 为新字段生成 ID，保留已有字段的 ID
+      // 为每个字段生成 ID
       const fieldsWithIds = fields.map((field: Partial<Field>) => ({
         ...field,
         id: field.id || uuidv4()
@@ -187,31 +198,40 @@ export const updateSchema = async (req: Request, res: Response) => {
         warning = new ValidationWarning('必须指定一个主键字段');
       }
 
-      schema.fields = fieldsWithIds;
-      schema.version += 1; // 更新版本号
+      // 验证字段定义
+      FieldValidator.validateFields(fieldsWithIds);
     }
 
-    // 更新其他属性
-    if (name) schema.name = name;
-    if (code) schema.code = code;
-    if (description !== undefined) schema.description = description;
-    if (isActive !== undefined) schema.isActive = isActive;
+    // 更新数据结构
+    const updateData: Partial<DataStructure> = {};
+    if (name !== undefined) updateData.name = name;
+    if (code !== undefined) updateData.code = code;
+    if (fields !== undefined) updateData.fields = fields;
+    if (description !== undefined) updateData.description = description;
+    if (isActive !== undefined) updateData.isActive = isActive;
+    if (keyIndexes !== undefined) updateData.keyIndexes = keyIndexes;
+    if (physicalStorage !== undefined) updateData.physicalStorage = physicalStorage;
+    if (validationErrors !== undefined) updateData.validationErrors = validationErrors;
 
-    // 保存更新
-    const updated = await dataStructureRepository.save(schema);
-    Logger.info({ message: '更新数据结构', name: schema.name, code: schema.code });
-    
+    // 如果有字段更新，增加版本号
+    if (fields !== undefined) {
+      updateData.version = (schema.version || 1) + 1;
+    }
+
+    await dataStructureRepository.update(id, updateData);
+    const updatedSchema = await dataStructureRepository.findOne({ where: { id } });
+
     // 如果有警告，返回警告信息
     if (warning) {
       res.json({
-        data: updated,
+        data: updatedSchema,
         warning: {
           message: warning.message,
           code: warning.code
         }
       });
     } else {
-      res.json(updated);
+      res.json(updatedSchema);
     }
   } catch (error) {
     if (error instanceof ValidationError) {
@@ -227,6 +247,7 @@ export const updateSchema = async (req: Request, res: Response) => {
 
 // 删除数据结构
 export const deleteSchema = async (req: Request, res: Response) => {
+  const dataStructureRepository = getDataSource().getRepository(DataStructure);
   try {
     const { id } = req.params;
     const schema = await dataStructureRepository.findOne({ where: { id } });

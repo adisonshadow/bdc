@@ -7,7 +7,7 @@ interface EnumOption {
   order?: number;
 }
 
-@Entity('enums')
+@Entity({ name: 'enums', schema: 'bdc' })
 export class Enum {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -29,8 +29,10 @@ export class Enum {
   name: string;
 
   @Column({ 
-    type: 'text', 
-    nullable: true 
+    type: 'varchar', 
+    length: 100,
+    nullable: true,
+    comment: '枚举描述'
   })
   description: string;
 

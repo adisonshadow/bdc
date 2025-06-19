@@ -80,7 +80,11 @@ export default (props: any) => {
   };
   const { initialState, loading, setInitialState } = initialInfo;
   const userConfig = {
-  "title": "BDC"
+  "locale": false,
+  "title": "BDC3",
+  "logo": "/logo.svg",
+  "layout": "top",
+  "fixedHeader": true
 };
 const formatMessage = undefined;
   const runtimeConfig = pluginManager.applyPlugins({

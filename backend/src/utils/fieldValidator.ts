@@ -59,8 +59,8 @@ export class FieldValidator {
     if (!field.enumConfig) {
       throw new ValidationError('枚举类型字段必须提供 enumConfig');
     }
-    if (!field.enumConfig.enumId) {
-      throw new ValidationError('枚举类型字段必须指定 enumId');
+    if (!field.enumConfig.targetEnumCode) {
+      throw new ValidationError('枚举类型字段必须指定 targetEnumCode');
     }
   }
 
@@ -92,8 +92,8 @@ export class FieldValidator {
     if (!field.relationConfig) {
       throw new ValidationError('关联类型字段必须提供 relationConfig');
     }
-    const { targetSchema, cascadeDelete, displayFields } = field.relationConfig;
-    if (!targetSchema) {
+    const { targetSchemaCode, cascadeDelete, displayFields } = field.relationConfig;
+    if (!targetSchemaCode) {
       throw new ValidationError('必须指定目标数据结构');
     }
     if (!['restrict', 'cascade', 'setNull'].includes(cascadeDelete)) {
@@ -161,11 +161,14 @@ export class FieldValidator {
    * @param fields 字段列表
    */
   static validateFields(fields: Field[]): void {
+    // 验证是否为数组
     if (!Array.isArray(fields)) {
       throw new ValidationError('字段列表必须是数组');
     }
+
+    // 如果字段列表为空，直接返回
     if (fields.length === 0) {
-      throw new ValidationError('字段列表不能为空');
+      return;
     }
 
     // 检查字段名称是否重复

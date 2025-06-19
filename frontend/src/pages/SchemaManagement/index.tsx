@@ -1,79 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { PageContainer } from '@ant-design/pro-layout';
-import { Card, Table, Button, Space, Tag, Tooltip, Switch, message, Modal, Form, Input, Select, List, Radio, InputNumber, Cascader } from 'antd';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Table, Button, Space, Tag, Tooltip, Switch, message, Modal, Form, Input, Select, List, Flex, InputNumber, Cascader, TreeSelect, Badge, Popconfirm } from 'antd';
 import type { CascaderProps } from 'antd';
 import type { DefaultOptionType } from 'antd/es/cascader';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, MoreOutlined, ApartmentOutlined } from '@ant-design/icons';
 import { Splitter } from 'antd';
 import { getSchemas, putSchemasId, postSchemas, deleteSchemasId } from '@/services/BDC/api/schemaManagement';
 import { getEnums } from '@/services/BDC/api/enumManagement';
+import { buildTree, enumTreeConfig } from '@/utils/treeBuilder';
+import { EnumTreeNode } from '@/types/enum';
+import SchemaValidator from '@/components/SchemaValidator';
+import { useNavigate } from 'react-router-dom';
 
 const { Option } = Select;
 
-const buildEnumTree = (enums: API.Enum[]): API.EnumTreeNode[] => {
-  const treeMap = new Map<string, API.EnumTreeNode>();
-  const rootNodes: API.EnumTreeNode[] = [];
-
-  // 首先，将所有枚举转换为树节点
-  enums.forEach(item => {
-    if (!item.id || !item.code || !item.name) return; // 跳过无效数据
-    
-    const parts = item.code.split(':');
-    let currentPath = '';
-    
-    // 为每一级创建节点
-    parts.forEach((part, index) => {
-      const path = index === 0 ? part : `${currentPath}:${part}`;
-      currentPath = path;
-      
-      if (!treeMap.has(path)) {
-        const isLeaf = index === parts.length - 1;
-        const matchedEnum = isLeaf ? item : enums.find(e => e.code === path);
-        const node: API.EnumTreeNode = {
-          value: path,
-          label: isLeaf ? `${part}（${matchedEnum?.description || ''}）` : part,
-          children: [],
-          id: isLeaf ? item.id : `temp_${path}`,
-          isActive: isLeaf ? !!item.isActive : true,
-          description: isLeaf ? item.description : undefined,
-          options: isLeaf ? item.options : undefined,
-          rawEnum: isLeaf ? item : undefined
-        };
-
-        treeMap.set(path, node);
-        
-        if (index === 0) {
-          rootNodes.push(node);
-        } else {
-          const parentPath = parts.slice(0, index).join(':');
-          const parentNode = treeMap.get(parentPath);
-          if (parentNode) {
-            if (!parentNode.children) {
-              parentNode.children = [];
-            }
-            parentNode.children.push(node);
-          }
-        }
-      }
-    });
-  });
-
-  // 清理没有子节点的 children 数组
-  const cleanupEmptyChildren = (nodes: API.EnumTreeNode[]) => {
-    nodes.forEach(node => {
-      if (node.children && node.children.length === 0) {
-        delete node.children;
-      } else if (node.children) {
-        cleanupEmptyChildren(node.children);
-      }
-    });
-  };
-  
-  cleanupEmptyChildren(rootNodes);
-  return rootNodes;
+// 判断字段是否可以用作关联字段
+const isValidRelationField = (field: Field) => {
+  // 可以用作唯一标识的字段类型
+  if (field.type === 'string' || field.type === 'number') {
+    return true;
+  }
+  return false;
 };
 
-type Field = API.StringField | API.TextField | API.NumberField | API.DateField | API.EnumField | API.RelationField | API.MediaField | API.ApiField;
+// 判断字段是否是主键
+const isPrimaryKeyField = (field: Field) => {
+  return field.type === 'string' && field.name === 'id';
+};
+
+type Field = API.UuidField | API.AutoIncrementField | API.StringField | API.TextField | API.NumberField | API.BooleanField | API.DateField | API.EnumField | API.RelationField | API.MediaField | API.ApiField;
+
+// 扩展 RelationField 类型
+interface ExtendedRelationField extends API.RelationField {
+  relationType?: 'oneToOne' | 'oneToMany' | 'manyToOne' | 'manyToMany';
+}
 
 interface SchemaListItem {
   id?: string;
@@ -87,6 +46,15 @@ interface SchemaListItem {
   fields: Field[];
 }
 
+interface SchemaTreeItem extends Omit<SchemaListItem, 'fields'> {
+  children?: SchemaTreeItem[];
+  parentCode?: string;
+  fields?: Field[];
+  code: string;
+  name: string;
+  disabled?: boolean;
+}
+
 const SchemaManagement: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [schemas, setSchemas] = useState<SchemaListItem[]>([]);
@@ -97,20 +65,31 @@ const SchemaManagement: React.FC = () => {
   const [schemaForm] = Form.useForm();
   const [fieldForm] = Form.useForm();
   const [fieldType, setFieldType] = useState<string>('');
-  const [stringType, setStringType] = useState<string>('');
-  const [dateType, setDateType] = useState<string>('');
+  const [numberType, setNumberType] = useState<string>('');
   const [enums, setEnums] = useState<API.Enum[]>([]);
-  const [enumTreeData, setEnumTreeData] = useState<API.EnumTreeNode[]>([]);
-  const [selectedEnumPath, setSelectedEnumPath] = useState<string[]>([]);
+  const [enumTreeData, setEnumTreeData] = useState<EnumTreeNode[]>([]);
   const [isEnumModalVisible, setIsEnumModalVisible] = useState(false);
   const [enumSearchValue, setEnumSearchValue] = useState('');
   const [selectedEnumId, setSelectedEnumId] = useState<string>();
   const [enumDisplayText, setEnumDisplayText] = useState<string>('');
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+  const [schemaTreeData, setSchemaTreeData] = useState<SchemaTreeItem[]>([]);
+  const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
+  const navigate = useNavigate();
+
+  // 使用 useMemo 缓存过滤后的枚举列表
+  const filteredEnums = useMemo(() => {
+    return enums.filter(e => {
+      return !enumSearchValue || 
+        e.name.toLowerCase().includes(enumSearchValue.toLowerCase()) ||
+        e.code.toLowerCase().includes(enumSearchValue.toLowerCase());
+    });
+  }, [enums, enumSearchValue]);
 
   // 字段类型选项
   const fieldTypes = [
     { label: 'UUID', value: 'uuid' },
-    { label: '自增长ID', value: 'auto-increment' },
+    { label: '自增长ID', value: 'auto_increment' },
     { label: '字符串', value: 'string' },
     { label: '文本', value: 'text' },
     { label: '数字', value: 'number' },
@@ -122,19 +101,57 @@ const SchemaManagement: React.FC = () => {
     { label: 'API', value: 'api' }
   ];
 
-  // 字符串类型选项
-  const stringTypes = [
-    { label: '短文本 (varchar)', value: 'varchar' },
-    { label: '长文本 (text)', value: 'text' },
-  ];
+  // 将扁平数据转换为树形结构
+  const buildSchemaTree = (schemas: SchemaListItem[]): SchemaTreeItem[] => {
+    const codeMap = new Map<string, SchemaTreeItem>();
+    const result: SchemaTreeItem[] = [];
+    const allCodes: string[] = []; // 收集所有节点的 code
 
-  // 日期类型选项
-  const dateTypes = [
-    { label: '年', value: 'year' },
-    { label: '年月', value: 'year-month' },
-    { label: '年月日', value: 'date' },
-    { label: '年月日时间', value: 'datetime' },
-  ];
+    // 首先创建所有节点
+    schemas.forEach(schema => {
+      const codes = schema.code.split(':');
+      let currentPath = '';
+      
+      codes.forEach((code, index) => {
+        const parentPath = currentPath;
+        currentPath = currentPath ? `${currentPath}:${code}` : code;
+        allCodes.push(currentPath); // 添加到所有 codes 列表
+        
+        if (!codeMap.has(currentPath)) {
+          const node: SchemaTreeItem = {
+            ...(index === codes.length - 1 ? {
+              ...schema,
+              fields: schema.fields || []
+            } : {}),
+            code: currentPath,
+            name: index === codes.length - 1 ? schema.name : code,
+            children: [],
+            parentCode: parentPath || undefined,
+            fields: index === codes.length - 1 ? schema.fields || [] : []
+          };
+          codeMap.set(currentPath, node);
+        }
+      });
+    });
+
+    // 构建树形结构
+    codeMap.forEach((node) => {
+      if (node.parentCode) {
+        const parent = codeMap.get(node.parentCode);
+        if (parent) {
+          parent.children = parent.children || [];
+          parent.children.push(node);
+        }
+      } else {
+        result.push(node);
+      }
+    });
+
+    // 设置所有节点为展开状态
+    setExpandedRowKeys(allCodes);
+
+    return result;
+  };
 
   const fetchSchemas = async () => {
     setLoading(true);
@@ -151,43 +168,59 @@ const SchemaManagement: React.FC = () => {
             id: fieldData.id,
             name: fieldData.name,
             description: fieldData.description,
-            isRequired: fieldData.isRequired,
-            defaultValue: fieldData.defaultValue
+            required: fieldData.required,
+            isPrimaryKey: fieldData.isPrimaryKey,
+            length: fieldData.length,
+            dateType: fieldData.dateType
           };
 
           switch (fieldData.type) {
+            case 'uuid': {
+              const typedField: API.UuidField = {
+                ...baseField,
+                type: 'uuid'
+              };
+              return typedField;
+            }
+            case 'auto_increment': {
+              const typedField: API.AutoIncrementField = {
+                ...baseField,
+                type: 'auto_increment'
+              };
+              return typedField;
+            }
             case 'string': {
               const typedField: API.StringField = {
                 ...baseField,
-                type: 'string',
-                length: fieldData.length
+                type: 'string'
               };
               return typedField;
             }
             case 'text': {
               const typedField: API.TextField = {
                 ...baseField,
-                type: 'text',
-                maxLength: fieldData.maxLength
+                type: 'text'
               };
               return typedField;
             }
             case 'number': {
               const typedField: API.NumberField = {
                 ...baseField,
-                type: 'number',
-                numberType: fieldData.numberType,
-                precision: fieldData.precision,
-                scale: fieldData.scale
+                type: 'number'
+              };
+              return typedField;
+            }
+            case 'boolean': {
+              const typedField: API.BooleanField = {
+                ...baseField,
+                type: 'boolean'
               };
               return typedField;
             }
             case 'date': {
               const typedField: API.DateField = {
                 ...baseField,
-                type: 'date',
-                dateType: fieldData.dateType,
-                useNowAsDefault: fieldData.useNowAsDefault
+                type: 'date'
               };
               return typedField;
             }
@@ -195,9 +228,11 @@ const SchemaManagement: React.FC = () => {
               const typedField: API.EnumField = {
                 ...baseField,
                 type: 'enum',
-                enumId: fieldData.enumId,
-                multiple: fieldData.multiple,
-                defaultValues: fieldData.defaultValues
+                enumConfig: fieldData.enumConfig || {
+                  targetEnumCode: fieldData.targetEnumCode,
+                  multiple: fieldData.multiple,
+                  defaultValues: fieldData.defaultValues
+                }
               };
               return typedField;
             }
@@ -205,11 +240,13 @@ const SchemaManagement: React.FC = () => {
               const typedField: API.RelationField = {
                 ...baseField,
                 type: 'relation',
-                targetSchema: fieldData.targetSchema,
-                targetField: fieldData.targetField,
-                multiple: fieldData.multiple,
-                cascadeDelete: fieldData.cascadeDelete,
-                displayFields: fieldData.displayFields
+                relationConfig: fieldData.relationConfig || {
+                  targetSchemaCode: fieldData.targetSchemaCode,
+                  targetField: fieldData.targetField,
+                  multiple: fieldData.multiple,
+                  cascadeDelete: fieldData.cascadeDelete,
+                  displayFields: fieldData.displayFields || []
+                }
               };
               return typedField;
             }
@@ -217,10 +254,12 @@ const SchemaManagement: React.FC = () => {
               const typedField: API.MediaField = {
                 ...baseField,
                 type: 'media',
-                mediaType: fieldData.mediaType,
-                formats: fieldData.formats,
-                maxSize: fieldData.maxSize,
-                multiple: fieldData.multiple
+                mediaConfig: fieldData.mediaConfig || {
+                  mediaType: fieldData.mediaType,
+                  formats: fieldData.formats || [],
+                  maxSize: fieldData.maxSize,
+                  multiple: fieldData.multiple
+                }
               };
               return typedField;
             }
@@ -228,11 +267,14 @@ const SchemaManagement: React.FC = () => {
               const typedField: API.ApiField = {
                 ...baseField,
                 type: 'api',
-                endpoint: fieldData.endpoint,
-                method: fieldData.method,
-                params: fieldData.params,
-                headers: fieldData.headers,
-                resultMapping: fieldData.resultMapping
+                apiConfig: fieldData.apiConfig || {
+                  endpoint: fieldData.endpoint,
+                  method: fieldData.method,
+                  multiple: fieldData.multiple,
+                  params: fieldData.params,
+                  headers: fieldData.headers,
+                  resultMapping: fieldData.resultMapping
+                }
               };
               return typedField;
             }
@@ -257,8 +299,9 @@ const SchemaManagement: React.FC = () => {
       });
 
       setSchemas(transformedData);
+      setSchemaTreeData(buildSchemaTree(transformedData));
     } catch (error) {
-      message.error('获取数据结构列表失败');
+      message.error('获取数据表列表失败');
     }
     setLoading(false);
   };
@@ -270,7 +313,7 @@ const SchemaManagement: React.FC = () => {
       console.log('枚举列表响应:', response);
       setEnums(response);
       // 构建枚举树
-      const treeData = buildEnumTree(response);
+      const treeData = buildTree(response, enumTreeConfig);
       console.log('枚举树数据:', treeData);
       setEnumTreeData(treeData);
     } catch (error: any) {
@@ -282,6 +325,19 @@ const SchemaManagement: React.FC = () => {
   useEffect(() => {
     fetchSchemas();
     fetchEnums();
+
+    const handleResize = () => {
+      setWindowHeight(window.innerHeight);
+    };
+
+    // 注册窗口大小变化事件
+    window.addEventListener('resize', handleResize);
+    
+    // 组件卸载时移除事件监听
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+
   }, []);
 
   const handleSchemaSelect = (schema: SchemaListItem) => {
@@ -324,99 +380,134 @@ const SchemaManagement: React.FC = () => {
     if (!selectedSchema?.id) return;
     
     try {
+      console.log('开始创建字段，values:', values);
+      
       let newField: Field;
       const baseFieldData = {
         id: crypto.randomUUID(),
         name: values.name,
         type: values.type as API.BaseField['type'],
         description: values.description,
-        isRequired: values.isRequired,
-        defaultValue: values.defaultValue
+        required: values.required,
+        isPrimaryKey: values.isPrimaryKey,
+        length: values.length,
+        dateType: values.dateType
       };
+
+      console.log('基础字段数据:', baseFieldData);
 
       // 根据字段类型创建正确的类型
       switch (values.type) {
+        case 'uuid':
+          newField = {
+            ...baseFieldData,
+            type: 'uuid'
+          } as API.UuidField;
+          break;
+        case 'auto_increment':
+          newField = {
+            ...baseFieldData,
+            type: 'auto_increment'
+          } as API.AutoIncrementField;
+          break;
         case 'string':
           newField = {
             ...baseFieldData,
-            type: 'string',
-            length: values.length
-          };
+            type: 'string'
+          } as API.StringField;
           break;
         case 'text':
           newField = {
             ...baseFieldData,
-            type: 'text',
-            maxLength: values.maxLength
-          };
+            type: 'text'
+          } as API.TextField;
           break;
         case 'number':
           newField = {
             ...baseFieldData,
-            type: 'number',
-            numberType: values.numberType,
-            precision: values.precision,
-            scale: values.scale
-          };
+            type: 'number'
+          } as API.NumberField;
+          break;
+        case 'boolean':
+          newField = {
+            ...baseFieldData,
+            type: 'boolean'
+          } as API.BooleanField;
           break;
         case 'date':
           newField = {
             ...baseFieldData,
-            type: 'date',
-            dateType: values.dateType,
-            useNowAsDefault: values.useNowAsDefault
-          };
+            type: 'date'
+          } as API.DateField;
           break;
         case 'enum':
           newField = {
             ...baseFieldData,
             type: 'enum',
-            enumId: values.enumId,
-            multiple: values.multiple,
-            defaultValues: values.defaultValues
-          };
+            enumConfig: {
+              targetEnumCode: values.targetEnumCode,
+              multiple: values.multiple,
+              defaultValues: values.defaultValues
+            }
+          } as API.EnumField;
           break;
         case 'relation':
           newField = {
             ...baseFieldData,
             type: 'relation',
-            targetSchema: values.targetSchema,
-            targetField: values.targetField,
-            multiple: values.multiple,
-            cascadeDelete: values.cascadeDelete,
-            displayFields: values.displayFields
-          };
+            relationConfig: {
+              targetSchemaCode: values.targetSchema,
+              targetField: values.targetField,
+              multiple: ['oneToMany', 'manyToMany'].includes(values.relationType),
+              cascadeDelete: values.cascadeDelete,
+              displayFields: values.displayFields || []
+            }
+          } as API.RelationField;
           break;
         case 'media':
           newField = {
             ...baseFieldData,
             type: 'media',
-            mediaType: values.mediaType,
-            formats: values.formats,
-            maxSize: values.maxSize,
-            multiple: values.multiple
-          };
+            mediaConfig: {
+              mediaType: values.mediaType,
+              formats: values.formats || [],
+              maxSize: values.maxSize,
+              multiple: values.multiple
+            }
+          } as API.MediaField;
           break;
         case 'api':
           newField = {
             ...baseFieldData,
             type: 'api',
-            endpoint: values.endpoint,
-            method: values.method,
-            params: values.params,
-            headers: values.headers,
-            resultMapping: values.resultMapping
-          };
+            apiConfig: {
+              endpoint: values.endpoint,
+              method: values.method,
+              multiple: values.multiple,
+              params: values.params,
+              headers: values.headers,
+              resultMapping: values.resultMapping
+            }
+          } as API.ApiField;
           break;
         default:
           throw new Error(`未知的字段类型: ${values.type}`);
       }
 
+      console.log('新创建的字段:', newField);
+
       const updatedFields = [...selectedSchema.fields, newField];
+      
+      console.log('准备发送的字段列表:', updatedFields);
+      console.log('发送到API的数据:', {
+        id: selectedSchema.id,
+        fields: updatedFields
+      });
+      
       await putSchemasId(
         { id: selectedSchema.id },
         {
-          fields: updatedFields
+          fields: updatedFields as any
         }
       );
       message.success('字段添加成功');
@@ -427,8 +518,19 @@ const SchemaManagement: React.FC = () => {
         ...selectedSchema,
         fields: updatedFields,
       });
-    } catch (error) {
-      message.error('字段添加失败');
+    } catch (error: any) {
+      console.error('字段添加失败，详细错误:', error);
+      console.error('错误响应:', error.response);
+      console.error('错误消息:', error.message);
+      
+      let errorMessage = '字段添加失败';
+      if (error.response?.data?.message) {
+        errorMessage += `: ${error.response.data.message}`;
+      } else if (error.message) {
+        errorMessage += `: ${error.message}`;
+      }
+      
+      message.error(errorMessage);
     }
   };
 
@@ -436,101 +538,137 @@ const SchemaManagement: React.FC = () => {
     if (!selectedSchema?.id) return;
     
     try {
+      console.log('开始编辑字段，values:', values);
+      console.log('当前字段索引:', index);
+      console.log('当前字段:', selectedSchema.fields[index]);
+      
       let updatedField: Field;
       const baseFieldData = {
         id: selectedSchema.fields[index].id,
         name: values.name,
         type: values.type as API.BaseField['type'],
         description: values.description,
-        isRequired: values.isRequired,
-        defaultValue: values.defaultValue
+        required: values.required,
+        isPrimaryKey: values.isPrimaryKey,
+        length: values.length,
+        dateType: values.dateType
       };
+
+      console.log('基础字段数据:', baseFieldData);
 
       // 根据字段类型创建正确的类型
       switch (values.type) {
+        case 'uuid':
+          updatedField = {
+            ...baseFieldData,
+            type: 'uuid'
+          } as API.UuidField;
+          break;
+        case 'auto_increment':
+          updatedField = {
+            ...baseFieldData,
+            type: 'auto_increment'
+          } as API.AutoIncrementField;
+          break;
         case 'string':
           updatedField = {
             ...baseFieldData,
-            type: 'string',
-            length: values.length
-          };
+            type: 'string'
+          } as API.StringField;
           break;
         case 'text':
           updatedField = {
             ...baseFieldData,
-            type: 'text',
-            maxLength: values.maxLength
-          };
+            type: 'text'
+          } as API.TextField;
           break;
         case 'number':
           updatedField = {
             ...baseFieldData,
-            type: 'number',
-            numberType: values.numberType,
-            precision: values.precision,
-            scale: values.scale
-          };
+            type: 'number'
+          } as API.NumberField;
+          break;
+        case 'boolean':
+          updatedField = {
+            ...baseFieldData,
+            type: 'boolean'
+          } as API.BooleanField;
           break;
         case 'date':
           updatedField = {
             ...baseFieldData,
-            type: 'date',
-            dateType: values.dateType,
-            useNowAsDefault: values.useNowAsDefault
-          };
+            type: 'date'
+          } as API.DateField;
           break;
         case 'enum':
           updatedField = {
             ...baseFieldData,
             type: 'enum',
-            enumId: values.enumId,
-            multiple: values.multiple,
-            defaultValues: values.defaultValues
-          };
+            enumConfig: {
+              targetEnumCode: values.targetEnumCode,
+              multiple: values.multiple,
+              defaultValues: values.defaultValues
+            }
+          } as API.EnumField;
           break;
         case 'relation':
           updatedField = {
             ...baseFieldData,
             type: 'relation',
-            targetSchema: values.targetSchema,
-            targetField: values.targetField,
-            multiple: values.multiple,
-            cascadeDelete: values.cascadeDelete,
-            displayFields: values.displayFields
-          };
+            relationConfig: {
+              targetSchemaCode: values.targetSchema,
+              targetField: values.targetField,
+              multiple: ['oneToMany', 'manyToMany'].includes(values.relationType),
+              cascadeDelete: values.cascadeDelete,
+              displayFields: values.displayFields || []
+            }
+          } as API.RelationField;
           break;
         case 'media':
           updatedField = {
             ...baseFieldData,
             type: 'media',
-            mediaType: values.mediaType,
-            formats: values.formats,
-            maxSize: values.maxSize,
-            multiple: values.multiple
-          };
+            mediaConfig: {
+              mediaType: values.mediaType,
+              formats: values.formats || [],
+              maxSize: values.maxSize,
+              multiple: values.multiple
+            }
+          } as API.MediaField;
           break;
         case 'api':
           updatedField = {
             ...baseFieldData,
             type: 'api',
-            endpoint: values.endpoint,
-            method: values.method,
-            params: values.params,
-            headers: values.headers,
-            resultMapping: values.resultMapping
-          };
+            apiConfig: {
+              endpoint: values.endpoint,
+              method: values.method,
+              multiple: values.multiple,
+              params: values.params,
+              headers: values.headers,
+              resultMapping: values.resultMapping
+            }
+          } as API.ApiField;
           break;
         default:
           throw new Error(`未知的字段类型: ${values.type}`);
       }
 
+      console.log('更新后的字段:', updatedField);
+
       const updatedFields = [...selectedSchema.fields];
       updatedFields[index] = updatedField;
+      
+      console.log('准备发送的字段列表:', updatedFields);
+      console.log('发送到API的数据:', {
+        id: selectedSchema.id,
+        fields: updatedFields
+      });
       
       await putSchemasId(
         { id: selectedSchema.id },
         {
-          fields: updatedFields
+          fields: updatedFields as any
         }
       );
       message.success('字段更新成功');
@@ -541,8 +679,19 @@ const SchemaManagement: React.FC = () => {
         ...selectedSchema,
         fields: updatedFields,
       });
-    } catch (error) {
-      message.error('字段更新失败');
+    } catch (error: any) {
+      console.error('字段更新失败，详细错误:', error);
+      console.error('错误响应:', error.response);
+      console.error('错误消息:', error.message);
+      
+      let errorMessage = '字段更新失败';
+      if (error.response?.data?.message) {
+        errorMessage += `: ${error.response.data.message}`;
+      } else if (error.message) {
+        errorMessage += `: ${error.message}`;
+      }
+      
+      message.error(errorMessage);
     }
   };
 
@@ -554,7 +703,7 @@ const SchemaManagement: React.FC = () => {
       await putSchemasId(
         { id: selectedSchema.id },
         {
-          fields: updatedFields
+          fields: updatedFields as any
         }
       );
       message.success('字段删除成功');
@@ -581,54 +730,79 @@ const SchemaManagement: React.FC = () => {
 
   const schemaColumns = [
     {
+      title: 'code',
+      dataIndex: 'code',
+      key: 'code',
+      render: (text: string, record: SchemaTreeItem) => {
+        // 获取当前层级的名称（最后一个冒号后的部分）
+        const currentLevelName = text.split(':').pop() || '';
+        return <span style={{ color: record.children?.length ? '#999' : undefined }}>{currentLevelName}</span>;
+      },
+    },
+    {
       title: '名称',
       dataIndex: 'name',
       key: 'name',
-      render: (text: string, record: SchemaListItem) => (
-        <div>
-          <div style={{ marginBottom: '4px' }}>
+      render: (text: string, record: SchemaTreeItem) => {
+        // 只有叶子节点显示完整信息
+        if (record.children?.length) {
+          return null;
+        }
+        return (
+          <div>
             <Space>
-              <Tag color={record.isActive ? 'success' : 'error'}>
-                {record.isActive ? '启用' : '禁用'}
-              </Tag>
-              <span>{text}</span>
-              <Tag color="blue">{record.code}</Tag>
+                <Badge status={record.isActive ? 'success' : 'default'}/>
+                <span>{text}</span>
             </Space>
+            {record.description && (
+              <div style={{ color: '#666', fontSize: '12px' }}>
+                {record.description}
+              </div>
+            )}
           </div>
-          {record.description && (
-            <div style={{ color: '#666', fontSize: '12px' }}>
-              {record.description}
-            </div>
-          )}
-        </div>
-      ),
+        );
+      },
     },
     {
       title: '操作',
       key: 'action',
-      width: 120,
-      render: (_: unknown, record: SchemaListItem) => (
-        <Space>
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            onClick={(e) => {
-              e.stopPropagation(); // 阻止事件冒泡
-              schemaForm.setFieldsValue(record);
-              setIsSchemaModalVisible(true);
-            }}
-          />
-          <Button
-            type="link"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={(e) => {
-              e.stopPropagation(); // 阻止事件冒泡
-              handleSchemaDelete(record.id!);
-            }}
-          />
-        </Space>
-      ),
+      fixed: 'right' as const,
+      width: 80,
+      render: (_: unknown, record: SchemaTreeItem) => {
+        // 只有叶子节点显示操作按钮
+        if (record.children?.length) return null;
+        return (
+          <Flex justify='end'>
+            <Button
+              type="link"
+              icon={<EditOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                schemaForm.setFieldsValue(record);
+                setIsSchemaModalVisible(true);
+              }}
+            />
+            <Popconfirm
+              title="删除数据表"
+              description={`确定要删除 "${record.name}" 吗？此操作不可恢复。`}
+              onConfirm={(e) => {
+                e?.stopPropagation();
+                handleSchemaDelete(record.id!);
+              }}
+              onCancel={(e) => e?.stopPropagation()}
+              okText="确定"
+              cancelText="取消"
+            >
+              <Button
+                type="link"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </Popconfirm>
+          </Flex>
+        );
+      },
     },
   ];
 
@@ -636,37 +810,46 @@ const SchemaManagement: React.FC = () => {
     if (!selectedSchema) {
       return (
         <div style={{ textAlign: 'center', padding: '20px' }}>
-          请选择左侧的数据结构
+          请选择左侧的数据表
         </div>
       );
     }
 
+    // 获取关系类型显示文本
+    const getRelationTypeText = (field: ExtendedRelationField) => {
+      const type = field.relationType || (field.relationConfig?.multiple ? 'oneToMany' : 'oneToOne');
+      switch (type) {
+        case 'oneToOne': return '1:1';
+        case 'oneToMany': return '1:n';
+        case 'manyToOne': return 'n:1';
+        case 'manyToMany': return 'm:n';
+        default: return '1:1';
+      }
+    };
+
+    // 获取目标数据表的描述信息
+    const getTargetSchemaDescription = (code: string | undefined) => {
+      if (!code) return '';
+      const schema = schemas.find(s => s.code === code);
+      return schema ? `${code}（${schema.name}）` : code;
+    };
+
+    // 获取枚举的描述信息
+    const getEnumDescription = (enumCode: string | undefined) => {
+      if (!enumCode) return '';
+      const enumItem = enums.find(e => e.code === enumCode);
+      if (!enumItem) return enumCode;
+      // 将冒号分隔的路径转换为斜杠分隔
+      const path = enumItem.code.replace(/:/g, ' / ');
+      return `${path}（${enumItem.description || enumItem.name}）`;
+    };
+
     return (
       <div style={{ padding: '16px' }}>
-        <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h3 style={{ margin: 0 }}>{selectedSchema.name}</h3>
-            <div style={{ color: '#666', fontSize: '12px' }}>{selectedSchema.description}</div>
-          </div>
-          <Tooltip title="新建字段">
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              shape='circle'
-              ghost={true}
-              size="small"
-              onClick={() => {
-                setEditingField(null);
-                fieldForm.resetFields();
-                setIsFieldModalVisible(true);
-              }}
-            />
-          </Tooltip>
-        </div>
         <List
           dataSource={selectedSchema.fields}
           size="small"
-          renderItem={(field, index) => (
+          renderItem={(field: Field, index: number) => (
             <List.Item
               key={field.id || index}
               className="px-0"
@@ -677,19 +860,24 @@ const SchemaManagement: React.FC = () => {
                   icon={<EditOutlined />}
                   shape='circle'
                   onClick={() => {
-                    setEditingField(field);
-                    fieldForm.setFieldsValue(field);
-                    setIsFieldModalVisible(true);
+                    handleEditField(field);
                   }}
                 />,
-                <Button
+                <Popconfirm
                   key="delete"
-                  type="link"
-                  shape='circle'
-                  danger
-                  icon={<DeleteOutlined />}
-                  onClick={() => handleFieldDelete(index)}
-                />,
+                  title="删除字段"
+                  description={`确定要删除字段 "${field.name}" 吗？此操作不可恢复。`}
+                  onConfirm={() => handleFieldDelete(index)}
+                  okText="确定"
+                  cancelText="取消"
+                >
+                  <Button
+                    type="link"
+                    shape='circle'
+                    danger
+                    icon={<DeleteOutlined />}
+                  />
+                </Popconfirm>,
               ]}
             >
               <List.Item.Meta
@@ -698,12 +886,15 @@ const SchemaManagement: React.FC = () => {
                     <span>{field.name}</span>
                     {field.description && <span>({field.description})</span>}
                     <Tag color="blue">{field.type}</Tag>
+                    {(field.type === 'uuid' || field.type === 'auto_increment') && field.isPrimaryKey && (
+                      <Tag color="red">PK</Tag>
+                    )}
                   </Space>
                 }
                 description={
                   <div style={{ marginTop: '4px' }}>
                     {/* 必填 */}
-                    {field.isRequired && <Tag color="red" bordered={false}>必填</Tag>}
+                    {field.required && <Tag color="cyan" bordered={false}>必填</Tag>}
                     {/* 长度 */}
                     {field.type === 'string' && (field as API.StringField).length && (
                       <Tag color="cyan" bordered={false}>
@@ -711,9 +902,9 @@ const SchemaManagement: React.FC = () => {
                       </Tag>
                     )}
                     {/* 长文本 */}
-                    {field.type === 'text' && (field as API.TextField).maxLength && (
+                    {field.type === 'text' && (
                       <Tag color="cyan" bordered={false}>
-                        TEXT({(field as API.TextField).maxLength})
+                        TEXT
                       </Tag>
                     )}
                     {/* 日期 */}
@@ -721,24 +912,38 @@ const SchemaManagement: React.FC = () => {
                       <Tag color="cyan" bordered={false}>{(field as API.DateField).dateType}</Tag>
                     )}
                     {/* 枚举 */}
-                    {field.type === 'enum' && (field as API.EnumField).enumId && (
-                      <Tag color="cyan" bordered={false}>枚举ID: {(field as API.EnumField).enumId}</Tag>
+                    {field.type === 'enum' && (field as API.EnumField).enumConfig && (
+                      <>
+                        <Tag color="cyan" bordered={false}>
+                          枚举: {getEnumDescription((field as API.EnumField).enumConfig?.targetEnumCode)}
+                        </Tag>
+                        {(field as API.EnumField).enumConfig?.multiple && (
+                          <Tag color="purple" bordered={false}>允许多选</Tag>
+                        )}
+                      </>
                     )}
                     {/* 关联 */}
-                    {field.type === 'relation' && (field as API.RelationField).targetSchema && (
-                      <Tag color="cyan" bordered={false}>关联: {(field as API.RelationField).targetSchema}</Tag>
+                    {field.type === 'relation' && (field as API.RelationField).relationConfig && (
+                      <>
+                        <Tag color="cyan" bordered={false}>
+                          {getRelationTypeText(field as ExtendedRelationField)}
+                        </Tag>
+                        <Tag color="cyan" bordered={false}>
+                          关联: {getTargetSchemaDescription((field as API.RelationField).relationConfig?.targetSchemaCode)}
+                        </Tag>
+                      </>
                     )}
                     {/* 媒体 */}
-                    {field.type === 'media' && (field as API.MediaField).mediaType && (
-                      <Tag color="cyan" bordered={false}>媒体类型: {(field as API.MediaField).mediaType}</Tag>
+                    {field.type === 'media' && (field as API.MediaField).mediaConfig && (
+                      <Tag color="cyan" bordered={false}>媒体类型: {(field as API.MediaField).mediaConfig?.mediaType}</Tag>
                     )}
                     {/* API */}
-                    {field.type === 'api' && (field as API.ApiField).endpoint && (
-                      <Tag color="cyan" bordered={false}>API: {(field as API.ApiField).endpoint}</Tag>
+                    {field.type === 'api' && (field as API.ApiField).apiConfig && (
+                      <Tag color="cyan" bordered={false}>API: {(field as API.ApiField).apiConfig?.endpoint}</Tag>
                     )}
-                    {/* 默认值 */}
-                    {field.defaultValue && (
-                      <Tag color="orange" bordered={false}>默认值: {field.defaultValue}</Tag>
+                    {/* 数字类型 */}
+                    {field.type === 'number' && (
+                      <Tag color="cyan" bordered={false}>数字</Tag>
                     )}
                   </div>
                 }
@@ -748,6 +953,25 @@ const SchemaManagement: React.FC = () => {
         />
       </div>
     );
+  };
+
+  // 树选择器的搜索过滤函数
+  const treeFilter = (inputValue: string, node: any) => {
+    return node.title.toLowerCase().includes(inputValue.toLowerCase()) ||
+           node.value.toLowerCase().includes(inputValue.toLowerCase());
+  };
+
+  // 级联选择器的变更处理函数
+  const handleEnumChange: CascaderProps<EnumTreeNode>['onChange'] = (_, selectedOptions) => {
+    if (selectedOptions && selectedOptions.length > 0) {
+      const lastOption = selectedOptions[selectedOptions.length - 1];
+      if (lastOption.isLeaf && lastOption.rawEnum) {
+        const selectedEnum = lastOption.rawEnum;
+        setSelectedEnumId(selectedEnum.code);
+        setEnumDisplayText(`${selectedEnum.code}（${selectedEnum.description || selectedEnum.name}）`);
+        fieldForm.setFieldValue('targetEnumCode', selectedEnum.code);
+      }
+    }
   };
 
   // 级联选择器的搜索过滤函数
@@ -763,415 +987,218 @@ const SchemaManagement: React.FC = () => {
     });
   };
 
-  // 级联选择器的变更处理函数
-  const handleEnumChange: CascaderProps<API.EnumTreeNode>['onChange'] = (_, selectedOptions) => {
-    if (!selectedOptions?.length) {
-      setSelectedEnumId(undefined);
-      setEnumDisplayText('');
-      fieldForm.setFieldValue('enumId', undefined);
-      return;
-    }
-
-    const lastOption = selectedOptions[selectedOptions.length - 1] as API.EnumTreeNode;
-    if (lastOption?.rawEnum) {
-      setSelectedEnumId(lastOption.rawEnum.id);
-      fieldForm.setFieldValue('enumId', lastOption.rawEnum.id);
-      // 构建显示路径
-      const displayPath = selectedOptions.map((opt, index) => {
-        const node = opt as API.EnumTreeNode;
-        const code = node.value.split(':').pop() || '';
-        // 如果是最后一个节点，添加 description
-        if (index === selectedOptions.length - 1) {
-          return `${code}（${node.rawEnum?.description || ''}）`;
-        }
-        return code;
-      }).join(' / ');
-      setEnumDisplayText(displayPath);
-    }
-  };
-
-  // 级联选择器的搜索处理函数
-  const handleEnumSearch = (value: string) => {
-    console.log('搜索枚举:', value);
-  };
-
-  // 修改枚举字段的表单项渲染
-  const renderEnumFormItems = () => (
-    <>
-      <Form.Item
-        name="enumId"
-        label="选择枚举"
-        rules={[{ required: true, message: '请选择枚举' }]}
-      >
-        <div>
-          <span style={{ marginRight: 8 }}>{enumDisplayText || '未选择'}</span>
-          <Cascader<API.EnumTreeNode>
-            options={enumTreeData}
-            onChange={handleEnumChange}
-            placeholder="请选择枚举"
-            showSearch={{ filter: enumFilter }}
-          >
-            <a>选择枚举</a>
-          </Cascader>
-        </div>
-      </Form.Item>
-      <Form.Item
-        name="multiple"
-        valuePropName="checked"
-        label="允许多选"
-      >
-        <Switch />
-      </Form.Item>
-    </>
-  );
-
-  // 在 renderFieldFormItems 函数中使用新的渲染函数
-  const renderFieldFormItems = () => {
-    const fieldType = fieldForm.getFieldValue('type');
-
-    return (
-      <>
-        <Form.Item
-          name="type"
-          label="类型"
-          rules={[{ required: true, message: '请选择类型' }]}
-        >
-          <Select onChange={(value) => {
-            // 当类型改变时，重置相关字段
-            fieldForm.resetFields(['length', 'maxLength', 'dateType', 'useNowAsDefault', 'enumId', 'mediaType', 'multiple', 'defaultValue']);
-            setFieldType(value);
-          }}>
-            {fieldTypes.map(type => (
-              <Option key={type.value} value={type.value}>{type.label}</Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        <Form.Item
-          name="name"
-          label="字段名"
-          rules={[{ validator: validateFieldName }]}
-        >
-          <Input placeholder="请输入字段名，必须以小写字母开头" />
-        </Form.Item>
-
-        {/* UUID和自增长ID类型特有的配置 */}
-        {(fieldType === 'uuid' || fieldType === 'auto-increment') && (
-          <Form.Item
-            name="isPrimaryKey"
-            valuePropName="checked"
-            label="是否主键"
-          >
-            <Switch />
-          </Form.Item>
-        )}
-
-        {/* 普通字段的通用配置（排除UUID和自增长ID） */}
-        {!['uuid', 'auto-increment'].includes(fieldType) && (
-          <>
-            <Form.Item
-              name="description"
-              label="描述"
-            >
-              <Input.TextArea placeholder="请输入字段描述" />
-            </Form.Item>
-
-            <Form.Item
-              name="isRequired"
-              valuePropName="checked"
-              label="是否必填"
-            >
-              <Switch />
-            </Form.Item>
-
-            {/* 字符串类型特有的配置 */}
-            {fieldType === 'string' && (
-              <Form.Item
-                name="length"
-                label="长度"
-                rules={[{ required: true, message: '请输入字符串长度' }]}
-              >
-                <InputNumber min={1} max={255} />
-              </Form.Item>
-            )}
-
-            {/* 文本类型特有的配置 */}
-            {fieldType === 'text' && (
-              <Form.Item
-                name="maxLength"
-                label="最大长度"
-              >
-                <InputNumber min={1} />
-              </Form.Item>
-            )}
-
-            {/* 数字类型特有的配置 */}
-            {fieldType === 'number' && (
-              <>
-                <Form.Item
-                  name="numberType"
-                  label="数字类型"
-                  rules={[{ required: true, message: '请选择数字类型' }]}
-                >
-                  <Select>
-                    <Option value="integer">整数</Option>
-                    <Option value="float">浮点数</Option>
-                    <Option value="decimal">精确小数</Option>
-                  </Select>
-                </Form.Item>
-                <Form.Item
-                  name="precision"
-                  label="精度"
-                >
-                  <InputNumber min={1} />
-                </Form.Item>
-                <Form.Item
-                  name="scale"
-                  label="小数位数"
-                >
-                  <InputNumber min={0} />
-                </Form.Item>
-              </>
-            )}
-
-            {/* 日期类型特有的配置 */}
-            {fieldType === 'date' && (
-              <>
-                <Form.Item
-                  name="dateType"
-                  label="日期格式"
-                  rules={[{ required: true, message: '请选择日期格式' }]}
-                >
-                  <Select>
-                    <Option value="year">年</Option>
-                    <Option value="year-month">年月</Option>
-                    <Option value="date">年月日</Option>
-                    <Option value="datetime">年月日时间</Option>
-                  </Select>
-                </Form.Item>
-                <Form.Item
-                  name="useNowAsDefault"
-                  valuePropName="checked"
-                  label="使用当前时间作为默认值"
-                >
-                  <Switch />
-                </Form.Item>
-              </>
-            )}
-
-            {/* 枚举类型特有的配置 */}
-            {fieldType === 'enum' && renderEnumFormItems()}
-
-            {/* 关联类型特有的配置 */}
-            {fieldType === 'relation' && (
-              <>
-                <Form.Item
-                  name="targetSchema"
-                  label="目标数据结构"
-                  rules={[{ required: true, message: '请选择目标数据结构' }]}
-                >
-                  <Select>
-                    {schemas.map(schema => (
-                      <Option key={schema.id} value={schema.id}>{schema.name}</Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-                <Form.Item
-                  name="targetField"
-                  label="关联字段"
-                >
-                  <Input placeholder="默认为主键" />
-                </Form.Item>
-                <Form.Item
-                  name="multiple"
-                  valuePropName="checked"
-                  label="允许多选"
-                >
-                  <Switch />
-                </Form.Item>
-                <Form.Item
-                  name="cascadeDelete"
-                  label="关联删除策略"
-                  rules={[{ required: true, message: '请选择关联删除策略' }]}
-                >
-                  <Select>
-                    <Option value="restrict">限制删除</Option>
-                    <Option value="cascade">级联删除</Option>
-                    <Option value="setNull">设置为空</Option>
-                  </Select>
-                </Form.Item>
-              </>
-            )}
-
-            {/* 媒体类型特有的配置 */}
-            {fieldType === 'media' && (
-              <>
-                <Form.Item
-                  name="mediaType"
-                  label="媒体类型"
-                  rules={[{ required: true, message: '请选择媒体类型' }]}
-                >
-                  <Select>
-                    <Option value="image">图片</Option>
-                    <Option value="video">视频</Option>
-                    <Option value="audio">音频</Option>
-                    <Option value="document">文档</Option>
-                    <Option value="file">文件</Option>
-                  </Select>
-                </Form.Item>
-                <Form.Item
-                  name="multiple"
-                  valuePropName="checked"
-                  label="允许多选"
-                >
-                  <Switch />
-                </Form.Item>
-                <Form.Item
-                  name="maxSize"
-                  label="最大文件大小(MB)"
-                >
-                  <InputNumber min={1} />
-                </Form.Item>
-                <Form.Item
-                  name="formats"
-                  label="允许的文件格式"
-                >
-                  <Select mode="tags" placeholder="请输入允许的文件格式，如: jpg, png">
-                    <Option value="jpg">jpg</Option>
-                    <Option value="png">png</Option>
-                    <Option value="pdf">pdf</Option>
-                    <Option value="doc">doc</Option>
-                    <Option value="docx">docx</Option>
-                  </Select>
-                </Form.Item>
-              </>
-            )}
-
-            {/* API类型特有的配置 */}
-            {fieldType === 'api' && (
-              <>
-                <Form.Item
-                  name="endpoint"
-                  label="API接口地址"
-                  rules={[{ required: true, message: '请输入API接口地址' }]}
-                >
-                  <Input placeholder="请输入API接口地址" />
-                </Form.Item>
-                <Form.Item
-                  name="method"
-                  label="请求方法"
-                  rules={[{ required: true, message: '请选择请求方法' }]}
-                >
-                  <Select>
-                    <Option value="GET">GET</Option>
-                    <Option value="POST">POST</Option>
-                    <Option value="PUT">PUT</Option>
-                    <Option value="DELETE">DELETE</Option>
-                  </Select>
-                </Form.Item>
-              </>
-            )}
-
-            {/* 默认值配置（排除特殊类型） */}
-            {!['date', 'enum', 'relation', 'media', 'api'].includes(fieldType) && (
-              <Form.Item
-                name="defaultValue"
-                label="默认值"
-              >
-                {fieldType === 'boolean' ? (
-                  <Switch checkedChildren="是" unCheckedChildren="否" />
-                ) : (
-                  <Input placeholder="请输入默认值" />
-                )}
-              </Form.Item>
-            )}
-          </>
-        )}
-      </>
-    );
+  // 处理树节点禁用逻辑
+  const processTreeData = (nodes: SchemaTreeItem[], currentCode: string): SchemaTreeItem[] => {
+    return nodes.map(node => {
+      const newNode = { ...node };
+      // 如果节点的值与当前数据表的代码相同，则禁用该节点
+      if (newNode.code === currentCode) {
+        newNode.disabled = true;
+      }
+      // 如果有子节点，递归处理
+      if (newNode.children) {
+        newNode.children = processTreeData(newNode.children, currentCode);
+      }
+      return newNode;
+    });
   };
 
   // 在编辑字段时设置选中路径和显示文本
   useEffect(() => {
-    if (editingField && editingField.type === 'enum' && editingField.enumId) {
-      const selectedEnum = enums.find(e => e.id === editingField.enumId);
+    if (editingField && editingField.type === 'enum' && editingField.enumConfig) {
+      const selectedEnum = enums.find(e => e.code === editingField.enumConfig?.targetEnumCode);
       if (selectedEnum) {
-        setSelectedEnumId(selectedEnum.id);
-        // 构建显示路径
-        const pathParts = selectedEnum.code.split(':');
-        const displayPath = pathParts.map((part, index) => {
-          if (index === pathParts.length - 1) {
-            return `${part}（${selectedEnum.description || ''}）`;
-          }
-          return part;
-        }).join(' / ');
-        setEnumDisplayText(displayPath);
+        setSelectedEnumId(selectedEnum.code);
+        setEnumDisplayText(`${selectedEnum.code}（${selectedEnum.description || selectedEnum.name}）`);
       }
-    } else {
-      setSelectedEnumId(undefined);
-      setEnumDisplayText('');
     }
   }, [editingField, enums]);
 
+  // 处理字段编辑时的表单数据设置
+  const handleEditField = (field: Field) => {
+    setEditingField(field);
+    
+    // 设置字段类型状态，确保表单能正确显示对应的配置项
+    setFieldType(field.type);
+    
+    // 设置基础字段值
+    const formData: any = {
+      name: field.name,
+      type: field.type,
+      description: field.description,
+      required: field.required,
+      isPrimaryKey: field.isPrimaryKey,
+      length: field.length,
+      dateType: field.dateType
+    };
+
+    // 根据字段类型设置特定的配置
+    switch (field.type) {
+      case 'enum':
+        if (field.enumConfig) {
+          formData.targetEnumCode = field.enumConfig.targetEnumCode;
+          formData.multiple = field.enumConfig.multiple;
+          formData.defaultValues = field.enumConfig.defaultValues;
+        }
+        break;
+      case 'relation':
+        if (field.relationConfig) {
+          formData.targetSchema = field.relationConfig.targetSchemaCode;
+          formData.targetField = field.relationConfig.targetField;
+          formData.cascadeDelete = field.relationConfig.cascadeDelete;
+          formData.displayFields = field.relationConfig.displayFields;
+          // 根据multiple设置relationType
+          if (field.relationConfig.multiple) {
+            formData.relationType = 'oneToMany';
+          } else {
+            formData.relationType = 'oneToOne';
+          }
+        }
+        break;
+      case 'media':
+        if (field.mediaConfig) {
+          formData.mediaConfig = field.mediaConfig;
+        }
+        break;
+      case 'api':
+        if (field.apiConfig) {
+          formData.apiConfig = field.apiConfig;
+        }
+        break;
+    }
+
+    fieldForm.setFieldsValue(formData);
+    setIsFieldModalVisible(true);
+  };
+
   return (
-    <PageContainer>
-      <Card bodyStyle={{ padding: 0 }}>
-        <Splitter style={{ height: 'calc(100vh - 200px)' }}>
-          <Splitter.Panel defaultSize="40%">
-            <div style={{ padding: '16px' }}>
-              <div style={{ marginBottom: '16px' }}>
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={() => {
-                    schemaForm.resetFields();
-                    setIsSchemaModalVisible(true);
-                  }}
-                >
-                  新建数据结构
-                </Button>
-              </div>
+    <div className="f-fullscreen">
+      <Splitter style={{ height: "calc(100vh - 57px)" }}>
+        <Splitter.Panel defaultSize="40%">
+          <div className="f-header">
+            <label className="fw-bold">数据表</label>
+            <Space>
+              <Button
+                type="link"
+                ghost
+                icon={<ApartmentOutlined />}
+                onClick={() => {
+                  navigate('/schema-graph');
+                }}
+              >
+                图谱
+              </Button>
+              <Button
+                type="primary"
+                ghost
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  schemaForm.resetFields();
+                  setIsSchemaModalVisible(true);
+                }}
+              >
+                新建表
+              </Button>
+            </Space>
+            
+          </div>
+          <div
+            className="pos-relative overflow-y"
+            style={{ height: "calc( 100% - 50px)" }}
+          >
+            <div className="pb-4">
               <Table
                 columns={schemaColumns}
-                dataSource={schemas}
-                rowKey="id"
+                dataSource={schemaTreeData}
+                rowKey="code"
                 loading={loading}
                 pagination={false}
+                showHeader={false}
                 size="small"
-                onRow={(record) => ({
-                  onClick: () => handleSchemaSelect(record),
+                expandable={{
+                  expandedRowKeys,
+                  onExpandedRowsChange: (expandedRows) => {
+                    setExpandedRowKeys(expandedRows as string[]);
+                  },
+                  childrenColumnName: "children",
+                  indentSize: 20,
+                }}
+                onRow={(record: any) => ({
+                  onClick: () => {
+                    // 只有叶子节点可以选中
+                    if (!record.children?.length) {
+                      handleSchemaSelect(record as SchemaListItem);
+                    }
+                  },
+                  className:
+                    !record.children?.length && selectedSchema?.id === record.id
+                      ? "ant-table-row-selected"
+                      : "",
                   style: {
-                    cursor: 'pointer',
-                    backgroundColor: selectedSchema?.id === record.id ? '#e6f7ff' : undefined,
+                    cursor: record.children?.length ? "default" : "pointer",
                   },
                 })}
               />
             </div>
-          </Splitter.Panel>
-          <Splitter.Panel>
-            {renderFieldList()}
-          </Splitter.Panel>
-        </Splitter>
-      </Card>
+          </div>
+        </Splitter.Panel>
+        <Splitter.Panel>
+          {
+            selectedSchema && (
+              <div className="f-header">
+                <Space>
+                  <span className='fw-bold'>{selectedSchema?.name}</span>
+                  { selectedSchema?.description && <span className='me-1'>({selectedSchema?.description})</span> }
+                  <span className='fw-bold me-2'> 的数据表字段</span>
+                  <SchemaValidator
+                    fields={selectedSchema?.fields ?? []}
+                    schemas={schemas}
+                  />
+                </Space>
+                <Tooltip title="新建字段">
+                  <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    shape="circle"
+                    ghost={true}
+                    size="small"
+                    onClick={() => {
+                      setEditingField(null);
+                      fieldForm.resetFields();
+                      setIsFieldModalVisible(true);
+                    }}
+                  />
+                </Tooltip>
+              </div>
+            )
+          }
+          <div
+            className="pos-relative overflow-y"
+            style={{ height: "calc( 100% - 50px)" }}
+          >
+            <div className="pb-4">{renderFieldList()}</div>
+          </div>
+        </Splitter.Panel>
+      </Splitter>
 
-      {/* 数据结构创建/编辑模态框 */}
+      {/* 数据表创建/编辑模态框 */}
       <Modal
-        title={selectedSchema ? "编辑数据结构" : "新建数据结构"}
+        title={selectedSchema ? "编辑数据表" : "新建数据表"}
         open={isSchemaModalVisible}
         onOk={() => schemaForm.submit()}
         onCancel={() => setIsSchemaModalVisible(false)}
       >
-        <Form
-          form={schemaForm}
-          layout="vertical"
-          onFinish={handleSchemaCreate}
-        >
+        <Form form={schemaForm} layout="vertical" onFinish={handleSchemaCreate}>
           <Form.Item
             name="name"
             label="名称"
             rules={[
-              { required: true, message: '请输入名称' },
-              { pattern: /^[a-z][a-z0-9_]*$/, message: '名称必须以小写字母开头，只能包含小写字母、数字和下划线' }
+              { required: true, message: "请输入名称" },
+              {
+                pattern: /^[a-z][a-z0-9_]*$/,
+                message:
+                  "名称必须以小写字母开头，只能包含小写字母、数字和下划线",
+              },
             ]}
           >
             <Input />
@@ -1180,16 +1207,16 @@ const SchemaManagement: React.FC = () => {
             name="code"
             label="代码"
             rules={[
-              { required: true, message: '请输入代码' },
-              { pattern: /^[a-zA-Z][a-zA-Z0-9_:]*$/, message: '代码必须以字母开头，只能包含字母、数字、下划线和冒号' }
+              { required: true, message: "请输入代码" },
+              {
+                pattern: /^[a-zA-Z][a-zA-Z0-9_:]*$/,
+                message: "代码必须以字母开头，只能包含字母、数字、下划线和冒号",
+              },
             ]}
           >
             <Input placeholder="例如：system:user" />
           </Form.Item>
-          <Form.Item
-            name="description"
-            label="描述"
-          >
+          <Form.Item name="description" label="描述">
             <Input.TextArea />
           </Form.Item>
           <Form.Item
@@ -1205,22 +1232,27 @@ const SchemaManagement: React.FC = () => {
 
       {/* 字段创建/编辑模态框 */}
       <Modal
-        title={editingField ? '编辑字段' : '新建字段'}
+        title={editingField ? "编辑字段" : "新建字段"}
         open={isFieldModalVisible}
         onOk={() => fieldForm.submit()}
         onCancel={() => {
           setIsFieldModalVisible(false);
-          setFieldType('');
+          setFieldType("");
           fieldForm.resetFields();
         }}
         width={720}
       >
         <Form
           form={fieldForm}
-          layout="vertical"
-          onFinish={(values) => {
+          layout="horizontal"
+          labelCol={{ span: 6 }}
+          wrapperCol={{ span: 16 }}
+          onFinish={(values: any) => {
             if (editingField) {
-              const index = selectedSchema?.fields.findIndex(f => f.id === editingField.id) ?? -1;
+              const index =
+                selectedSchema?.fields.findIndex(
+                  (f) => f.id === editingField.id
+                ) ?? -1;
               if (index !== -1) {
                 handleFieldEdit(values, index);
               }
@@ -1229,7 +1261,368 @@ const SchemaManagement: React.FC = () => {
             }
           }}
         >
-          {renderFieldFormItems()}
+          <Form.Item
+            name="type"
+            label="类型"
+            rules={[{ required: true, message: '请选择类型' }]}
+          >
+            <Select onChange={(value: any) => {
+              // 当类型改变时，重置相关字段
+              fieldForm.resetFields(['length', 'dateType', 'enumConfig', 'relationConfig', 'mediaConfig', 'apiConfig']);
+              setFieldType(value);
+              setNumberType('');
+            }}>
+              {fieldTypes.map(type => (
+                <Option key={type.value} value={type.value}>{type.label}</Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="name"
+            label="字段名"
+            rules={[{ validator: validateFieldName }]}
+          >
+            <Input placeholder="请输入字段名，必须以小写字母开头" />
+          </Form.Item>
+
+          <Form.Item
+            name="description"
+            label="描述"
+          >
+            <Input placeholder="请输入字段描述" />
+          </Form.Item>
+
+          <Form.Item
+            name="required"
+            valuePropName="checked"
+            label="是否必填"
+          >
+            <Switch />
+          </Form.Item>
+
+          {/* UUID和自增长ID类型特有的配置 */}
+          {(fieldType === 'uuid' || fieldType === 'auto_increment') && (
+            <Form.Item
+              name="isPrimaryKey"
+              valuePropName="checked"
+              label="是否主键"
+            >
+              <Switch />
+            </Form.Item>
+          )}
+
+          {/* 普通字段的通用配置（排除UUID和自增长ID） */}
+          {!['uuid', 'auto_increment'].includes(fieldType) && (
+            <>
+              {/* 字符串类型特有的配置 */}
+              {fieldType === 'string' && (
+                <Form.Item
+                  name="length"
+                  label="长度"
+                  rules={[{ required: true, message: '请输入字符串长度' }]}
+                >
+                  <InputNumber min={1} max={255} />
+                </Form.Item>
+              )}
+
+              {/* 数字类型特有的配置 */}
+              {fieldType === 'number' && (
+                <>
+                  <Form.Item
+                    name="numberType"
+                    label="数字类型"
+                    rules={[{ required: true, message: '请选择数字类型' }]}
+                  >
+                    <Select onChange={(value: any) => {
+                      setNumberType(value);
+                      if (value === 'integer') {
+                        fieldForm.setFieldsValue({ precision: undefined, scale: undefined });
+                      }
+                    }}>
+                      <Option value="integer">整数</Option>
+                      <Option value="float">浮点数</Option>
+                      <Option value="decimal">精确小数</Option>
+                    </Select>
+                  </Form.Item>
+                  {(numberType === 'float' || numberType === 'decimal') && (
+                    <>
+                      <Form.Item
+                        name="precision"
+                        label="精度"
+                        tooltip="数字的总位数，包括整数部分和小数部分"
+                        rules={[{ required: true, message: '请输入精度' }]}
+                      >
+                        <InputNumber min={1} max={65} />
+                      </Form.Item>
+                      <Form.Item
+                        name="scale"
+                        label="小数位数"
+                        tooltip="小数点后的位数，必须小于精度"
+                        rules={[
+                          { required: true, message: '请输入小数位数' },
+                          ({ getFieldValue }) => ({
+                            validator(_, value) {
+                              const precision = getFieldValue('precision');
+                              if (value > precision) {
+                                return Promise.reject('小数位数不能大于精度');
+                              }
+                              return Promise.resolve();
+                            },
+                          }),
+                        ]}
+                      >
+                        <InputNumber min={0} max={30} />
+                      </Form.Item>
+                    </>
+                  )}
+                </>
+              )}
+
+              {/* 日期类型特有的配置 */}
+              {fieldType === 'date' && (
+                <Form.Item
+                  name="dateType"
+                  label="日期格式"
+                  rules={[{ required: true, message: '请选择日期格式' }]}
+                >
+                  <Select>
+                    <Option value="year">年</Option>
+                    <Option value="year-month">年月</Option>
+                    <Option value="date">年月日</Option>
+                    <Option value="datetime">年月日时间</Option>
+                  </Select>
+                </Form.Item>
+              )}
+
+              {/* 枚举类型特有的配置 */}
+              {fieldType === 'enum' && (
+                <>
+                  <Form.Item
+                    name="targetEnumCode"
+                    label="选择枚举"
+                    rules={[{ required: true, message: '请选择枚举' }]}
+                  >
+                    <div>
+                      <span style={{ marginRight: 8 }}>{enumDisplayText || '未选择'}</span>
+                      <Cascader<EnumTreeNode>
+                        options={enumTreeData}
+                        onChange={handleEnumChange}
+                        placeholder="请选择枚举"
+                        showSearch={{ filter: enumFilter }}
+                      >
+                        <a>选择枚举</a>
+                      </Cascader>
+                    </div>
+                  </Form.Item>
+                  <Form.Item
+                    name="multiple"
+                    valuePropName="checked"
+                    label="允许多选"
+                  >
+                    <Switch />
+                  </Form.Item>
+                </>
+              )}
+
+              {/* 关联类型特有的配置 */}
+              {fieldType === 'relation' && (
+                <>
+                  <Form.Item
+                    name="relationType"
+                    label="关系类型"
+                    rules={[{ required: true, message: '请选择关系类型' }]}
+                    tooltip={{
+                      title: (
+                        <div>
+                          <p>一对一：每条记录只能关联一条目标记录（如：用户-用户详情）</p>
+                          <p>一对多：每条记录可以关联多条目标记录（如：部门-员工）</p>
+                          <p>多对一：多条记录可以关联同一条目标记录（如：员工-部门）</p>
+                          <p>多对多：双向多条记录关联（如：用户-角色）</p>
+                        </div>
+                      ),
+                    }}
+                  >
+                    <Select>
+                      <Option value="oneToOne">一对一 (1:1)</Option>
+                      <Option value="oneToMany">一对多 (1:n)</Option>
+                      <Option value="manyToOne">多对一 (n:1)</Option>
+                      <Option value="manyToMany">多对多 (m:n)</Option>
+                    </Select>
+                  </Form.Item>
+
+                  <Form.Item
+                    name="targetSchema"
+                    label="目标数据表"
+                    rules={[{ required: true, message: '请选择目标数据表' }]}
+                    tooltip={{
+                      title: '不能选择当前正在编辑的数据表作为关联目标'
+                    }}
+                  >
+                    <TreeSelect
+                      treeData={processTreeData(schemaTreeData, selectedSchema?.code || '').map(node => ({
+                        title: node.name,
+                        value: node.code,
+                        disabled: node.disabled,
+                        children: node.children?.map(child => ({
+                          title: child.name,
+                          value: child.code,
+                          disabled: child.disabled,
+                          children: child.children?.map(grandChild => ({
+                            title: grandChild.name,
+                            value: grandChild.code,
+                            disabled: grandChild.disabled,
+                            isLeaf: !grandChild.children?.length
+                          }))
+                        }))
+                      }))}
+                      placeholder="请选择目标数据表"
+                      allowClear
+                      showSearch
+                      treeNodeFilterProp="title"
+                      filterTreeNode={treeFilter}
+                      treeDefaultExpandAll
+                      onChange={(value) => {
+                        console.log('选择的目标数据表:', value);
+                        // 清空关联字段的选择
+                        fieldForm.setFieldValue('targetField', undefined);
+                      }}
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="targetField"
+                    label="关联字段"
+                    tooltip={{
+                      title: (
+                        <div>
+                          <p>选择目标数据表中用于关联的字段</p>
+                          <p>- 默认使用主键（id 字段）</p>
+                          <p>- 也可以选择其他唯一标识字段（如：商品编码、员工工号等）</p>
+                          <p>- 支持字符串和数字类型的字段</p>
+                        </div>
+                      ),
+                    }}
+                  >
+                    <Select
+                      placeholder="请选择关联字段"
+                      allowClear
+                      showSearch
+                    >
+                      {schemas.find(s => s.code === fieldForm.getFieldValue('targetSchema'))?.fields.map(field => (
+                        <Option 
+                          key={field.name} 
+                          value={field.name}
+                          disabled={!isValidRelationField(field)}
+                        >
+                          {field.name}
+                          {field.description ? ` (${field.description})` : ''}
+                          {isPrimaryKeyField(field) ? ' [主键]' : ''}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+
+                  <Form.Item
+                    name="cascadeDelete"
+                    label="关联删除策略"
+                    rules={[{ required: true, message: '请选择关联删除策略' }]}
+                    tooltip={{
+                      title: (
+                        <div>
+                          <p>限制删除：如果存在关联记录，则禁止删除</p>
+                          <p>级联删除：删除时同时删除关联记录</p>
+                          <p>设置为空：删除时将关联记录的关联字段设为空</p>
+                        </div>
+                      ),
+                    }}
+                  >
+                    <Select>
+                      <Option value="restrict">限制删除</Option>
+                      <Option value="cascade">级联删除</Option>
+                      <Option value="setNull">设置为空</Option>
+                    </Select>
+                  </Form.Item>
+                </>
+              )}
+
+              {/* 媒体类型特有的配置 */}
+              {fieldType === 'media' && (
+                <>
+                  <Form.Item
+                    name={['mediaConfig', 'mediaType']}
+                    label="媒体类型"
+                    rules={[{ required: true, message: '请选择媒体类型' }]}
+                  >
+                    <Select>
+                      <Option value="image">图片</Option>
+                      <Option value="video">视频</Option>
+                      <Option value="audio">音频</Option>
+                      <Option value="document">文档</Option>
+                      <Option value="file">文件</Option>
+                    </Select>
+                  </Form.Item>
+                  <Form.Item
+                    name={['mediaConfig', 'multiple']}
+                    valuePropName="checked"
+                    label="允许多选"
+                  >
+                    <Switch />
+                  </Form.Item>
+                  <Form.Item
+                    name={['mediaConfig', 'maxSize']}
+                    label="最大文件大小(MB)"
+                  >
+                    <InputNumber min={1} />
+                  </Form.Item>
+                  <Form.Item
+                    name={['mediaConfig', 'formats']}
+                    label="允许的文件格式"
+                  >
+                    <Select mode="tags" placeholder="请输入允许的文件格式，如: jpg, png">
+                      <Option value="jpg">jpg</Option>
+                      <Option value="png">png</Option>
+                      <Option value="pdf">pdf</Option>
+                      <Option value="doc">doc</Option>
+                      <Option value="docx">docx</Option>
+                    </Select>
+                  </Form.Item>
+                </>
+              )}
+
+              {/* API类型特有的配置 */}
+              {fieldType === 'api' && (
+                <>
+                  <Form.Item
+                    name={['apiConfig', 'endpoint']}
+                    label="API接口地址"
+                    rules={[{ required: true, message: '请输入API接口地址' }]}
+                  >
+                    <Input placeholder="请输入API接口地址" />
+                  </Form.Item>
+                  <Form.Item
+                    name={['apiConfig', 'method']}
+                    label="请求方法"
+                    rules={[{ required: true, message: '请选择请求方法' }]}
+                  >
+                    <Select>
+                      <Option value="GET">GET</Option>
+                      <Option value="POST">POST</Option>
+                      <Option value="PUT">PUT</Option>
+                      <Option value="DELETE">DELETE</Option>
+                    </Select>
+                  </Form.Item>
+                  <Form.Item
+                    name={['apiConfig', 'multiple']}
+                    valuePropName="checked"
+                    label="允许多选"
+                  >
+                    <Switch />
+                  </Form.Item>
+                </>
+              )}
+            </>
+          )}
         </Form>
       </Modal>
 
@@ -1238,51 +1631,35 @@ const SchemaManagement: React.FC = () => {
         title="选择枚举"
         open={isEnumModalVisible}
         onOk={() => {
-          console.log('选择枚举:', {
-            selectedEnumId,
-            selectedEnum: enums.find(e => e.id === selectedEnumId)
-          });
           if (selectedEnumId) {
-            fieldForm.setFieldValue('enumId', selectedEnumId);
+            fieldForm.setFieldValue("targetEnumCode", selectedEnumId);
             setIsEnumModalVisible(false);
           } else {
-            message.warning('请选择一个枚举');
+            message.warning("请选择一个枚举");
           }
         }}
         onCancel={() => {
           setIsEnumModalVisible(false);
-          setEnumSearchValue('');
+          setEnumSearchValue("");
         }}
         width={720}
       >
         <Input.Search
           placeholder="搜索枚举"
           value={enumSearchValue}
-          onChange={e => {
-            // console.log('搜索枚举:', e.target.value);
-            setEnumSearchValue(e.target.value);
-          }}
+          onChange={(e) => setEnumSearchValue(e.target.value)}
           style={{ marginBottom: 16 }}
         />
         <List
-          dataSource={enums.filter(e => {
-            const matched = !enumSearchValue || 
-              e.name.toLowerCase().includes(enumSearchValue.toLowerCase()) ||
-              e.code.toLowerCase().includes(enumSearchValue.toLowerCase());
-            console.log('枚举过滤:', {
-              enum: e,
-              searchValue: enumSearchValue,
-              matched
-            });
-            return matched;
-          })}
+          dataSource={filteredEnums}
           size="small"
-          renderItem={item => (
+          renderItem={(item: any) => (
             <List.Item
-              onClick={() => setSelectedEnumId(item.id)}
-              style={{ 
-                cursor: 'pointer',
-                backgroundColor: selectedEnumId === item.id ? '#e6f7ff' : undefined 
+              onClick={() => setSelectedEnumId(item.code)}
+              style={{
+                cursor: "pointer",
+                backgroundColor:
+                  selectedEnumId === item.code ? "#e6f7ff" : undefined,
               }}
             >
               <List.Item.Meta
@@ -1296,7 +1673,7 @@ const SchemaManagement: React.FC = () => {
                 description={item.description}
               />
               <div>
-                {item.options?.map(option => (
+                {item.options?.map((option: any) => (
                   <Tag key={option.value}>{option.label}</Tag>
                 ))}
               </div>
@@ -1304,7 +1681,7 @@ const SchemaManagement: React.FC = () => {
           )}
         />
       </Modal>
-    </PageContainer>
+    </div>
   );
 };
 

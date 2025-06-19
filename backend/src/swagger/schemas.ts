@@ -5,30 +5,59 @@
  *     BaseField:
  *       type: object
  *       required:
+ *         - id
  *         - name
  *         - type
+ *         - required
  *       properties:
  *         id:
  *           type: string
  *           format: uuid
- *           description: 字段ID（系统自动生成）
+ *           description: 字段唯一标识
  *         name:
  *           type: string
  *           pattern: ^[a-z][a-z0-9_]*$
- *           description: 字段名称（必须以小写字母开头，只能包含小写字母、数字和下划线）
+ *           description: 字段名称
  *         type:
  *           type: string
- *           enum: [uuid, auto-increment, string, text, number, boolean, date, enum, relation, media, api]
+ *           enum: [uuid, auto_increment, string, text, number, boolean, date, enum, relation, media, api]
  *           description: 字段类型
  *         description:
  *           type: string
- *           description: 字段描述（支持多行文本）
- *         isRequired:
+ *           description: 字段描述
+ *         required:
  *           type: boolean
  *           description: 是否必填
- *         defaultValue:
+ *         isPrimaryKey:
+ *           type: boolean
+ *           description: 是否为主键
+ *         length:
+ *           type: integer
+ *           description: 字段长度（适用于字符串类型）
+ *         dateType:
  *           type: string
- *           description: 默认值
+ *           enum: [year, year-month, date, datetime]
+ *           description: 日期类型（适用于date类型）
+ *
+ *     UuidField:
+ *       allOf:
+ *         - $ref: '#/components/schemas/BaseField'
+ *         - type: object
+ *           properties:
+ *             type:
+ *               type: string
+ *               enum: [uuid]
+ *               description: UUID类型
+ *
+ *     AutoIncrementField:
+ *       allOf:
+ *         - $ref: '#/components/schemas/BaseField'
+ *         - type: object
+ *           properties:
+ *             type:
+ *               type: string
+ *               enum: [auto_increment]
+ *               description: 自增长ID字段类型
  *
  *     StringField:
  *       allOf:
@@ -39,11 +68,6 @@
  *               type: string
  *               enum: [string]
  *               description: 字符串类型（varchar）
- *             length:
- *               type: integer
- *               minimum: 1
- *               maximum: 255
- *               description: 字符串长度限制
  *
  *     TextField:
  *       allOf:
@@ -54,11 +78,6 @@
  *               type: string
  *               enum: [text]
  *               description: 文本类型（text）
- *             maxLength:
- *               type: integer
- *               minimum: 1
- *               maximum: 65535
- *               description: 最大文本长度
  *
  *     NumberField:
  *       allOf:
@@ -68,16 +87,17 @@
  *             type:
  *               type: string
  *               enum: [number]
- *             numberType:
- *               type: string
- *               enum: [integer, float, decimal]
  *               description: 数字类型
- *             precision:
- *               type: integer
- *               description: 精度
- *             scale:
- *               type: integer
- *               description: 小数位数
+ *
+ *     BooleanField:
+ *       allOf:
+ *         - $ref: '#/components/schemas/BaseField'
+ *         - type: object
+ *           properties:
+ *             type:
+ *               type: string
+ *               enum: [boolean]
+ *               description: 布尔类型
  *
  *     DateField:
  *       allOf:
@@ -87,13 +107,7 @@
  *             type:
  *               type: string
  *               enum: [date]
- *             dateType:
- *               type: string
- *               enum: [year, year-month, date, datetime]
  *               description: 日期类型
- *             useNowAsDefault:
- *               type: boolean
- *               description: 是否使用当前时间作为默认值
  *
  *     EnumField:
  *       allOf:
@@ -103,18 +117,24 @@
  *             type:
  *               type: string
  *               enum: [enum]
- *             enumId:
- *               type: string
- *               format: uuid
- *               description: 关联的枚举定义ID
- *             multiple:
- *               type: boolean
- *               description: 是否允许多选
- *             defaultValues:
- *               type: array
- *               items:
- *                 type: string
- *               description: 默认选中的枚举值
+ *               description: 枚举类型
+ *             enumConfig:
+ *               type: object
+ *               required:
+ *                 - targetEnumCode
+ *                 - multiple
+ *               properties:
+ *                 targetEnumCode:
+ *                   type: string
+ *                   description: 关联的枚举定义代码
+ *                 multiple:
+ *                   type: boolean
+ *                   description: 是否允许多选
+ *                 defaultValues:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: 默认选中的枚举值
  *
  *     RelationField:
  *       allOf:
@@ -124,24 +144,36 @@
  *             type:
  *               type: string
  *               enum: [relation]
- *             targetSchema:
- *               type: string
- *               description: 目标数据表的schema标识
- *             targetField:
- *               type: string
- *               description: 关联的目标字段（默认为主键）
- *             multiple:
- *               type: boolean
- *               description: 是否允许多选
- *             cascadeDelete:
- *               type: string
- *               enum: [restrict, cascade, setNull]
- *               description: 关联记录删除时的处理策略
- *             displayFields:
- *               type: array
- *               items:
- *                 type: string
- *               description: 选择关联数据时展示的字段列表
+ *               description: 关联类型
+ *             relationConfig:
+ *               type: object
+ *               required:
+ *                 - targetSchemaCode
+ *                 - multiple
+ *                 - cascadeDelete
+ *                 - displayFields
+ *               properties:
+ *                 targetSchemaCode:
+ *                   type: string
+ *                   description: 目标数据表的schema代码
+ *                 targetField:
+ *                   type: string
+ *                   description: 关联的目标字段（默认为主键）
+ *                 multiple:
+ *                   type: boolean
+ *                   description: 是否允许多选
+ *                 cascadeDelete:
+ *                   type: string
+ *                   enum: [restrict, cascade, setNull]
+ *                   description: 关联记录删除时的处理策略
+ *                 displayFields:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: 选择关联数据时展示的字段列表
+ *                 filterCondition:
+ *                   type: object
+ *                   description: 过滤条件
  *
  *     MediaField:
  *       allOf:
@@ -151,21 +183,30 @@
  *             type:
  *               type: string
  *               enum: [media]
- *             mediaType:
- *               type: string
- *               enum: [image, video, audio, document, file]
  *               description: 媒体类型
- *             formats:
- *               type: array
- *               items:
- *                 type: string
- *               description: 允许的文件格式
- *             maxSize:
- *               type: number
- *               description: 最大文件大小限制（MB）
- *             multiple:
- *               type: boolean
- *               description: 是否允许多个媒体
+ *             mediaConfig:
+ *               type: object
+ *               required:
+ *                 - mediaType
+ *                 - formats
+ *                 - maxSize
+ *                 - multiple
+ *               properties:
+ *                 mediaType:
+ *                   type: string
+ *                   enum: [image, video, audio, document, file]
+ *                   description: 媒体类型
+ *                 formats:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: 允许的文件格式
+ *                 maxSize:
+ *                   type: number
+ *                   description: 最大文件大小限制（MB）
+ *                 multiple:
+ *                   type: boolean
+ *                   description: 是否允许多个媒体
  *
  *     ApiField:
  *       allOf:
@@ -175,22 +216,70 @@
  *             type:
  *               type: string
  *               enum: [api]
- *             endpoint:
- *               type: string
- *               description: API接口地址
- *             method:
- *               type: string
- *               enum: [GET, POST, PUT, DELETE]
- *               description: 请求方法
- *             params:
+ *               description: API数据源类型
+ *             apiConfig:
  *               type: object
- *               description: 请求参数配置
- *             headers:
- *               type: object
- *               description: 请求头配置
- *             resultMapping:
- *               type: object
- *               description: 返回结果映射配置
+ *               required:
+ *                 - endpoint
+ *                 - method
+ *                 - multiple
+ *                 - resultMapping
+ *               properties:
+ *                 endpoint:
+ *                   type: string
+ *                   description: API接口地址
+ *                 method:
+ *                   type: string
+ *                   enum: [GET, POST, PUT, DELETE]
+ *                   description: 请求方法
+ *                 multiple:
+ *                   type: boolean
+ *                   description: 是否允许多选
+ *                 params:
+ *                   type: object
+ *                   description: 请求参数配置
+ *                   additionalProperties:
+ *                     type: object
+ *                     properties:
+ *                       type:
+ *                         type: string
+ *                         enum: [static, field]
+ *                       value:
+ *                         description: 静态值
+ *                       field:
+ *                         type: string
+ *                         description: 字段名
+ *                       transform:
+ *                         type: string
+ *                         description: 转换函数
+ *                 headers:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: string
+ *                   description: 请求头配置
+ *                 resultMapping:
+ *                   type: object
+ *                   required:
+ *                     - path
+ *                     - fields
+ *                   properties:
+ *                     path:
+ *                       type: string
+ *                       description: 结果路径
+ *                     fields:
+ *                       type: object
+ *                       additionalProperties:
+ *                         type: string
+ *                       description: 字段映射
+ *                 cache:
+ *                   type: object
+ *                   properties:
+ *                     ttl:
+ *                       type: integer
+ *                       description: 缓存时间（秒）
+ *                     key:
+ *                       type: string
+ *                       description: 缓存键
  *
  *     EnumOption:
  *       type: object
@@ -234,6 +323,7 @@
  *           description: 枚举名称
  *         description:
  *           type: string
+ *           maxLength: 100
  *           description: 枚举描述
  *         options:
  *           type: array
@@ -290,10 +380,82 @@
  *         fields:
  *           type: array
  *           items:
- *             $ref: '#/components/schemas/BaseField'
+ *             oneOf:
+ *               - $ref: '#/components/schemas/UuidField'
+ *               - $ref: '#/components/schemas/AutoIncrementField'
+ *               - $ref: '#/components/schemas/StringField'
+ *               - $ref: '#/components/schemas/TextField'
+ *               - $ref: '#/components/schemas/NumberField'
+ *               - $ref: '#/components/schemas/BooleanField'
+ *               - $ref: '#/components/schemas/DateField'
+ *               - $ref: '#/components/schemas/EnumField'
+ *               - $ref: '#/components/schemas/RelationField'
+ *               - $ref: '#/components/schemas/MediaField'
+ *               - $ref: '#/components/schemas/ApiField'
  *           description: 字段定义列表
+ *         keyIndexes:
+ *           type: object
+ *           description: 主键和索引信息
+ *           properties:
+ *             primaryKey:
+ *               type: string
+ *               description: 主键字段名
+ *             indexes:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                     description: 索引名称
+ *                   fields:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                     description: 索引字段列表
+ *                   type:
+ *                     type: string
+ *                     enum: [unique, index]
+ *                     description: 索引类型
+ *         physicalStorage:
+ *           type: object
+ *           description: 物理存储信息
+ *           properties:
+ *             database:
+ *               type: string
+ *               description: 数据库名称
+ *             table:
+ *               type: string
+ *               description: 表名
+ *             lastMaterializedAt:
+ *               type: string
+ *               format: date-time
+ *               description: 上次物化时间
+ *             materializedVersion:
+ *               type: integer
+ *               description: 物化版本号
+ *         validationErrors:
+ *           type: array
+ *           description: 验证错误信息
+ *           items:
+ *             type: object
+ *             properties:
+ *               code:
+ *                 type: string
+ *                 description: 错误代码
+ *               message:
+ *                 type: string
+ *                 description: 错误消息
+ *               timestamp:
+ *                 type: string
+ *                 format: date-time
+ *                 description: 错误发生时间
+ *               details:
+ *                 type: object
+ *                 description: 错误详细信息
  *         description:
  *           type: string
+ *           maxLength: 100
  *           description: 数据结构描述
  *         isActive:
  *           type: boolean
@@ -310,6 +472,333 @@
  *           type: string
  *           format: date-time
  *           description: 更新时间
+ *
+ *     DatabaseConnection:
+ *       type: object
+ *       required:
+ *         - name
+ *         - type
+ *         - host
+ *         - port
+ *         - database
+ *         - username
+ *         - password
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *           description: 数据库连接ID
+ *         name:
+ *           type: string
+ *           maxLength: 100
+ *           description: 连接名称
+ *         description:
+ *           type: string
+ *           maxLength: 100
+ *           description: 连接描述
+ *         type:
+ *           type: string
+ *           enum: [postgresql, mysql, mongodb, sqlserver, oracle]
+ *           description: 数据库类型
+ *         host:
+ *           type: string
+ *           maxLength: 255
+ *           description: 主机地址
+ *         port:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 65535
+ *           description: 端口号
+ *         database:
+ *           type: string
+ *           maxLength: 100
+ *           description: 数据库名称
+ *         username:
+ *           type: string
+ *           maxLength: 100
+ *           description: 用户名
+ *         password:
+ *           type: string
+ *           maxLength: 255
+ *           description: 密码（加密存储）
+ *         schema:
+ *           type: string
+ *           maxLength: 100
+ *           description: Schema名称
+ *         sslConfig:
+ *           type: object
+ *           description: SSL配置
+ *           properties:
+ *             enabled:
+ *               type: boolean
+ *               description: 是否启用SSL
+ *             verifyServerCert:
+ *               type: boolean
+ *               description: 是否验证服务器证书
+ *             caCert:
+ *               type: string
+ *               description: CA证书内容
+ *             clientCert:
+ *               type: string
+ *               description: 客户端证书内容
+ *             clientKey:
+ *               type: string
+ *               description: 客户端密钥内容
+ *         poolConfig:
+ *           type: object
+ *           description: 连接池配置
+ *           properties:
+ *             min:
+ *               type: integer
+ *               description: 最小连接数
+ *             max:
+ *               type: integer
+ *               description: 最大连接数
+ *             idleTimeoutMillis:
+ *               type: integer
+ *               description: 空闲超时时间（毫秒）
+ *             connectionTimeoutMillis:
+ *               type: integer
+ *               description: 连接超时时间（毫秒）
+ *         monitorConfig:
+ *           type: object
+ *           description: 监控配置
+ *           properties:
+ *             enabled:
+ *               type: boolean
+ *               description: 是否启用监控
+ *             checkInterval:
+ *               type: integer
+ *               description: 检查间隔（秒）
+ *             metrics:
+ *               type: array
+ *               items:
+ *                 type: string
+ *               description: 监控指标列表
+ *             alertThresholds:
+ *               type: object
+ *               description: 告警阈值
+ *               properties:
+ *                 maxConnections:
+ *                   type: integer
+ *                   description: 最大连接数
+ *                 maxQueryTime:
+ *                   type: integer
+ *                   description: 最大查询时间
+ *                 maxErrorRate:
+ *                   type: number
+ *                   description: 最大错误率
+ *         status:
+ *           type: string
+ *           enum: [active, inactive, testing, failed, maintenance]
+ *           description: 连接状态
+ *         allowRemote:
+ *           type: boolean
+ *           description: 是否支持远程连接
+ *         allowedIps:
+ *           type: string
+ *           maxLength: 255
+ *           description: 允许的IP地址列表，多个用逗号分隔
+ *         lastTestAt:
+ *           type: string
+ *           format: date-time
+ *           description: 最后测试连接时间
+ *         lastTestSuccess:
+ *           type: boolean
+ *           description: 最后测试是否成功
+ *         lastTestError:
+ *           type: string
+ *           maxLength: 500
+ *           description: 最后测试错误信息
+ *         stats:
+ *           type: object
+ *           description: 连接统计信息
+ *           properties:
+ *             totalConnections:
+ *               type: integer
+ *               description: 总连接数
+ *             activeConnections:
+ *               type: integer
+ *               description: 活跃连接数
+ *             failedConnections:
+ *               type: integer
+ *               description: 失败连接数
+ *             lastErrorAt:
+ *               type: string
+ *               format: date-time
+ *               description: 最后错误时间
+ *             lastError:
+ *               type: string
+ *               description: 最后错误信息
+ *             avgQueryTime:
+ *               type: number
+ *               description: 平均查询时间
+ *             maxQueryTime:
+ *               type: number
+ *               description: 最大查询时间
+ *         isActive:
+ *           type: boolean
+ *           description: 是否启用
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: 创建时间
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: 更新时间
+ *
+ *     DatabaseConnectionCreate:
+ *       type: object
+ *       required:
+ *         - name
+ *         - type
+ *         - host
+ *         - port
+ *         - database
+ *         - username
+ *         - password
+ *       properties:
+ *         name:
+ *           type: string
+ *           maxLength: 100
+ *           description: 连接名称
+ *         description:
+ *           type: string
+ *           maxLength: 100
+ *           description: 连接描述
+ *         type:
+ *           type: string
+ *           enum: [postgresql, mysql, mongodb, sqlserver, oracle]
+ *           description: 数据库类型
+ *         host:
+ *           type: string
+ *           maxLength: 255
+ *           description: 主机地址
+ *         port:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 65535
+ *           description: 端口号
+ *         database:
+ *           type: string
+ *           maxLength: 100
+ *           description: 数据库名称
+ *         username:
+ *           type: string
+ *           maxLength: 100
+ *           description: 用户名
+ *         password:
+ *           type: string
+ *           maxLength: 255
+ *           description: 密码
+ *         schema:
+ *           type: string
+ *           maxLength: 100
+ *           description: Schema名称
+ *         sslConfig:
+ *           $ref: '#/components/schemas/DatabaseConnection/properties/sslConfig'
+ *         poolConfig:
+ *           $ref: '#/components/schemas/DatabaseConnection/properties/poolConfig'
+ *         monitorConfig:
+ *           $ref: '#/components/schemas/DatabaseConnection/properties/monitorConfig'
+ *         allowRemote:
+ *           type: boolean
+ *           description: 是否支持远程连接
+ *         allowedIps:
+ *           type: string
+ *           maxLength: 255
+ *           description: 允许的IP地址列表，多个用逗号分隔
+ *
+ *     DatabaseConnectionUpdate:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           maxLength: 100
+ *           description: 连接名称
+ *         description:
+ *           type: string
+ *           maxLength: 100
+ *           description: 连接描述
+ *         host:
+ *           type: string
+ *           maxLength: 255
+ *           description: 主机地址
+ *         port:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 65535
+ *           description: 端口号
+ *         database:
+ *           type: string
+ *           maxLength: 100
+ *           description: 数据库名称
+ *         username:
+ *           type: string
+ *           maxLength: 100
+ *           description: 用户名
+ *         password:
+ *           type: string
+ *           maxLength: 255
+ *           description: 密码
+ *         schema:
+ *           type: string
+ *           maxLength: 100
+ *           description: Schema名称
+ *         sslConfig:
+ *           $ref: '#/components/schemas/DatabaseConnection/properties/sslConfig'
+ *         poolConfig:
+ *           $ref: '#/components/schemas/DatabaseConnection/properties/poolConfig'
+ *         monitorConfig:
+ *           $ref: '#/components/schemas/DatabaseConnection/properties/monitorConfig'
+ *         allowRemote:
+ *           type: boolean
+ *           description: 是否支持远程连接
+ *         allowedIps:
+ *           type: string
+ *           maxLength: 255
+ *           description: 允许的IP地址列表，多个用逗号分隔
+ *         isActive:
+ *           type: boolean
+ *           description: 是否启用
+ *
+ *     DatabaseConnectionTest:
+ *       type: object
+ *       required:
+ *         - id
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *           description: 数据库连接ID
+ *
+ *     DatabaseConnectionTestResult:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           description: 测试是否成功
+ *         message:
+ *           type: string
+ *           description: 测试结果消息
+ *         connectionInfo:
+ *           type: object
+ *           description: 连接信息
+ *           properties:
+ *             version:
+ *               type: string
+ *               description: 数据库版本
+ *             serverTime:
+ *               type: string
+ *               format: date-time
+ *               description: 服务器时间
+ *             maxConnections:
+ *               type: integer
+ *               description: 最大连接数
+ *             currentConnections:
+ *               type: integer
+ *               description: 当前连接数
  */
 
 export {}; 

@@ -4,9 +4,12 @@
 import React from 'react';
 import {
   ConfigProvider,
+  theme,
 } from 'antd';
 import { ApplyPluginsType } from 'umi';
 import { getPluginManager } from '../core/plugin';
+import { AntdConfigContext, AntdConfigContextSetter } from './context';
+import merge from '/Users/yanfang/MOM/BDC/frontend/node_modules/lodash/merge'
 
 let cacheAntdConfig = null;
 
@@ -16,8 +19,12 @@ const getAntdConfig = () => {
       key: 'antd',
       type: ApplyPluginsType.modify,
       initialValue: {
+        ...{},
       },
     });
+    if (!cacheAntdConfig.theme) {
+      cacheAntdConfig.theme = {};
+    }
   }
   return cacheAntdConfig;
 }
@@ -30,6 +37,15 @@ function AntdProvider({ children }) {
       appConfig: _,
       ...finalConfigProvider
     } = getAntdConfig();
+      finalConfigProvider.theme ??= {};
+      finalConfigProvider.theme.algorithm ??= [];
+      if (!Array.isArray(finalConfigProvider.theme.algorithm)) {
+        finalConfigProvider.theme.algorithm = [finalConfigProvider.theme.algorithm];
+      }
+      const algorithm = finalConfigProvider.theme.algorithm;
+      if (!algorithm.includes(theme.darkAlgorithm)) {
+        algorithm.push(theme.darkAlgorithm);
+      }
     return finalConfigProvider
   });
   const setAntdConfig: typeof _setAntdConfig = (newConfig) => {
@@ -39,7 +55,36 @@ function AntdProvider({ children }) {
   }
 
 
+  if (antdConfig.prefixCls) {
+    ConfigProvider.config({
+      prefixCls: antdConfig.prefixCls,
+    });
+  };
 
+  if (antdConfig.iconPrefixCls) {
+    // Icons in message need to set iconPrefixCls via ConfigProvider.config()
+    ConfigProvider.config({
+      iconPrefixCls: antdConfig.iconPrefixCls,
+    });
+  };
+
+  if (antdConfig.theme) {
+    // Pass config theme to static method
+    ConfigProvider.config({
+      theme: antdConfig.theme,
+    });
+  }
+
+  container = <ConfigProvider {...antdConfig}>{container}</ConfigProvider>;
+
+
+  container = (
+    <AntdConfigContextSetter.Provider value={setAntdConfig}>
+      <AntdConfigContext.Provider value={antdConfig}>
+        {container}
+      </AntdConfigContext.Provider>
+    </AntdConfigContextSetter.Provider>
+  )
 
   return container;
 }

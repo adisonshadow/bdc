@@ -6,6 +6,7 @@ export { defineApp } from './core/defineApp'
 export type { RuntimeConfig } from './core/defineApp'
 // plugins
 export { Access, useAccess, useAccessMarkedRoutes } from '/Users/yanfang/MOM/BDC/frontend/src/.umi/plugin-access';
+export { useAntdConfig, useAntdConfigSetter } from '/Users/yanfang/MOM/BDC/frontend/src/.umi/plugin-antd';
 export { Provider, useModel } from '/Users/yanfang/MOM/BDC/frontend/src/.umi/plugin-model';
 export { useRequest, UseRequestProvider, request, getRequestInstance } from '/Users/yanfang/MOM/BDC/frontend/src/.umi/plugin-request';
 // plugins types.d.ts

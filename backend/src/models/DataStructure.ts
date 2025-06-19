@@ -20,7 +20,7 @@ export enum DateType {
   DATE = 'date',
   DATETIME = 'datetime'
 }
-
+ 
 export interface Field {
   id: string;
   name: string;
@@ -31,7 +31,7 @@ export interface Field {
   length?: number;
   dateType?: DateType;
   enumConfig?: {
-    enumId: string;
+    targetEnumCode: string;
     multiple: boolean;
     defaultValues?: string[];
   };
@@ -42,7 +42,7 @@ export interface Field {
     multiple: boolean;
   };
   relationConfig?: {
-    targetSchema: string;
+    targetSchemaCode: string;
     targetField?: string;
     multiple: boolean;
     cascadeDelete: 'restrict' | 'cascade' | 'setNull';
@@ -83,6 +83,7 @@ export class DataStructure {
     type: 'varchar', 
     length: 100, 
     nullable: false, 
+    comment: '数据表的唯一标识',
     unique: true 
   })
   code: string;
@@ -96,10 +97,62 @@ export class DataStructure {
   })
   name: string;
 
-  @Column({ name: 'fields', type: 'jsonb', nullable: false })
+  @Column({ 
+    name: 'fields', 
+    type: 'jsonb', 
+    nullable: false, 
+    comment: '数据表的字段信息' 
+  })
   fields: Field[];
 
-  @Column({ name: 'description', type: 'text', nullable: true })
+  @Column({ 
+    name: 'key_indexes', 
+    type: 'jsonb', 
+    nullable: true,
+    comment: '存储表的主键和索引信息'
+  })
+  keyIndexes: {
+    primaryKey?: string;
+    indexes?: Array<{
+      name: string;
+      fields: string[];
+      type: 'unique' | 'index';
+    }>;
+  };
+
+  @Column({ 
+    name: 'physical_storage', 
+    type: 'jsonb', 
+    nullable: true,
+    comment: '存储表的物理存储信息'
+  })
+  physicalStorage: {
+    database?: string;
+    table?: string;
+    lastMaterializedAt?: Date;
+    materializedVersion?: number;
+  };
+
+  @Column({ 
+    name: 'validation_errors', 
+    type: 'jsonb', 
+    nullable: true,
+    comment: '存储表检测未通过的原因'
+  })
+  validationErrors: Array<{
+    code: string;
+    message: string;
+    timestamp: Date;
+    details?: Record<string, any>;
+  }>;
+
+  @Column({ 
+    name: 'description', 
+    type: 'varchar', 
+    length: 100,  
+    nullable: true, 
+    comment: '数据表的描述' 
+  })
   description: string;
 
   @Column({ name: 'is_active', type: 'boolean', nullable: false, default: true })

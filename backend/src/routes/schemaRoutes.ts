@@ -66,7 +66,9 @@ const router = Router();
  *               - name: "status"
  *                 type: "enum"
  *                 description: "用户状态"
- *                 enumId: "550e8400-e29b-41d4-a716-446655440000"
+ *                 enumConfig:
+ *                   targetEnumCode: "user:status"
+ *                   multiple: false
  *                 isRequired: true
  *     responses:
  *       201:
@@ -150,7 +152,9 @@ const router = Router();
  *                     name: "status"
  *                     type: "enum"
  *                     description: "用户状态"
- *                     enumId: "550e8400-e29b-41d4-a716-446655440000"
+ *                     enumConfig:
+ *                       targetEnumCode: "user:status"
+ *                       multiple: false
  *                     isRequired: true
  *               - id: "550e8400-e29b-41d4-a716-446655440002"
  *                 name: "商品信息"
@@ -182,7 +186,9 @@ const router = Router();
  *                     name: "category"
  *                     type: "enum"
  *                     description: "商品分类"
- *                     enumId: "550e8400-e29b-41d4-a716-446655440003"
+ *                     enumConfig:
+ *                       targetEnumCode: "product:category"
+ *                       multiple: false
  *                     isRequired: true
  *                   - id: "6ba7b810-9dad-11d1-80b4-00c04fd430cc"
  *                     name: "images"

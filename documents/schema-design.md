@@ -1,170 +1,359 @@
 # Schema 设计规范文档
+## 数据表 DataStructure
 
-## 字段基本属性
+数据表定义用于管理系统中的所有业务数据表结构，支持动态创建和管理数据表。
+
+### 1. 数据表属性
+
+1. **基本信息**
+   - `id`: UUID，系统自动生成的主键
+   - `code`: 字符串，数据表的唯一标识符
+     - 支持多级结构，使用 `:` 分隔
+     - 示例：`system:user`、`business:order`、`report:sales`
+     - 命名规则：`^[a-zA-Z][a-zA-Z0-9_]*(:[a-zA-Z][a-zA-Z0-9_]*)*$`
+   - `name`: 字符串，数据表名称
+     - 命名规则：`^[a-z][a-z0-9_]*$`
+   - `fields`: JSONB，字段定义列表
+     - 详细定义请参考 [字段定义](#字段定义) 章节
+   - `key_indexes`: JSONB，主键和索引信息
+     - 包含主键、唯一索引、普通索引等配置
+   - `physical_storage`: JSONB，物理存储信息
+     - 包含存储引擎、字符集、排序规则等配置
+   - `validation_errors`: JSONB，验证错误信息
+     - 记录表结构验证过程中的错误信息
+   - `description`: 字符串，数据表描述
+   - `is_active`: 布尔值，是否激活
+   - `version`: 整数，版本号
+   - `created_at`: 时间戳，创建时间
+   - `updated_at`: 时间戳，更新时间
+
+2. **数据库约束**
+   - 主键约束：`id` 字段作为主键
+   - 唯一约束：
+     - `code` 字段唯一
+     - `name` 字段唯一
+   - 非空约束：
+     - `code` 字段非空
+     - `name` 字段非空
+     - `fields` 字段非空
+     - `version` 字段非空
+     - `is_active` 字段非空
+     - `created_at` 字段非空
+     - `updated_at` 字段非空
+   - 检查约束：
+     - `code` 格式检查：`^[a-zA-Z][a-zA-Z0-9_]*(:[a-zA-Z][a-zA-Z0-9_]*)*$`
+     - `name` 格式检查：`^[a-z][a-z0-9_]*$`
+
+3. **索引定义**
+   - `idx_data_structures_code`: 对 `code` 字段创建索引
+   - `idx_data_structures_name`: 对 `name` 字段创建索引
+   - `idx_data_structures_is_active`: 对 `is_active` 字段创建索引
+
+4. **触发器**
+   - `update_data_structures_updated_at`: 自动更新 `updated_at` 字段
+
+### 2. 命名规范
+
+1. **表名（code）**
+   - 使用多级结构，用 `:` 分隔
+   - 建议格式：`模块:实体`
+   - 示例：
+     - `system:user` - 用户表
+     - `system:role` - 角色表
+     - `business:order` - 订单表
+     - `business:product` - 产品表
+     - `report:sales` - 销售报表
+
+2. **字段名（name）**
+   - 使用小写字母
+   - 单词间用下划线连接
+   - 示例：
+     - `user_id` - 用户ID
+     - `created_at` - 创建时间
+     - `order_status` - 订单状态
+     - `product_name` - 产品名称
+
+### 3. 最佳实践
+
+1. **表设计原则**
+   - 遵循数据库范式
+   - 合理使用主键
+   - 适当使用索引
+   - 考虑扩展性
+   - 注意性能影响
+
+2. **索引设计**
+   - 主键索引
+   - 唯一索引
+   - 普通索引
+   - 复合索引
+   - 考虑查询性能
+
+3. **关联设计**
+   - 合理使用外键
+   - 设置级联规则
+   - 注意循环引用
+   - 考虑查询效率
+   - 维护数据完整性
+
+### 4. 示例
+
+```typescript
+// 用户表定义示例
+{
+  code: "system:user",
+  name: "user",
+  description: "系统用户表",
+  version: 1,
+  fields: [
+    {
+      name: "id",
+      type: "uuid",
+      isPrimaryKey: true,
+      allowNull: false,
+      comment: "用户ID"
+    },
+    {
+      name: "username",
+      type: "string",
+      length: 50,
+      allowNull: false,
+      comment: "用户名"
+    },
+    {
+      name: "email",
+      type: "string",
+      length: 100,
+      allowNull: false,
+      comment: "电子邮箱"
+    },
+    {
+      name: "password",
+      type: "string",
+      length: 100,
+      allowNull: false,
+      comment: "密码（加密存储）"
+    },
+    {
+      name: "status",
+      type: "enum",
+      enumId: "system:user:status",
+      allowNull: false,
+      defaultValue: "active",
+      comment: "用户状态"
+    },
+    {
+      name: "role_ids",
+      type: "relation",
+      targetSchema: "system:role",
+      multiple: true,
+      cascadeDelete: "restrict",
+      displayFields: ["name", "code"],
+      comment: "用户角色"
+    },
+    {
+      name: "avatar",
+      type: "media",
+      mediaType: "image",
+      formats: ["jpg", "jpeg", "png"],
+      maxSize: 2,
+      allowNull: true,
+      comment: "用户头像"
+    },
+    {
+      name: "department_id",
+      type: "relation",
+      targetSchema: "system:department",
+      multiple: false,
+      cascadeDelete: "setNull",
+      displayFields: ["name", "code"],
+      comment: "所属部门"
+    },
+    {
+      name: "created_at",
+      type: "date",
+      dateType: "datetime",
+      useNowAsDefault: true,
+      allowNull: false,
+      comment: "创建时间"
+    }
+  ],
+  key_indexes: [
+    {
+      type: "primary",
+      fields: ["id"]
+    },
+    {
+      type: "unique",
+      fields: ["username"],
+      name: "uk_user_username"
+    },
+    {
+      type: "unique",
+      fields: ["email"],
+      name: "uk_user_email"
+    },
+    {
+      type: "index",
+      fields: ["status"],
+      name: "idx_user_status"
+    },
+    {
+      type: "index",
+      fields: ["department_id"],
+      name: "idx_user_department"
+    }
+  ],
+  physical_storage: {
+    engine: "InnoDB",
+    charset: "utf8mb4",
+    collation: "utf8mb4_unicode_ci"
+  }
+}
+```
+
+## 字段定义
+
+### 1. 字段属性
 
 每个字段都具有以下基本属性：
 
-1. **ID**
-   - 用于系统内部标识字段的唯一标识符
-   - 系统自动生成，确保全局唯一性
+1. **基本信息**
+   - `name`: 字符串，字段名称
+     - 命名规则：`^[a-z][a-z0-9_]*$`
+   - `type`: 字段类型
+     - 详细类型说明请参考 [字段类型](#字段类型) 章节
+   - `isPrimaryKey`: 布尔值，是否主键
+   - `allowNull`: 布尔值，是否允许为空
+   - `length`: 数字，字段长度（适用于字符串类型）
+   - `comment`: 字符串，字段描述
+   - `defaultValue`: 任意类型，默认值
 
-2. **字段名称 (name)**
-   - 必填项（require）
-   - 命名规则：
-     - 必须以小写字母开头
-     - 只能包含小写字母、数字和下划线
-     - 正则表达式校验：`^[a-z][a-z0-9_]*$`
+2. **扩展属性**
+   - 日期类型扩展：
+     - `dateType`: 日期格式（year/year-month/date/datetime）
+     - `useNowAsDefault`: 布尔值，是否使用当前时间作为默认值
+   - 枚举类型扩展：
+     - `enumId`: 字符串，关联的枚举定义ID
+     - `multiple`: 布尔值，是否允许多选
+     - `defaultValues`: 数组，默认选中的枚举值
+   - 媒体类型扩展：
+     - `mediaType`: 媒体类型（image/video/audio/document/file）
+     - `formats`: 数组，允许的文件格式
+     - `maxSize`: 数字，最大文件大小（MB）
+     - `multiple`: 布尔值，是否允许多个文件
+   - 关联类型扩展：
+     - `targetSchema`: 字符串，目标数据表的schema标识
+     - `targetField`: 字符串，关联的目标字段
+     - `multiple`: 布尔值，是否允许多选
+     - `cascadeDelete`: 字符串，级联删除策略
+     - `displayFields`: 数组，显示字段列表
+     - `filterCondition`: 对象，过滤条件
+   - API数据源扩展：
+     - `endpoint`: 字符串，API接口地址
+     - `method`: 字符串，请求方法
+     - `params`: 对象，请求参数配置
+     - `resultMapping`: 对象，返回结果映射
+     - `cache`: 对象，缓存配置
 
-3. **字段描述 (commit)**
-   - 可选项
-   - 用于描述字段的用途和含义
-   - 支持多行文本
-
-## 字段类型 (fieldTypes)
-
-系统支持以下字段类型：
+### 2. 字段类型
 
 1. **基础类型**
-   - UUID
-   - 自增长ID (auto-increment)
-   - 字符串 (string, 类似 varchar)
-   - 长文本 (text, 类似 text)
-   - 数字 (number)
-   - 布尔值 (boolean)
-   - 日期 (date)
-   - 枚举 (enum)：支持单选和多选模式，可绑定预定义的枚举项
-   - 关联ID (relation)：引用其他业务表的主键，支持单选和多选
-   - 媒体 (media)：支持文件、图片、视频等媒体资源
-   - API数据源 (api)：动态调用API获取数据，支持参数绑定
+   - `uuid`: UUID 类型
+     - 用于系统内部标识
+     - 自动生成，全局唯一
+   - `auto-increment`: 自增长 ID
+     - 用于业务主键
+     - 自动递增
+   - `string`: 字符串类型
+     - 支持设置长度限制
+     - 适用于短文本
+   - `text`: 长文本类型
+     - 无长度限制
+     - 适用于大段文本
+   - `number`: 数字类型
+     - 支持整数和小数
+     - 可设置精度
+   - `boolean`: 布尔类型
+     - true/false 值
+   - `date`: 日期类型
+     - 支持多种日期格式
+     - 可设置默认值
 
-2. **日期类型细分**
-   - 年 (year)
-   - 年月 (year-month)
-   - 年月日 (date)
-   - 年月日时间 (datetime)
+2. **扩展类型**
+   - `enum`: 枚举类型
+     - 关联预定义的枚举定义
+     - 支持单选和多选
+     - 可设置默认值
+   - `relation`: 关联类型
+     - 关联其他数据表
+     - 支持单选和多选
+     - 可设置级联规则
+   - `media`: 媒体类型
+     - 支持多种媒体格式
+     - 可设置大小限制
+     - 支持单文件和多文件
+   - `api`: API 数据源
+     - 动态获取数据
+     - 支持参数配置
+     - 支持缓存策略
 
-## 字段扩展属性
+### 3. 最佳实践
 
-根据不同的字段类型，字段可能具有以下扩展属性：
+1. **字段设计原则**
+   - 选择合适的字段类型
+   - 设置合理的长度限制
+   - 添加必要的约束
+   - 提供清晰的描述
+   - 考虑默认值
 
-1. **主键属性 (isPrimaryKey)**
-   - 适用类型：UUID、自增长ID
-   - 用于标识该字段是否作为表的主键
-   - 一个表只能有一个主键
+2. **类型选择**
+   - 主键使用 UUID 或自增长 ID
+   - 短文本使用 string 类型
+   - 长文本使用 text 类型
+   - 金额使用 number 类型
+   - 状态使用 enum 类型
+   - 关联使用 relation 类型
+   - 文件使用 media 类型
+   - 动态数据使用 api 类型
 
-2. **长度属性 (length)**
-   - 适用类型：字符串(varchar)、数字
-   - 对于 varchar：1-65535 之间的整数
-   - 对于数字：根据具体数字类型定义
+3. **约束使用**
+   - 合理使用非空约束
+   - 适当使用唯一约束
+   - 设置合适的默认值
+   - 添加必要的检查约束
+   - 注意外键约束
 
-3. **日期格式 (dateType)**
-   - 适用类型：日期
-   - 可选值：
-     - year：仅年份
-     - year-month：年月
-     - date：年月日
-     - datetime：年月日时间
-   - 可设置是否使用当前时间作为默认值
+4. **性能考虑**
+   - 控制字段长度
+   - 避免过大的文本字段
+   - 合理使用索引
+   - 注意关联查询
+   - 考虑存储空间
 
-4. **枚举属性 (enumConfig)**
-   - 适用类型：枚举 (enum)
-   - 配置选项：
-     - enumId: 关联的枚举定义ID
-     - multiple: 是否允许多选（默认为 false，即单选）
-     - defaultValues: 默认选中的枚举值
-   - 枚举值存储：
-     - 单选模式：存储单个枚举值
-     - 多选模式：以数组形式存储多个枚举值
+### 4. 字段示例
 
-5. **媒体属性 (mediaConfig)**
-   - 适用类型：媒体 (media)
-   - 配置选项：
-     - mediaType: 媒体类型
-       - image: 图片
-       - video: 视频
-       - audio: 音频
-       - document: 文档
-       - file: 通用文件
-     - formats: 允许的文件格式
-       - 图片：jpg, jpeg, png, gif, webp 等
-       - 视频：mp4, webm, avi 等
-       - 音频：mp3, wav, ogg 等
-       - 文档：pdf, doc, docx, xls, xlsx 等
-     - maxSize: 最大文件大小限制（单位：MB）
-     - multiple: 是否允许多个媒体（默认：false）
-   - 存储结构：
-     - 单个媒体：存储单个媒体ID
-     - 多个媒体：以数组形式存储多个媒体ID
-
-6. **关联属性 (relationConfig)**
-   - 适用类型：关联ID (relation)
-   - 配置选项：
-     - targetSchema: 目标数据表的schema标识
-     - targetField: 关联的目标字段（默认为主键）
-     - multiple: 是否允许多选（默认：false）
-     - cascadeDelete: 关联记录删除时的处理策略
-       - restrict: 限制删除（默认）
-       - cascade: 级联删除
-       - setNull: 设置为空
-     - displayFields: 选择关联数据时展示的字段列表
-     - filterCondition: 可选的过滤条件
-   - 存储结构：
-     - 单选模式：存储单个关联ID
-     - 多选模式：以数组形式存储多个关联ID
-
-7. **API数据源属性 (apiConfig)**
-   - 适用类型：API数据源 (api)
-   - 配置选项：
-     - endpoint: API接口地址
-       - 支持相对路径和绝对路径
-       - 支持环境变量替换
-     - method: 请求方法（GET/POST/PUT/DELETE）
-     - multiple: 是否获取多条数据（默认：false）
-     - params: 请求参数配置
-       - 静态参数：固定值
-       - 动态参数：支持从当前记录其他字段获取值
-       - 支持参数转换和格式化
-     - headers: 请求头配置
-     - resultMapping: 返回结果映射配置
-       - path: 数据所在路径
-       - fields: 字段映射关系
-     - cache: 缓存配置
-       - ttl: 缓存时间
-       - key: 缓存键生成规则
-     - errorHandler: 错误处理配置
-   - 存储结构：
-     - 单条数据：存储单个对象
-     - 多条数据：存储数组
-
-8. 新建和交互的规则
-   - 当类型是：UUID、自增长ID，才出现 是否主键 的选项，不出现描述、是否必填、长度和默认值
-   - 当类型是：长文本，不出现 长度
-   - 当类型是：日期，才出现日期格式的值类型选择，才出现 “是否使用当前时间作为默认值”
-   - 当类型是：枚举，才显示选中的枚举名和code 或 未设置，
-        后面有个选择按钮，点击后打开modal后，显示所有枚举，支持过滤，可以选中应用选择。
-   - 当类型是：媒体，才显示媒体设置，包括：单或多、媒体类型
-
-## 示例
-
+1. **基础字段**
 ```typescript
-// 字段定义示例
+// UUID 主键
 {
-  name: "user_id",
+  name: "id",
   type: "uuid",
   isPrimaryKey: true,
   allowNull: false,
-  comment: "用户唯一标识"
+  comment: "唯一标识"
 }
 
+// 字符串字段
 {
   name: "username",
   type: "string",
-  stringType: "varchar",
   length: 50,
   allowNull: false,
   comment: "用户名"
 }
 
+// 日期字段
 {
   name: "created_at",
   type: "date",
@@ -173,194 +362,54 @@
   allowNull: false,
   comment: "创建时间"
 }
+```
 
-// 单选枚举字段示例
+2. **扩展字段**
+```typescript
+// 枚举字段
 {
   name: "status",
   type: "enum",
-  enumId: "user_status",
+  enumId: "system:user:status",
   multiple: false,
   defaultValue: "active",
   allowNull: false,
-  comment: "用户状态"
+  comment: "状态"
 }
 
-// 多选枚举字段示例
+// 关联字段
 {
-  name: "roles",
-  type: "enum",
-  enumId: "user_roles",
-  multiple: true,
-  defaultValues: ["user"],
-  allowNull: false,
-  comment: "用户角色"
+  name: "department_id",
+  type: "relation",
+  targetSchema: "system:department",
+  multiple: false,
+  cascadeDelete: "setNull",
+  displayFields: ["name", "code"],
+  comment: "所属部门"
 }
 
-// 单个图片字段示例
+// 媒体字段
 {
   name: "avatar",
   type: "media",
   mediaType: "image",
   formats: ["jpg", "jpeg", "png"],
   maxSize: 2,
-  multiple: false,
   allowNull: true,
-  comment: "用户头像"
+  comment: "头像"
 }
 
-// 多个文档字段示例
-{
-  name: "attachments",
-  type: "media",
-  mediaType: "document",
-  formats: ["pdf", "doc", "docx"],
-  maxSize: 10,
-  multiple: true,
-  allowNull: true,
-  comment: "附件文档"
-}
-
-// 视频字段示例
-{
-  name: "promotional_video",
-  type: "media",
-  mediaType: "video",
-  formats: ["mp4", "webm"],
-  maxSize: 100,
-  multiple: false,
-  allowNull: true,
-  comment: "宣传视频"
-}
-
-// 单选关联字段示例（部门）
-{
-  name: "department_id",
-  type: "relation",
-  targetSchema: "system:department",
-  multiple: false,
-  cascadeDelete: "restrict",
-  displayFields: ["name", "code"],
-  filterCondition: {
-    status: true  // 只显示启用的部门
-  },
-  allowNull: false,
-  comment: "所属部门"
-}
-
-// 多选关联字段示例（标签）
-{
-  name: "tag_ids",
-  type: "relation",
-  targetSchema: "content:tag",
-  multiple: true,
-  cascadeDelete: "setNull",
-  displayFields: ["name", "category"],
-  filterCondition: {
-    status: true
-  },
-  allowNull: true,
-  comment: "文章标签"
-}
-
-// 单选关联字段示例（上级领导）
-{
-  name: "supervisor_id",
-  type: "relation",
-  targetSchema: "system:user",
-  multiple: false,
-  cascadeDelete: "setNull",
-  displayFields: ["name", "employee_code", "department.name"],
-  filterCondition: {
-    is_supervisor: true
-  },
-  allowNull: true,
-  comment: "上级领导"
-}
-
-// 单条API数据示例（获取用户详情）
-{
-  name: "user_detail",
-  type: "api",
-  endpoint: "/api/users/${user_id}/detail",
-  method: "GET",
-  multiple: false,
-  params: {
-    user_id: {
-      type: "field",
-      field: "user_id"  // 从当前记录的user_id字段获取值
-    }
-  },
-  resultMapping: {
-    path: "data",
-    fields: {
-      name: "userName",
-      age: "userAge",
-      address: "userAddress"
-    }
-  },
-  cache: {
-    ttl: 300,  // 缓存5分钟
-    key: "user_detail_${user_id}"
-  },
-  allowNull: true,
-  comment: "用户详细信息"
-}
-
-// 多条API数据示例（获取订单列表）
-{
-  name: "recent_orders",
-  type: "api",
-  endpoint: "/api/orders",
-  method: "POST",
-  multiple: true,
-  params: {
-    customer_id: {
-      type: "field",
-      field: "id"  // 从当前客户记录的id字段获取值
-    },
-    status: {
-      type: "static",
-      value: "active"
-    },
-    start_date: {
-      type: "field",
-      field: "last_visit_date",
-      transform: "date.startOf('month')"  // 转换为当月开始日期
-    }
-  },
-  resultMapping: {
-    path: "data.orders",
-    fields: {
-      order_id: "id",
-      amount: "totalAmount",
-      status: "orderStatus"
-    }
-  },
-  cache: {
-    ttl: 60,  // 缓存1分钟
-    key: "recent_orders_${customer_id}"
-  },
-  allowNull: true,
-  comment: "最近订单列表"
-}
-
-// 带参数转换的API数据示例（获取天气信息）
+// API数据源字段
 {
   name: "weather_info",
   type: "api",
   endpoint: "https://api.weather.com/forecast",
   method: "GET",
-  multiple: false,
   params: {
     city: {
       type: "field",
       field: "address",
-      transform: "extractCity"  // 从地址中提取城市名
-    },
-    date: {
-      type: "field",
-      field: "visit_date",
-      transform: "date.format('YYYY-MM-DD')"  // 格式化日期
+      transform: "extractCity"
     }
   },
   resultMapping: {
@@ -372,15 +421,15 @@
     }
   },
   cache: {
-    ttl: 1800,  // 缓存30分钟
-    key: "weather_${city}_${date}"
+    ttl: 1800,
+    key: "weather_${city}"
   },
   allowNull: true,
   comment: "天气信息"
 }
 ```
 
-## 枚举管理
+## 枚举管理 Enum
 
 1. **枚举定义**
    - 每个枚举类型都需要在系统中预先定义
@@ -390,7 +439,7 @@
        - 示例：`system:user:status`、`system:role:type`
        - 建议按照 `领域:实体:属性` 的方式组织
      - name: 枚举类型名称
-     - description: 枚举类型描述
+     - description: 枚举类型描述（最大长度100字符）
      - values: 枚举值列表
 
 2. **枚举值定义**
@@ -462,7 +511,7 @@
 }
 ```
 
-## 枚举命名规范
+### 枚举命名规范
 
 1. **多级结构规则**
    - 使用 `:` 作为分隔符
@@ -487,83 +536,312 @@
    - 避免过深的层级结构（建议不超过4级）
    - 使用有意义的词汇，避免缩写
    - 相关的枚举类型应使用相同的前缀，便于管理和查找
+   
 
-## 媒体系统集成
+## API定义 ApiDefinition
 
-1. **媒体ID规范**
-   - 媒体ID由媒体系统生成和管理
-   - 格式建议：`media_{timestamp}_{random_string}`
-   - 示例：`media_1648789234_a7b8c9d0`
+API 定义用于管理系统中所有自定义 API 接口，支持基于 SQL 查询构建 RESTful API。
 
-2. **媒体信息获取**
-   - 通过媒体ID可从媒体系统获取完整信息：
-     - 文件名
-     - 文件大小
-     - 文件类型
-     - 存储路径
-     - 访问URL
-     - 上传时间
-     - 其他元数据
+### 1. API 定义属性
 
-3. **媒体处理能力**
-   - 图片处理：
-     - 缩放
-     - 裁剪
-     - 水印
-     - 格式转换
-   - 视频处理：
-     - 转码
-     - 截图
-     - 压缩
-   - 文档处理：
-     - 预览
-     - 格式转换
+1. **基本信息**
+   - `id`: UUID，系统自动生成的主键
+   - `code`: 字符串，API 的唯一标识符
+     - 支持多级结构，使用 `:` 分隔
+     - 示例：`user:list`、`order:create`、`report:sales:daily`
+     - 命名规则：`^[a-zA-Z][a-zA-Z0-9_]*(:[a-zA-Z][a-zA-Z0-9_]*)*$`
+   - `name`: 字符串，API 名称
+     - 命名规则：`^[a-z][a-z0-9_]*$`
+   - `description`: 文本，API 描述
+   - `method`: HTTP 方法
+     - 支持：GET、POST、PUT、DELETE
+   - `path`: API 路径
+     - 必须以 `/` 开头
+     - 只能包含字母、数字、下划线、斜杠和连字符
+     - 示例：`/api/users`、`/api/orders/{id}`
+   - `is_active`: 布尔值，是否激活
 
-## 关联数据管理
+2. **数据源配置**
+   - `data_source_id`: UUID，关联的数据源 ID
+   - `sql_query`: 文本，SQL 查询语句
+   - `sql_params`: JSON，SQL 参数定义
+     ```typescript
+     interface SqlParam {
+       name: string;      // 参数名称
+       type: string;      // 参数类型
+       required: boolean; // 是否必填
+       description?: string;    // 参数描述
+       defaultValue?: any;      // 默认值
+     }
+     ```
 
-1. **关联数据选择器**
-   - 支持按 displayFields 配置显示关联记录信息
-   - 支持搜索和筛选功能
-   - 支持分页加载
-   - 支持预览关联记录详情
-   - 支持快速创建关联记录
+3. **接口定义**
+   - `query_params`: JSON，查询参数定义
+     ```typescript
+     interface QueryParam {
+       name: string;      // 参数名称
+       type: string;      // 参数类型
+       required: boolean; // 是否必填
+       description?: string;    // 参数描述
+       defaultValue?: any;      // 默认值
+     }
+     ```
+   - `request_body`: JSON，请求体定义
+     ```typescript
+     interface RequestBodyField {
+       name: string;      // 字段名称
+       type: string;      // 字段类型
+       required: boolean; // 是否必填
+       description?: string;    // 字段描述
+       defaultValue?: any;      // 默认值
+     }
+     ```
+   - `response_schema`: JSON，响应模式定义
+     ```typescript
+     interface ResponseSchema {
+       type: string;                    // 响应类型（object/array）
+       properties: Record<string, any>; // 属性定义
+       required?: string[];             // 必填字段列表
+     }
+     ```
 
-2. **关联数据完整性**
-   - 删除关联记录时根据 cascadeDelete 策略处理
-   - 支持检查循环引用
-   - 支持检查关联记录是否存在
-   - 支持关联数据的权限控制
+4. **审计信息**
+   - `created_at`: 时间戳，创建时间
+   - `updated_at`: 时间戳，更新时间
+   - `created_by`: 字符串，创建人
+   - `updated_by`: 字符串，更新人
 
-3. **关联数据展示**
-   - 列表页面：显示关联记录的关键信息
-   - 详情页面：支持查看完整的关联记录信息
-   - 支持关联数据的快速跳转
-   - 支持关联数据的批量操作
+### 2. 命名规范
 
-4. **最佳实践**
-   - 合理使用单选/多选模式
-   - 谨慎使用级联删除
-   - 选择合适的显示字段
-   - 设置适当的过滤条件
-   - 考虑关联数据的性能影响
+1. **API 代码（code）**
+   - 使用多级结构，用 `:` 分隔
+   - 建议格式：`模块:子模块:操作`
+   - 示例：
+     - `user:list` - 用户列表
+     - `user:create` - 创建用户
+     - `user:update` - 更新用户
+     - `order:list` - 订单列表
+     - `order:detail` - 订单详情
+     - `report:sales:daily` - 每日销售报表
 
-## 注意事项
+2. **API 路径（path）**
+   - 使用 RESTful 风格
+   - 使用小写字母和连字符
+   - 示例：
+     - `/api/users` - 用户管理
+     - `/api/users/{id}` - 用户详情
+     - `/api/orders` - 订单管理
+     - `/api/reports/sales/daily` - 每日销售报表
 
-1. 字段名称必须符合命名规范，建议使用有意义的英文单词
-2. 主键字段使用 UUID 或自增长 ID
-3. 对于字符串类型的字段，应合理设置长度限制
-4. 日期类型字段应根据业务需求选择合适的日期格式
-5. 所有字段都应该添加适当的描述信息，便于其他开发者理解
-6. 使用枚举类型时，应先确保相关的枚举定义已创建
-7. 合理选择枚举的单选/多选模式，避免不必要的多选设置
-8. 枚举值的修改和删除需要考虑已使用该枚举的字段的影响
-9. 上传媒体文件时需要进行格式和大小的校验
-10. 考虑媒体文件的存储成本和访问性能
-11. 注意处理媒体文件的删除和更新场景
-12. 设置关联字段时需考虑数据完整性和性能影响
-13. 关联字段的多选模式要考虑数据量的限制
-14. 合理设置关联数据的显示字段，避免过多字段影响性能
-15. API数据源应设置合理的缓存策略
-16. 注意处理API调用的异常情况
-17. 合理控制API请求的频率和并发
-18. 需要考虑API的鉴权和安全性 
+### 3. 最佳实践
+
+1. **API 设计原则**
+   - 遵循 RESTful 设计规范
+   - 使用合适的 HTTP 方法
+   - 保持 URL 结构清晰和一致
+   - 合理使用查询参数和路径参数
+   - 提供清晰的 API 文档
+
+2. **参数设计**
+   - 查询参数用于过滤和分页
+   - 路径参数用于标识资源
+   - 请求体用于复杂数据
+   - 所有参数都应该有类型定义
+   - 必填参数要明确标注
+
+3. **SQL 查询**
+   - 使用参数化查询防止 SQL 注入
+   - 合理使用索引提高性能
+   - 避免复杂的联表查询
+   - 注意数据安全性
+   - 考虑查询性能优化
+
+4. **响应设计**
+   - 统一的响应格式
+   - 清晰的错误处理
+   - 合理的数据分页
+   - 适当的缓存策略
+   - 考虑数据量大小
+
+### 4. 示例
+
+```typescript
+// 用户列表 API 定义示例
+{
+  code: "user:list",
+  name: "user_list",
+  description: "获取用户列表",
+  method: "GET",
+  path: "/api/users",
+  query_params: [
+    {
+      name: "page",
+      type: "number",
+      required: false,
+      description: "页码",
+      defaultValue: 1
+    },
+    {
+      name: "pageSize",
+      type: "number",
+      required: false,
+      description: "每页数量",
+      defaultValue: 20
+    },
+    {
+      name: "status",
+      type: "string",
+      required: false,
+      description: "用户状态"
+    }
+  ],
+  response_schema: {
+    type: "object",
+    properties: {
+      total: { type: "number" },
+      items: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+            username: { type: "string" },
+            email: { type: "string" },
+            status: { type: "string" }
+          }
+        }
+      }
+    },
+    required: ["total", "items"]
+  },
+  data_source_id: "xxx",
+  sql_query: `
+    SELECT 
+      u.id,
+      u.username,
+      u.email,
+      u.status
+    FROM users u
+    WHERE 
+      (:status IS NULL OR u.status = :status)
+    ORDER BY u.created_at DESC
+    LIMIT :limit OFFSET :offset
+  `,
+  sql_params: [
+    {
+      name: "status",
+      type: "string",
+      required: false
+    },
+    {
+      name: "limit",
+      type: "number",
+      required: true
+    },
+    {
+      name: "offset",
+      type: "number",
+      required: true
+    }
+  ]
+}
+
+// 创建订单 API 定义示例
+{
+  code: "order:create",
+  name: "order_create",
+  description: "创建新订单",
+  method: "POST",
+  path: "/api/orders",
+  request_body: [
+    {
+      name: "customerId",
+      type: "string",
+      required: true,
+      description: "客户ID"
+    },
+    {
+      name: "items",
+      type: "array",
+      required: true,
+      description: "订单项列表",
+      items: {
+        type: "object",
+        properties: {
+          productId: { type: "string" },
+          quantity: { type: "number" },
+          price: { type: "number" }
+        }
+      }
+    },
+    {
+      name: "remark",
+      type: "string",
+      required: false,
+      description: "订单备注"
+    }
+  ],
+  response_schema: {
+    type: "object",
+    properties: {
+      id: { type: "string" },
+      orderNo: { type: "string" },
+      status: { type: "string" },
+      totalAmount: { type: "number" },
+      createdAt: { type: "string" }
+    },
+    required: ["id", "orderNo", "status", "totalAmount", "createdAt"]
+  },
+  data_source_id: "xxx",
+  sql_query: `
+    WITH new_order AS (
+      INSERT INTO orders (
+        customer_id,
+        order_no,
+        status,
+        total_amount,
+        remark,
+        created_at
+      )
+      VALUES (
+        :customerId,
+        :orderNo,
+        'pending',
+        :totalAmount,
+        :remark,
+        CURRENT_TIMESTAMP
+      )
+      RETURNING *
+    )
+    SELECT 
+      o.id,
+      o.order_no as "orderNo",
+      o.status,
+      o.total_amount as "totalAmount",
+      o.created_at as "createdAt"
+    FROM new_order o
+  `,
+  sql_params: [
+    {
+      name: "customerId",
+      type: "string",
+      required: true
+    },
+    {
+      name: "orderNo",
+      type: "string",
+      required: true
+    },
+    {
+      name: "totalAmount",
+      type: "number",
+      required: true
+    },
+    {
+      name: "remark",
+      type: "string",
+      required: false
+    }
+  ]
+}
+```
