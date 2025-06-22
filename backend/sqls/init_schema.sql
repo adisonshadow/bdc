@@ -213,6 +213,36 @@ CREATE TRIGGER update_api_definitions_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION bdc.update_updated_at_column();
 
+-- 创建物化历史表
+CREATE TABLE IF NOT EXISTS bdc.materialize_history (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    connection_id UUID NOT NULL REFERENCES bdc.database_connections(id),
+    connection_name VARCHAR(100) NOT NULL,
+    schema_codes JSONB NOT NULL,
+    config JSONB,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('success', 'failed', 'pending')),
+    results JSONB,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP WITH TIME ZONE
+);
+
+-- 创建物化历史表索引
+CREATE INDEX IF NOT EXISTS idx_materialize_history_connection_id ON bdc.materialize_history(connection_id);
+CREATE INDEX IF NOT EXISTS idx_materialize_history_status ON bdc.materialize_history(status);
+CREATE INDEX IF NOT EXISTS idx_materialize_history_created_at ON bdc.materialize_history(created_at);
+
+-- 添加物化历史表注释
+COMMENT ON TABLE bdc.materialize_history IS '表物化历史记录表';
+COMMENT ON COLUMN bdc.materialize_history.id IS '物化记录ID';
+COMMENT ON COLUMN bdc.materialize_history.connection_id IS '数据库连接ID';
+COMMENT ON COLUMN bdc.materialize_history.connection_name IS '数据库连接名称';
+COMMENT ON COLUMN bdc.materialize_history.schema_codes IS '物化的表结构代码列表（JSON格式）';
+COMMENT ON COLUMN bdc.materialize_history.config IS '物化配置（JSON格式）';
+COMMENT ON COLUMN bdc.materialize_history.status IS '物化状态';
+COMMENT ON COLUMN bdc.materialize_history.results IS '物化结果（JSON格式）';
+COMMENT ON COLUMN bdc.materialize_history.created_at IS '创建时间';
+COMMENT ON COLUMN bdc.materialize_history.completed_at IS '完成时间';
+
 -- 添加 API 定义表注释
 COMMENT ON TABLE bdc.api_definitions IS 'API 定义表';
 COMMENT ON COLUMN bdc.api_definitions.id IS 'API 定义 ID';

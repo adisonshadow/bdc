@@ -6,6 +6,17 @@ export async function getInitialState(): Promise<{ name: string }> {
   return { name: 'admin' };
 }
 
+// 忽略 findDOMNode 警告
+const originalError = console.error;
+console.error = (...args) => {
+  if (args[0]?.includes('is deprecated') || 
+      args[0]?.includes('net::ERR_FILE_NOT_FOUND') ||
+      args[0]?.includes('Unchecked runtime.lastError: The message port closed before a response was received.')) {
+    return;
+  }
+  originalError.call(console, ...args);
+};
+
 export const layout = () => {
   return {
     logo: '/logo.svg',

@@ -115,6 +115,83 @@ router.get('/', controller.list.bind(controller));
 
 /**
  * @swagger
+ * /api/database-connections/{id}/test:
+ *   post:
+ *     tags: [Database Connections]
+ *     summary: 测试数据库连接
+ *     description: 测试指定ID的数据库连接是否可用
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: 数据库连接ID
+ *     responses:
+ *       200:
+ *         description: 测试成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: 连接测试成功
+ *                 data:
+ *                   $ref: '#/components/schemas/DatabaseConnectionTestResult'
+ *       404:
+ *         description: 数据库连接不存在
+ *       500:
+ *         description: 服务器错误或连接测试失败
+ */
+router.post('/:id/test', controller.testConnection.bind(controller));
+
+/**
+ * @swagger
+ * /api/database-connections/{id}/tables:
+ *   get:
+ *     tags: [Database Connections]
+ *     summary: 获取数据库表结构
+ *     description: 获取指定数据库连接的表结构信息
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: 数据库连接ID
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/DatabaseTable'
+ *       400:
+ *         description: 请先测试数据库连接
+ *       404:
+ *         description: 数据库连接不存在
+ *       500:
+ *         description: 服务器错误或获取表结构失败
+ */
+router.get('/:id/tables', controller.getTables.bind(controller));
+
+/**
+ * @swagger
  * /api/database-connections/{id}:
  *   get:
  *     tags: [Database Connections]
@@ -228,43 +305,5 @@ router.put('/:id', controller.update.bind(controller));
  *         description: 服务器错误
  */
 router.delete('/:id', controller.delete.bind(controller));
- 
-/**
- * @swagger
- * /api/database-connections/{id}/test:
- *   post:
- *     tags: [Database Connections]
- *     summary: 测试数据库连接
- *     description: 测试指定ID的数据库连接是否可用
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *         description: 数据库连接ID
- *     responses:
- *       200:
- *         description: 测试成功
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: 连接测试成功
- *                 data:
- *                   $ref: '#/components/schemas/DatabaseConnectionTestResult'
- *       404:
- *         description: 数据库连接不存在
- *       500:
- *         description: 服务器错误或连接测试失败
- */
-router.post('/:id/test', controller.testConnection.bind(controller));
 
 export default router; 

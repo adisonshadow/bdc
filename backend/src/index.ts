@@ -62,6 +62,7 @@ import expressPlayground from 'graphql-playground-middleware-express';
 import schemaRouter from './routes/schemaRoutes';
 import enumRouter from './routes/enumRoutes';
 import databaseConnectionRouter from './routes/databaseConnectionRoutes';
+import materializeRouter from './routes/materializeRoutes';
 
 Logger.info({ 
   message: '环境变量加载完成', 
@@ -87,6 +88,7 @@ app.use('/api/schemas', schemaRouter);
 app.use('/api/enums', enumRouter);
 app.use('/api/database-connections', databaseConnectionRouter);
 app.use('/api/api-definitions', apiDefinitionRouter);
+app.use('/api/materialize-tables', materializeRouter);
 
 // Swagger UI
 app.use('/api-docs', swaggerRouter);

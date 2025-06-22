@@ -4,7 +4,7 @@
 import React from 'react';
 
 export async function getRoutes() {
-  const routes = {"1":{"path":"/","redirect":"/data-structures","parentId":"ant-design-pro-layout","id":"1"},"2":{"path":"/sso-callback","name":"SSO 回调","hideInMenu":true,"layout":false,"id":"2"},"3":{"path":"/sso-test","name":"SSO 测试","hideInMenu":true,"layout":false,"id":"3"},"4":{"path":"/data-structures","name":"数据结构管理","icon":"BlockOutlined","parentId":"ant-design-pro-layout","id":"4"},"5":{"path":"/schema-graph","name":"数据表图谱","hideInMenu":true,"parentId":"ant-design-pro-layout","id":"5"},"ant-design-pro-layout":{"id":"ant-design-pro-layout","path":"/","isLayout":true}} as const;
+  const routes = {"1":{"path":"/","redirect":"/data-structures","parentId":"ant-design-pro-layout","id":"1"},"2":{"path":"/sso-callback","name":"SSO 回调","hideInMenu":true,"layout":false,"id":"2"},"3":{"path":"/sso-test","name":"SSO 测试","hideInMenu":true,"layout":false,"id":"3"},"4":{"path":"/data-structures","name":"数据结构管理","icon":"BlockOutlined","parentId":"ant-design-pro-layout","id":"4"},"5":{"path":"/database-management","name":"数据库管理","icon":"DatabaseOutlined","parentId":"ant-design-pro-layout","id":"5"},"6":{"path":"/schema-graph","name":"数据表图谱","hideInMenu":true,"parentId":"ant-design-pro-layout","id":"6"},"ant-design-pro-layout":{"id":"ant-design-pro-layout","path":"/","isLayout":true}} as const;
   return {
     routes,
     routeComponents: {
@@ -12,7 +12,8 @@ export async function getRoutes() {
 '2': React.lazy(() => import(/* webpackChunkName: "p__SSOCallback__index" */'@/pages/SSOCallback/index.tsx')),
 '3': React.lazy(() => import(/* webpackChunkName: "p__SSOCallback__test" */'@/pages/SSOCallback/test.tsx')),
 '4': React.lazy(() => import(/* webpackChunkName: "p__SchemaManagement__index" */'@/pages/SchemaManagement/index.tsx')),
-'5': React.lazy(() => import(/* webpackChunkName: "p__SchemaGraph__index" */'@/pages/SchemaGraph/index.tsx')),
+'5': React.lazy(() => import(/* webpackChunkName: "p__DatabaseManagement__index" */'@/pages/DatabaseManagement/index.tsx')),
+'6': React.lazy(() => import(/* webpackChunkName: "p__SchemaGraph__index" */'@/pages/SchemaGraph/index.tsx')),
 'ant-design-pro-layout': React.lazy(() => import(/* webpackChunkName: "umi__plugin-layout__Layout" */'/Users/yanfang/MOM/BDC/frontend/src/.umi/plugin-layout/Layout.tsx')),
 },
   };

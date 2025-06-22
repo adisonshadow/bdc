@@ -34,6 +34,14 @@ const options = {
         name: 'Enum Management',
         description: '枚举定义管理 API',
       },
+      {
+        name: 'Database Connections',
+        description: '数据库连接管理相关接口',
+      },
+      {
+        name: 'Materialize Tables',
+        description: '表物化管理 API',
+      },
     ],
   },
   apis: [

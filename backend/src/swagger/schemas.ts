@@ -799,6 +799,160 @@
  *             currentConnections:
  *               type: integer
  *               description: 当前连接数
+ *
+ *     DatabaseTable:
+ *       type: object
+ *       required:
+ *         - tableName
+ *         - schema
+ *         - columns
+ *       properties:
+ *         tableName:
+ *           type: string
+ *           description: 表名
+ *         schema:
+ *           type: string
+ *           description: Schema名称
+ *         description:
+ *           type: string
+ *           description: 表描述
+ *         tableType:
+ *           type: string
+ *           description: 表类型
+ *         rowCount:
+ *           type: integer
+ *           description: 行数
+ *         size:
+ *           type: integer
+ *           description: 表大小（字节）
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: 创建时间
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: 最后修改时间
+ *         columns:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/DatabaseColumn'
+ *           description: 字段列表
+ *         indexes:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/DatabaseIndex'
+ *           description: 索引列表
+ *         foreignKeys:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/DatabaseForeignKey'
+ *           description: 外键列表
+ *
+ *     DatabaseColumn:
+ *       type: object
+ *       required:
+ *         - name
+ *         - type
+ *         - nullable
+ *         - primaryKey
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: 字段名
+ *         type:
+ *           type: string
+ *           description: 数据类型
+ *         nullable:
+ *           type: boolean
+ *           description: 是否为空
+ *         primaryKey:
+ *           type: boolean
+ *           description: 是否为主键
+ *         defaultValue:
+ *           type: string
+ *           description: 默认值
+ *         description:
+ *           type: string
+ *           description: 字段描述
+ *         length:
+ *           type: integer
+ *           description: 字段长度
+ *         precision:
+ *           type: integer
+ *           description: 精度（用于decimal类型）
+ *         scale:
+ *           type: integer
+ *           description: 小数位数（用于decimal类型）
+ *         autoIncrement:
+ *           type: boolean
+ *           description: 是否自增
+ *         ordinalPosition:
+ *           type: integer
+ *           description: 字段位置
+ *         characterSet:
+ *           type: string
+ *           description: 字符集
+ *         collation:
+ *           type: string
+ *           description: 排序规则
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: 最后修改时间
+ *
+ *     DatabaseIndex:
+ *       type: object
+ *       required:
+ *         - name
+ *         - type
+ *         - columns
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: 索引名
+ *         type:
+ *           type: string
+ *           enum: [PRIMARY, UNIQUE, INDEX]
+ *           description: 索引类型
+ *         columns:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: 索引字段列表
+ *         description:
+ *           type: string
+ *           description: 索引描述
+ *
+ *     DatabaseForeignKey:
+ *       type: object
+ *       required:
+ *         - name
+ *         - columnName
+ *         - referencedTableName
+ *         - referencedColumnName
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: 外键名
+ *         columnName:
+ *           type: string
+ *           description: 当前表字段
+ *         referencedTableName:
+ *           type: string
+ *           description: 引用表名
+ *         referencedTableSchema:
+ *           type: string
+ *           description: 引用表Schema
+ *         referencedColumnName:
+ *           type: string
+ *           description: 引用字段名
+ *         updateRule:
+ *           type: string
+ *           description: 更新规则
+ *         deleteRule:
+ *           type: string
+ *           description: 删除规则
  */
 
 export {}; 

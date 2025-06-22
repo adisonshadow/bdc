@@ -3,6 +3,7 @@ import { DatabaseConnection } from './models/DatabaseConnection';
 import { DataStructure } from './models/DataStructure';
 import { ApiDefinition } from './models/ApiDefinition';
 import { Enum } from './models/Enum';
+import { MaterializeHistory } from './models/MaterializeHistory';
 
 let AppDataSource: DataSource;
 
@@ -18,8 +19,8 @@ export const createDataSource = (): DataSource => {
       schema: process.env.DB_SCHEMA || 'bdc',
       synchronize: false, // 暂时禁用，因为表已经存在
       logging: process.env.NODE_ENV !== 'production',
-      entities: [DatabaseConnection, DataStructure, ApiDefinition, Enum],
-      migrations: ['src/migrations/*.ts'],
+      entities: [DatabaseConnection, DataStructure, ApiDefinition, Enum, MaterializeHistory],
+      // migrations: ['src/migrations/*.ts'], // 完全禁用迁移功能
       subscribers: ['src/subscribers/*.ts'],
       extra: {
         search_path: 'bdc',

@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { ValidationError } from '../errors/types';
 import crypto from 'crypto';
 
 interface ErrorResponse {
@@ -27,21 +26,17 @@ interface SuccessResponse {
 
 export class AuthCallbackController {
   // 处理 IAM 系统的回调
-  static async handleCallback(req: Request, res: Response) {
+  static async handleCallback(req: Request, res: Response): Promise<void> {
     try {
       // 从请求体中获取 IAM 系统传递的信息
       const {
         idp,
         timestamp,
-        nonce,
         access_token,
         refresh_token,
         token_type,
         expires_in,
-        client_id,
         client_signature,
-        issuer,
-        state,
         user_info
       } = req.body;
 
@@ -49,11 +44,9 @@ export class AuthCallbackController {
       const requiredParams = {
         idp: '身份提供者标识',
         timestamp: '时间戳',
-        nonce: '随机字符串',
         access_token: '访问令牌',
         token_type: '令牌类型',
         expires_in: '过期时间',
-        client_id: '客户端ID',
         client_signature: '客户端签名',
         user_info: '用户信息'
       };
@@ -69,7 +62,8 @@ export class AuthCallbackController {
           details: `缺少以下必填参数：${missingParams.join('、')}`,
           code: 'MISSING_PARAMS'
         };
-        return res.status(400).json(errorResponse);
+        res.status(400).json(errorResponse);
+        return;
       }
 
       // 验证 idp
@@ -80,7 +74,8 @@ export class AuthCallbackController {
           details: `不支持的身份提供者：${idp}，当前仅支持 IAM`,
           code: 'INVALID_IDP'
         };
-        return res.status(400).json(errorResponse);
+        res.status(400).json(errorResponse);
+        return;
       }
 
       // 验证时间戳（5分钟内有效）
@@ -93,10 +88,9 @@ export class AuthCallbackController {
           details: `请求时间戳：${new Date(requestTime).toLocaleString()}，当前时间：${new Date(now).toLocaleString()}`,
           code: 'EXPIRED_REQUEST'
         };
-        return res.status(400).json(errorResponse);
+        res.status(400).json(errorResponse);
+        return;
       }
-
-      // TODO: 验证 nonce 是否重复使用（需要实现存储机制）
 
       // 验证客户端签名
       const clientSecret = process.env.CLIENT_SECRET;
@@ -107,7 +101,8 @@ export class AuthCallbackController {
           details: '未配置客户端密钥（CLIENT_SECRET）',
           code: 'SERVER_CONFIG_ERROR'
         };
-        return res.status(500).json(errorResponse);
+        res.status(500).json(errorResponse);
+        return;
       }
 
       const message = `${timestamp}${clientSecret}`;
@@ -123,7 +118,8 @@ export class AuthCallbackController {
           details: '客户端签名验证失败，请确认客户端密钥是否正确',
           code: 'INVALID_SIGNATURE'
         };
-        return res.status(400).json(errorResponse);
+        res.status(400).json(errorResponse);
+        return;
       }
 
       // 解析用户信息
@@ -137,7 +133,8 @@ export class AuthCallbackController {
           details: '用户信息不是有效的 JSON 格式',
           code: 'INVALID_USER_INFO'
         };
-        return res.status(400).json(errorResponse);
+        res.status(400).json(errorResponse);
+        return;
       }
 
       // 验证用户信息必填字段
@@ -160,7 +157,8 @@ export class AuthCallbackController {
           details: `用户信息缺少以下必填字段：${missingFields.join('、')}`,
           code: 'INCOMPLETE_USER_INFO'
         };
-        return res.status(400).json(errorResponse);
+        res.status(400).json(errorResponse);
+        return;
       }
 
       // 验证用户状态
@@ -171,7 +169,8 @@ export class AuthCallbackController {
           details: `当前用户状态：${parsedUserInfo.status}，需要 ACTIVE 状态才能登录`,
           code: 'INVALID_USER_STATUS'
         };
-        return res.status(400).json(errorResponse);
+        res.status(400).json(errorResponse);
+        return;
       }
 
       // 生成本系统的 JWT token

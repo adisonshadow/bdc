@@ -55,6 +55,12 @@ export default defineConfig({
       icon: 'BlockOutlined',
       component: './SchemaManagement',
     },
+    {
+      path: '/database-management',
+      name: '数据库管理',
+      icon: 'DatabaseOutlined',
+      component: './DatabaseManagement',
+    },
     // {
     //   path: '/schema-graph',
     //   name: '数据表图谱',

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Table, Button, Space, Tag, Tooltip, Switch, message, Modal, Form, Input, Select, List, Flex, InputNumber, Cascader, TreeSelect, Badge, Popconfirm } from 'antd';
 import type { CascaderProps } from 'antd';
 import type { DefaultOptionType } from 'antd/es/cascader';
-import { PlusOutlined, EditOutlined, DeleteOutlined, MoreOutlined, ApartmentOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, CloudServerOutlined, MoreOutlined, ApartmentOutlined, SyncOutlined } from '@ant-design/icons';
 import { Splitter } from 'antd';
 import { getSchemas, putSchemasId, postSchemas, deleteSchemasId } from '@/services/BDC/api/schemaManagement';
 import { getEnums } from '@/services/BDC/api/enumManagement';
@@ -75,6 +75,8 @@ const SchemaManagement: React.FC = () => {
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const [schemaTreeData, setSchemaTreeData] = useState<SchemaTreeItem[]>([]);
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+  const [isSyncMode, setIsSyncMode] = useState(false);
   const navigate = useNavigate();
 
   // 使用 useMemo 缓存过滤后的枚举列表
@@ -728,6 +730,75 @@ const SchemaManagement: React.FC = () => {
     return Promise.resolve();
   };
 
+  // 处理同步模式切换
+  const handleSyncModeToggle = () => {
+    setIsSyncMode(!isSyncMode);
+    if (isSyncMode) {
+      // 退出同步模式时清空选择
+      setSelectedRowKeys([]);
+    }
+  };
+
+  // 处理同步到数据库
+  const handleSyncToDatabase = () => {
+    // TODO: 实现同步逻辑
+    message.info('同步功能待实现');
+  };
+
+  // 处理全选/取消全选
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      // 全选：获取所有叶子节点的code
+      const allLeafCodes: string[] = [];
+      const collectLeafCodes = (nodes: SchemaTreeItem[]) => {
+        nodes.forEach(node => {
+          if (node.children?.length) {
+            collectLeafCodes(node.children);
+          } else {
+            allLeafCodes.push(node.code);
+          }
+        });
+      };
+      collectLeafCodes(schemaTreeData);
+      setSelectedRowKeys(allLeafCodes);
+    } else {
+      // 取消全选
+      setSelectedRowKeys([]);
+    }
+  };
+
+  // 检查是否全选
+  const isAllSelected = useMemo(() => {
+    const allLeafCodes: string[] = [];
+    const collectLeafCodes = (nodes: SchemaTreeItem[]) => {
+      nodes.forEach(node => {
+        if (node.children?.length) {
+          collectLeafCodes(node.children);
+        } else {
+          allLeafCodes.push(node.code);
+        }
+      });
+    };
+    collectLeafCodes(schemaTreeData);
+    return allLeafCodes.length > 0 && selectedRowKeys.length === allLeafCodes.length;
+  }, [schemaTreeData, selectedRowKeys]);
+
+  // 检查是否部分选中
+  const isIndeterminate = useMemo(() => {
+    const allLeafCodes: string[] = [];
+    const collectLeafCodes = (nodes: SchemaTreeItem[]) => {
+      nodes.forEach(node => {
+        if (node.children?.length) {
+          collectLeafCodes(node.children);
+        } else {
+          allLeafCodes.push(node.code);
+        }
+      });
+    };
+    collectLeafCodes(schemaTreeData);
+    return selectedRowKeys.length > 0 && selectedRowKeys.length < allLeafCodes.length;
+  }, [schemaTreeData, selectedRowKeys]);
+
   const schemaColumns = [
     {
       title: 'code',
@@ -1079,6 +1150,14 @@ const SchemaManagement: React.FC = () => {
             <label className="fw-bold">数据表</label>
             <Space>
               <Button
+                type={isSyncMode ? "primary" : "link"}
+                ghost={!isSyncMode}
+                icon={<CloudServerOutlined />}
+                onClick={handleSyncModeToggle}
+              >
+                {isSyncMode ? "取消同步" : "开始同步"}
+              </Button>
+              <Button
                 type="link"
                 ghost
                 icon={<ApartmentOutlined />}
@@ -1104,7 +1183,7 @@ const SchemaManagement: React.FC = () => {
           </div>
           <div
             className="pos-relative overflow-y"
-            style={{ height: "calc( 100% - 50px)" }}
+            style={{ height: `calc(100% - ${isSyncMode ? '106px' : '50px'})` }}
           >
             <div className="pb-4">
               <Table
@@ -1115,6 +1194,15 @@ const SchemaManagement: React.FC = () => {
                 pagination={false}
                 showHeader={false}
                 size="small"
+                rowSelection={isSyncMode ? {
+                  selectedRowKeys,
+                  onChange: (selectedKeys) => {
+                    setSelectedRowKeys(selectedKeys as string[]);
+                  },
+                  getCheckboxProps: (record: SchemaTreeItem) => ({
+                    disabled: !!record.children?.length, // 禁用非叶子节点的选择
+                  }),
+                } : undefined}
                 expandable={{
                   expandedRowKeys,
                   onExpandedRowsChange: (expandedRows) => {
@@ -1141,6 +1229,46 @@ const SchemaManagement: React.FC = () => {
               />
             </div>
           </div>
+          {/* 底部操作面板 */}
+          {isSyncMode && (
+            <div 
+              style={{ 
+                position: 'fixed', 
+                bottom: 0, 
+                left: 0, 
+                width: '100%',
+                background: 'rgb(25 25 25 / 17%)',
+                borderTop: '1px solid rgb(240 240 240 / 5%)',
+                padding: '12px 16px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                backdropFilter: 'blur(10px)',
+                alignItems: 'center',
+                zIndex: 1000
+              }}
+            >
+              <Space>
+                <input
+                  type="checkbox"
+                  checked={isAllSelected}
+                  ref={(input) => {
+                    if (input) input.indeterminate = isIndeterminate;
+                  }}
+                  onChange={(e) => handleSelectAll(e.target.checked)}
+                  style={{ marginRight: '8px' }}
+                />
+                <span>已选择 {selectedRowKeys.length} 个数据表</span>
+              </Space>
+              <Button
+                type="primary"
+                icon={<SyncOutlined />}
+                onClick={handleSyncToDatabase}
+                disabled={selectedRowKeys.length === 0}
+              >
+                同步
+              </Button>
+            </div>
+          )}
         </Splitter.Panel>
         <Splitter.Panel>
           {

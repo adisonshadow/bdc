@@ -26,6 +26,10 @@
     {
       "name": "Database Connections",
       "description": "数据库连接管理相关接口"
+    },
+    {
+      "name": "Materialize Tables",
+      "description": "表物化管理 API"
     }
   ],
   "paths": {
@@ -183,6 +187,112 @@
         }
       }
     },
+    "/api/database-connections/{id}/test": {
+      "post": {
+        "tags": [
+          "Database Connections"
+        ],
+        "summary": "测试数据库连接",
+        "description": "测试指定ID的数据库连接是否可用",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "数据库连接ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "测试成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "连接测试成功"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/DatabaseConnectionTestResult"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "数据库连接不存在"
+          },
+          "500": {
+            "description": "服务器错误或连接测试失败"
+          }
+        }
+      }
+    },
+    "/api/database-connections/{id}/tables": {
+      "get": {
+        "tags": [
+          "Database Connections"
+        ],
+        "summary": "获取数据库表结构",
+        "description": "获取指定数据库连接的表结构信息",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "数据库连接ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/DatabaseTable"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请先测试数据库连接"
+          },
+          "404": {
+            "description": "数据库连接不存在"
+          },
+          "500": {
+            "description": "服务器错误或获取表结构失败"
+          }
+        }
+      }
+    },
     "/api/database-connections/{id}": {
       "get": {
         "tags": [
@@ -336,58 +446,6 @@
           },
           "500": {
             "description": "服务器错误"
-          }
-        }
-      }
-    },
-    "/api/database-connections/{id}/test": {
-      "post": {
-        "tags": [
-          "Database Connections"
-        ],
-        "summary": "测试数据库连接",
-        "description": "测试指定ID的数据库连接是否可用",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "数据库连接ID"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "测试成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "连接测试成功"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/DatabaseConnectionTestResult"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "数据库连接不存在"
-          },
-          "500": {
-            "description": "服务器错误或连接测试失败"
           }
         }
       }
@@ -660,6 +718,256 @@
           },
           "404": {
             "description": "枚举不存在"
+          }
+        }
+      }
+    },
+    "/api/materialize-tables": {
+      "post": {
+        "tags": [
+          "Materialize Tables"
+        ],
+        "summary": "物化表结构到数据库",
+        "description": "将选中的表结构物化到指定的数据库连接中",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "connectionId",
+                  "schemaCodes"
+                ],
+                "properties": {
+                  "connectionId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "数据库连接ID"
+                  },
+                  "schemaCodes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "要物化的表结构代码列表"
+                  },
+                  "config": {
+                    "type": "object",
+                    "properties": {
+                      "overwrite": {
+                        "type": "boolean",
+                        "description": "是否覆盖已存在的表"
+                      },
+                      "includeIndexes": {
+                        "type": "boolean",
+                        "description": "是否包含索引"
+                      },
+                      "includeConstraints": {
+                        "type": "boolean",
+                        "description": "是否包含约束"
+                      },
+                      "targetSchema": {
+                        "type": "string",
+                        "description": "目标Schema名称"
+                      },
+                      "tablePrefix": {
+                        "type": "string",
+                        "description": "表名前缀"
+                      }
+                    }
+                  }
+                }
+              },
+              "example": {
+                "connectionId": "550e8400-e29b-41d4-a716-446655440000",
+                "schemaCodes": [
+                  "production:plan",
+                  "production:product"
+                ],
+                "config": {
+                  "overwrite": false,
+                  "includeIndexes": true,
+                  "includeConstraints": true,
+                  "targetSchema": "public",
+                  "tablePrefix": "bdc_"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "物化成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "表物化成功"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "schemaCode": {
+                            "type": "string"
+                          },
+                          "success": {
+                            "type": "boolean"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "tableName": {
+                            "type": "string"
+                          },
+                          "error": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "404": {
+            "description": "数据库连接或表结构不存在"
+          },
+          "500": {
+            "description": "服务器错误"
+          }
+        }
+      }
+    },
+    "/api/materialize-tables/history": {
+      "get": {
+        "tags": [
+          "Materialize Tables"
+        ],
+        "summary": "获取物化历史记录",
+        "description": "分页获取表物化的历史记录",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "connectionId",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "数据库连接ID（可选）"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "页码"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "每页数量"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "connectionId": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "connectionName": {
+                                "type": "string"
+                              },
+                              "schemaCodes": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "config": {
+                                "type": "object"
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "success",
+                                  "failed",
+                                  "pending"
+                                ]
+                              },
+                              "results": {
+                                "type": "array"
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "completedAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            }
+                          }
+                        },
+                        "total": {
+                          "type": "integer"
+                        },
+                        "page": {
+                          "type": "integer"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器错误"
           }
         }
       }
@@ -2454,6 +2762,212 @@
                 "description": "当前连接数"
               }
             }
+          }
+        }
+      },
+      "DatabaseTable": {
+        "type": "object",
+        "required": [
+          "tableName",
+          "schema",
+          "columns"
+        ],
+        "properties": {
+          "tableName": {
+            "type": "string",
+            "description": "表名"
+          },
+          "schema": {
+            "type": "string",
+            "description": "Schema名称"
+          },
+          "description": {
+            "type": "string",
+            "description": "表描述"
+          },
+          "tableType": {
+            "type": "string",
+            "description": "表类型"
+          },
+          "rowCount": {
+            "type": "integer",
+            "description": "行数"
+          },
+          "size": {
+            "type": "integer",
+            "description": "表大小（字节）"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "最后修改时间"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DatabaseColumn"
+            },
+            "description": "字段列表"
+          },
+          "indexes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DatabaseIndex"
+            },
+            "description": "索引列表"
+          },
+          "foreignKeys": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DatabaseForeignKey"
+            },
+            "description": "外键列表"
+          }
+        }
+      },
+      "DatabaseColumn": {
+        "type": "object",
+        "required": [
+          "name",
+          "type",
+          "nullable",
+          "primaryKey"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "字段名"
+          },
+          "type": {
+            "type": "string",
+            "description": "数据类型"
+          },
+          "nullable": {
+            "type": "boolean",
+            "description": "是否为空"
+          },
+          "primaryKey": {
+            "type": "boolean",
+            "description": "是否为主键"
+          },
+          "defaultValue": {
+            "type": "string",
+            "description": "默认值"
+          },
+          "description": {
+            "type": "string",
+            "description": "字段描述"
+          },
+          "length": {
+            "type": "integer",
+            "description": "字段长度"
+          },
+          "precision": {
+            "type": "integer",
+            "description": "精度（用于decimal类型）"
+          },
+          "scale": {
+            "type": "integer",
+            "description": "小数位数（用于decimal类型）"
+          },
+          "autoIncrement": {
+            "type": "boolean",
+            "description": "是否自增"
+          },
+          "ordinalPosition": {
+            "type": "integer",
+            "description": "字段位置"
+          },
+          "characterSet": {
+            "type": "string",
+            "description": "字符集"
+          },
+          "collation": {
+            "type": "string",
+            "description": "排序规则"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "最后修改时间"
+          }
+        }
+      },
+      "DatabaseIndex": {
+        "type": "object",
+        "required": [
+          "name",
+          "type",
+          "columns"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "索引名"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "PRIMARY",
+              "UNIQUE",
+              "INDEX"
+            ],
+            "description": "索引类型"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "索引字段列表"
+          },
+          "description": {
+            "type": "string",
+            "description": "索引描述"
+          }
+        }
+      },
+      "DatabaseForeignKey": {
+        "type": "object",
+        "required": [
+          "name",
+          "columnName",
+          "referencedTableName",
+          "referencedColumnName"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "外键名"
+          },
+          "columnName": {
+            "type": "string",
+            "description": "当前表字段"
+          },
+          "referencedTableName": {
+            "type": "string",
+            "description": "引用表名"
+          },
+          "referencedTableSchema": {
+            "type": "string",
+            "description": "引用表Schema"
+          },
+          "referencedColumnName": {
+            "type": "string",
+            "description": "引用字段名"
+          },
+          "updateRule": {
+            "type": "string",
+            "description": "更新规则"
+          },
+          "deleteRule": {
+            "type": "string",
+            "description": "删除规则"
           }
         }
       }

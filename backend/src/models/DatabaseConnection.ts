@@ -23,9 +23,9 @@ export enum ConnectionStatus {
 interface SSLConfig {
   enabled: boolean;           // 是否启用SSL
   verifyServerCert: boolean;  // 是否验证服务器证书
-  caCert?: string;           // CA证书内容
-  clientCert?: string;       // 客户端证书内容
-  clientKey?: string;        // 客户端密钥内容
+  caCert?: string;           // CA证书
+  clientCert?: string;       // 客户端证书
+  clientKey?: string;        // 客户端私钥
 }
 
 // 连接池配置接口
@@ -130,6 +130,7 @@ export class DatabaseConnection {
   @Column({ 
     type: 'jsonb',
     nullable: true,
+    name: 'sslconfig',
     comment: 'SSL配置'
   })
   sslConfig: SSLConfig;
@@ -137,6 +138,7 @@ export class DatabaseConnection {
   @Column({ 
     type: 'jsonb',
     nullable: true,
+    name: 'poolconfig',
     comment: '连接池配置'
   })
   poolConfig: PoolConfig;
@@ -144,6 +146,7 @@ export class DatabaseConnection {
   @Column({ 
     type: 'jsonb',
     nullable: true,
+    name: 'monitorconfig',
     comment: '监控配置'
   })
   monitorConfig: MonitorConfig;
@@ -161,6 +164,7 @@ export class DatabaseConnection {
     type: 'boolean',
     default: false,
     nullable: false,
+    name: 'allowremote',
     comment: '是否支持远程连接'
   })
   allowRemote: boolean;
@@ -169,6 +173,7 @@ export class DatabaseConnection {
     type: 'varchar', 
     length: 255,
     nullable: true,
+    name: 'allowedips',
     comment: '允许的IP地址列表，多个用逗号分隔'
   })
   allowedIps: string;
@@ -176,6 +181,7 @@ export class DatabaseConnection {
   @Column({ 
     type: 'timestamp with time zone',
     nullable: true,
+    name: 'lasttestat',
     comment: '最后测试连接时间'
   })
   lastTestAt: Date;
@@ -184,6 +190,7 @@ export class DatabaseConnection {
     type: 'boolean',
     default: false,
     nullable: false,
+    name: 'lasttestsuccess',
     comment: '最后测试是否成功'
   })
   lastTestSuccess: boolean;
@@ -191,6 +198,7 @@ export class DatabaseConnection {
   @Column({ 
     type: 'text',
     nullable: true,
+    name: 'lasttesterror',
     comment: '最后测试错误信息'
   })
   lastTestError: string | null;
@@ -237,13 +245,28 @@ export class DatabaseConnection {
     return typeof this.name === 'string' && this.name.length > 0;
   }
 
-  validateConnection(): boolean {
-    return (
-      typeof this.host === 'string' && this.host.length > 0 &&
-      typeof this.port === 'number' && this.port > 0 &&
-      typeof this.database === 'string' && this.database.length > 0 &&
-      typeof this.username === 'string' && this.username.length > 0
-    );
+  validateHost(): boolean {
+    return typeof this.host === 'string' && this.host.length > 0;
+  }
+
+  validatePort(): boolean {
+    return typeof this.port === 'number' && this.port > 0 && this.port <= 65535;
+  }
+
+  validateDatabase(): boolean {
+    return typeof this.database === 'string' && this.database.length > 0;
+  }
+
+  validateUsername(): boolean {
+    return typeof this.username === 'string' && this.username.length > 0;
+  }
+
+  validateType(): boolean {
+    return Object.values(DatabaseType).includes(this.type);
+  }
+
+  validateStatus(): boolean {
+    return Object.values(ConnectionStatus).includes(this.status);
   }
 
   // 密码加密
