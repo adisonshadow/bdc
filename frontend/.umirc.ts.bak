@@ -41,23 +41,19 @@ export default defineConfig({
       component: './SSOCallback',
       hideInMenu: true,
       layout: false,
-      // action: async ({ request }: { request: Request }) => {
-      //   const formData = await request.formData();
-      //   return { data: Object.fromEntries(formData) };
-      // },
     },
     {
       path: '/sso-test',
-      name: 'SSO 测试',
-      component: './SSOCallback/test',
-      hideInMenu: true,
-      layout: false,
-    },
     {
       path: '/test-auth',
       name: '认证测试',
       component: './test-auth',
       hideInMenu: true,
+    },
+      name: 'SSO 测试',
+      component: './SSOCallback/test',
+      hideInMenu: true,
+      layout: false,
     },
     {
       path: '/data-structures',
@@ -71,6 +67,18 @@ export default defineConfig({
       icon: 'DatabaseOutlined',
       component: './DatabaseManagement',
     },
+    // {
+    //   path: '/schema-graph',
+    //   name: '数据表图谱',
+    //   component: './SchemaGraph',
+    //   hideInMenu: true,
+    // },
+  //  {
+  //     path: '/schema-graph-g6',
+  //     name: '数据表图谱',
+  //     component: './SchemaGraphNew2',
+  //     hideInMenu: true,
+  //   },
     {
       path: '/schema-graph',
       name: '数据表图谱',
@@ -79,4 +87,4 @@ export default defineConfig({
     },
   ],
   npmClient: 'yarn',
-});
+}); 

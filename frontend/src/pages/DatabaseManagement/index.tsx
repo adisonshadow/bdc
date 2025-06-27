@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, Tag, Tooltip, Switch, message, Modal, Form, Input, Select, List, Flex, InputNumber, Badge, Popconfirm, Card, Descriptions, Timeline, Checkbox, Divider, Tree, Tabs } from 'antd';
+import { Table, Button, Space, Tag, Tooltip, Switch, message, Modal, Form, Input, Select, List, Flex, InputNumber, Badge, Popconfirm, Card, Descriptions, Timeline, Checkbox, Divider, Tree, Tabs, Splitter } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, CheckCircleOutlined, CloseCircleOutlined, SyncOutlined, DatabaseOutlined, ClockCircleOutlined, CloudServerOutlined } from '@ant-design/icons';
-import { Splitter } from 'antd';
-import { getDatabaseConnections, postDatabaseConnections, deleteDatabaseConnectionsId, postDatabaseConnectionsIdTest, putDatabaseConnectionsId } from '@/services/BDC/api/databaseConnections';
+import { getDatabaseConnections, postDatabaseConnections, deleteDatabaseConnectionsId, postDatabaseConnectionsIdTest, putDatabaseConnectionsId, getDatabaseConnectionsIdTables } from '@/services/BDC/api/databaseConnections';
 import { postMaterializeTables } from '@/services/BDC/api/materializeTables';
 import { getSchemas } from '@/services/BDC/api/schemaManagement';
-import { getDatabaseTables } from '@/services/BDC/api/databaseTables';
 import { buildTree } from '@/utils/treeBuilder';
 
 const { Option } = Select;
@@ -67,6 +65,7 @@ const DatabaseManagement: React.FC = () => {
   const [isIndeterminate, setIsIndeterminate] = useState(false);
   const [databaseTables, setDatabaseTables] = useState<any[]>([]);
   const [tablesLoading, setTablesLoading] = useState(false);
+  const [previewSchema, setPreviewSchema] = useState<SchemaListItem | null>(null);
 
   // 数据库类型选项
   const databaseTypes = [
@@ -178,7 +177,7 @@ const DatabaseManagement: React.FC = () => {
     
     setTablesLoading(true);
     try {
-      const response = await getDatabaseTables({ id: connectionId });
+      const response = await getDatabaseConnectionsIdTables({ id: connectionId });
       if (response.success && response.data) {
         setDatabaseTables(response.data);
       }
@@ -391,10 +390,10 @@ const DatabaseManagement: React.FC = () => {
     }
   };
 
-  // 处理表物化
+  // 处理表同步
   const handleMaterializeTables = async (values: any) => {
     if (selectedSchemas.length === 0) {
-      message.warning('请选择要物化的表结构');
+      message.warning('请选择要同步的表结构');
       return;
     }
 
@@ -413,7 +412,7 @@ const DatabaseManagement: React.FC = () => {
       });
 
       if (response.success) {
-        message.success('表物化成功');
+        message.success('表同步成功');
         
         // 添加同步记录
         const successCount = response.results?.filter(r => r.success).length || 0;
@@ -425,7 +424,7 @@ const DatabaseManagement: React.FC = () => {
           connectionName: selectedConnection!.name,
           operation: 'materialize',
           status: failCount === 0 ? 'success' : 'failed',
-          message: `成功物化 ${successCount} 个表${failCount > 0 ? `，失败 ${failCount} 个表` : ''}`,
+          message: `成功同步 ${successCount} 个表${failCount > 0 ? `，失败 ${failCount} 个表` : ''}`,
           timestamp: new Date().toISOString(),
           details: response.results
         });
@@ -435,7 +434,7 @@ const DatabaseManagement: React.FC = () => {
         setSelectedSchemas([]);
       }
     } catch (error: any) {
-      message.error(`表物化失败: ${error.response?.data?.message || error.message}`);
+      message.error(`表同步失败: ${error.response?.data?.message || error.message}`);
       
       // 添加失败的同步记录
       addSyncRecord({
@@ -534,6 +533,135 @@ const DatabaseManagement: React.FC = () => {
     fetchConnections();
     fetchSchemas();
   }, []);
+
+  // 渲染字段预览列表
+  const renderFieldPreview = () => {
+    if (!previewSchema) {
+      return (
+        <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+          请选择左侧的表结构查看字段详情
+        </div>
+      );
+    }
+
+    // 获取关系类型显示文本
+    const getRelationTypeText = (field: any) => {
+      const type = field.relationType || (field.relationConfig?.multiple ? 'oneToMany' : 'oneToOne');
+      switch (type) {
+        case 'oneToOne': return '1:1';
+        case 'oneToMany': return '1:n';
+        case 'manyToOne': return 'n:1';
+        case 'manyToMany': return 'm:n';
+        default: return '1:1';
+      }
+    };
+
+    // 获取目标数据表的描述信息
+    const getTargetSchemaDescription = (code: string | undefined) => {
+      if (!code) return '';
+      const schema = schemas.find(s => s.code === code);
+      return schema ? `${code}（${schema.name}）` : code;
+    };
+
+    // 获取枚举的描述信息
+    const getEnumDescription = (enumCode: string | undefined) => {
+      if (!enumCode) return enumCode || '';
+      return enumCode;
+    };
+
+    return (
+      <div style={{ padding: '6px 16px 16px 16px' }}>
+        <div style={{ marginBottom: '16px' }}>
+          <h4 style={{ margin: 0 }}>{previewSchema.name}
+          {previewSchema.description && (
+            <span style={{ color: '#666', fontSize: '12px', marginLeft: '14px' }}>
+              {previewSchema.description}
+            </span>
+          )}
+          </h4>
+        </div>
+        <List
+          dataSource={previewSchema.fields}
+          size="small"
+          renderItem={(field: any, index: number) => (
+            <List.Item
+              key={field.id || index}
+              className="px-0"
+            >
+              <List.Item.Meta
+                title={
+                  <Space>
+                    <span>{field.name}</span>
+                    {field.description && <span>({field.description})</span>}
+                    <Tag color="blue">{field.type}</Tag>
+                    {(field.type === 'uuid' || field.type === 'auto_increment') && field.isPrimaryKey && (
+                      <Tag color="red">PK</Tag>
+                    )}
+                  </Space>
+                }
+                description={
+                  <div style={{ marginTop: '4px' }}>
+                    {/* 必填 */}
+                    {field.required && <Tag color="cyan" bordered={false}>必填</Tag>}
+                    {/* 长度 */}
+                    {field.type === 'string' && field.length && (
+                      <Tag color="cyan" bordered={false}>
+                        VARCHAR({field.length})
+                      </Tag>
+                    )}
+                    {/* 长文本 */}
+                    {field.type === 'text' && (
+                      <Tag color="cyan" bordered={false}>
+                        TEXT
+                      </Tag>
+                    )}
+                    {/* 日期 */}
+                    {field.type === 'date' && field.dateType && (
+                      <Tag color="cyan" bordered={false}>{field.dateType}</Tag>
+                    )}
+                    {/* 枚举 */}
+                    {field.type === 'enum' && field.enumConfig && (
+                      <>
+                        <Tag color="cyan" bordered={false}>
+                          枚举: {getEnumDescription(field.enumConfig?.targetEnumCode)}
+                        </Tag>
+                        {field.enumConfig?.multiple && (
+                          <Tag color="purple" bordered={false}>允许多选</Tag>
+                        )}
+                      </>
+                    )}
+                    {/* 关联 */}
+                    {field.type === 'relation' && field.relationConfig && (
+                      <>
+                        <Tag color="cyan" bordered={false}>
+                          {getRelationTypeText(field)}
+                        </Tag>
+                        <Tag color="cyan" bordered={false}>
+                          关联: {getTargetSchemaDescription(field.relationConfig?.targetSchemaCode)}
+                        </Tag>
+                      </>
+                    )}
+                    {/* 媒体 */}
+                    {field.type === 'media' && field.mediaConfig && (
+                      <Tag color="cyan" bordered={false}>媒体类型: {field.mediaConfig?.mediaType}</Tag>
+                    )}
+                    {/* API */}
+                    {field.type === 'api' && field.apiConfig && (
+                      <Tag color="cyan" bordered={false}>API: {field.apiConfig?.endpoint}</Tag>
+                    )}
+                    {/* 数字类型 */}
+                    {field.type === 'number' && (
+                      <Tag color="cyan" bordered={false}>数字</Tag>
+                    )}
+                  </div>
+                }
+              />
+            </List.Item>
+          )}
+        />
+      </div>
+    );
+  };
 
   const connectionColumns = [
     {
@@ -742,6 +870,7 @@ const DatabaseManagement: React.FC = () => {
                                     setCheckedKeys([]);
                                     setIsAllSelected(false);
                                     setIsIndeterminate(false);
+                                    setPreviewSchema(null);
                                   }}
                                 >
                                   同步
@@ -763,7 +892,7 @@ const DatabaseManagement: React.FC = () => {
                                             {record.operation === 'update' && '更新连接'}
                                             {record.operation === 'delete' && '删除连接'}
                                             {record.operation === 'test' && '测试连接'}
-                                            {record.operation === 'materialize' && '表物化'}
+                                            {record.operation === 'materialize' && '表同步'}
                                           </div>
                                           <div style={{ color: '#666', fontSize: '12px' }}>
                                             {record.message}
@@ -1263,15 +1392,19 @@ const DatabaseManagement: React.FC = () => {
         </Form>
       </Modal>
 
-      {/* 表物化模态框 */}
+      {/* 表同步模态框 */}
       <Modal
-        title="表物化设置"
+        title="将模型同步到数据库"
         open={isMaterializeModalVisible}
         onOk={() => materializeForm.submit()}
-        onCancel={() => setIsMaterializeModalVisible(false)}
-        width={800}
+        onCancel={() => {
+          setIsMaterializeModalVisible(false);
+          setPreviewSchema(null);
+        }}
+        width={1000}
         maskClosable={false}
         confirmLoading={materializeLoading}
+        style={{ top: 20 }}
       >
         <Form
           form={materializeForm}
@@ -1285,76 +1418,112 @@ const DatabaseManagement: React.FC = () => {
             tablePrefix: ''
           }}
         >
-          <div style={{ marginBottom: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-              <h4 style={{ margin: 0, marginRight: '8px' }}>选择要物化的表结构</h4>
-              <Checkbox
-                checked={isAllSelected}
-                indeterminate={isIndeterminate}
-                onChange={(e) => handleSelectAll(e.target.checked)}
-              >
-                全选
-              </Checkbox>
-            </div>
-            <div style={{ 
-              maxHeight: '300px', 
-              overflowY: 'auto', 
-              borderRadius: '6px',
+          <div style={{ 
+                height: '300px',
+                borderWidth: 1,
+                borderStyle: 'solid',
+                borderColor: '#424242',
+                borderRadius: 6,
+                background: '#141414',
+                marginBottom: '16px'
             }}>
-              <Tree
-                checkable
-                showIcon
-                // icon={<DatabaseOutlined />}
-                treeData={schemaTreeData}
-                expandedKeys={expandedKeys}
-                checkedKeys={checkedKeys}
-                onExpand={(expandedKeysValue) => {
-                  setExpandedKeys(expandedKeysValue as string[]);
-                }}
-                onCheck={(checkedKeysValue) => {
-                  const keys = Array.isArray(checkedKeysValue) ? checkedKeysValue : checkedKeysValue.checked;
-                  setCheckedKeys(keys as string[]);
-                  // 只收集叶子节点的code
-                  const leafCodes: string[] = [];
-                  const collectLeafCodes = (nodes: any[], checkedKeys: string[]) => {
-                    nodes.forEach(node => {
-                      const nodeKey = node.key || node.value;
-                      if (checkedKeys.includes(nodeKey)) {
-                        if (node.children && node.children.length > 0) {
-                          collectLeafCodes(node.children, checkedKeys);
-                        } else {
-                          // 只有叶子节点才添加到选中列表
-                          if (node.rawSchema) {
-                            leafCodes.push(node.rawSchema.code);
-                          }
-                        }
-                      }
-                    });
-                  };
-                  collectLeafCodes(schemaTreeData, keys as string[]);
-                  setSelectedSchemas(leafCodes);
-                }}
-                titleRender={(node) => (
-                  <div>
-                    <div style={{ fontWeight: 'bold' }}>{node.label}
-                    {node.rawSchema && (
-                      <span style={{ color: '#666', fontSize: '12px' }}>
-                        字段数: {node.rawSchema.fields?.length || 0}
-                      </span>
-                    )}
+            <Splitter style={{ height: '100%' }}>
+              <Splitter.Panel defaultSize="50%">
+                <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', margin: '4px 8px 12px 8px' }}>
+                      <h4 style={{ margin: 0, marginRight: '8px' }}>选择要同步的表</h4>
+                      <Checkbox
+                        checked={isAllSelected}
+                        indeterminate={isIndeterminate}
+                        onChange={(e) => handleSelectAll(e.target.checked)}
+                      >
+                        全选
+                      </Checkbox>
                     </div>
                   </div>
-                )}
-              />
-              {schemaTreeData.length === 0 && (
-                <div style={{ textAlign: 'center', color: '#999', padding: '20px' }}>
-                  暂无表结构定义
+                  <div style={{ 
+                    flex: 1,
+                    overflowY: 'auto', 
+                    borderRadius: '6px'
+                  }}>
+                    <Tree
+                      checkable
+                      showIcon
+                      treeData={schemaTreeData}
+                      expandedKeys={expandedKeys}
+                      checkedKeys={checkedKeys}
+                      // height={300}
+                      onExpand={(expandedKeysValue) => {
+                        setExpandedKeys(expandedKeysValue as string[]);
+                      }}
+                      onCheck={(checkedKeysValue) => {
+                        const keys = Array.isArray(checkedKeysValue) ? checkedKeysValue : checkedKeysValue.checked;
+                        setCheckedKeys(keys as string[]);
+                        // 只收集叶子节点的code
+                        const leafCodes: string[] = [];
+                        const collectLeafCodes = (nodes: any[], checkedKeys: string[]) => {
+                          nodes.forEach(node => {
+                            const nodeKey = node.key || node.value;
+                            if (checkedKeys.includes(nodeKey)) {
+                              if (node.children && node.children.length > 0) {
+                                collectLeafCodes(node.children, checkedKeys);
+                              } else {
+                                // 只有叶子节点才添加到选中列表
+                                if (node.rawSchema) {
+                                  leafCodes.push(node.rawSchema.code);
+                                }
+                              }
+                            }
+                          });
+                        };
+                        collectLeafCodes(schemaTreeData, keys as string[]);
+                        setSelectedSchemas(leafCodes);
+                      }}
+                      onSelect={(selectedKeys, info) => {
+                        // 当点击树节点时，预览对应的表结构
+                        if (info.node.rawSchema) {
+                          setPreviewSchema(info.node.rawSchema);
+                        } else {
+                          setPreviewSchema(null);
+                        }
+                      }}
+                      titleRender={(node) => (
+                        <div>
+                          <div style={{ fontWeight: 'bold' }}>{node.label}
+                          {node.rawSchema && (
+                            <span style={{ color: '#666', fontSize: '12px' }}>
+                              字段数: {node.rawSchema.fields?.length || 0}
+                            </span>
+                          )}
+                          </div>
+                        </div>
+                      )}
+                    />
+                    {schemaTreeData.length === 0 && (
+                      <div style={{ textAlign: 'center', color: '#999', padding: '20px' }}>
+                        暂无表结构定义
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
+              </Splitter.Panel>
+              <Splitter.Panel>
+                <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  {/* <div style={{ height: '32px', display: 'flex', alignItems: 'center' }}>
+                    <h4 style={{ margin: 0 }}>字段预览</h4>
+                  </div> */}
+                  <div style={{ 
+                    flex: 1,
+                    overflowY: 'auto',
+                    borderRadius: '6px',
+                  }}>
+                    {renderFieldPreview()}
+                  </div>
+                </div>
+              </Splitter.Panel>
+            </Splitter>
           </div>
-
-          <Divider />
 
           <Form.Item
             name="targetSchema"

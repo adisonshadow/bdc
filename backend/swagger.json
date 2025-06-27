@@ -1547,6 +1547,122 @@
           }
         }
       }
+    },
+    "/sso-callback": {
+      "post": {
+        "summary": "SSO认证回调处理",
+        "description": "处理第三方SSO服务器的认证回调，验证用户信息并生成JWT令牌",
+        "tags": [
+          "SSO"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "idp",
+                  "access_token",
+                  "refresh_token",
+                  "token_type",
+                  "expires_in",
+                  "user_info"
+                ],
+                "properties": {
+                  "idp": {
+                    "type": "string",
+                    "description": "身份提供者标识",
+                    "example": "IAM"
+                  },
+                  "access_token": {
+                    "type": "string",
+                    "description": "SSO访问令牌"
+                  },
+                  "refresh_token": {
+                    "type": "string",
+                    "description": "SSO刷新令牌"
+                  },
+                  "token_type": {
+                    "type": "string",
+                    "description": "令牌类型",
+                    "example": "Bearer"
+                  },
+                  "expires_in": {
+                    "type": "string",
+                    "description": "过期时间（秒）"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "状态参数"
+                  },
+                  "user_info": {
+                    "type": "object",
+                    "description": "用户信息",
+                    "properties": {
+                      "user_id": {
+                        "type": "string",
+                        "description": "用户ID"
+                      },
+                      "username": {
+                        "type": "string",
+                        "description": "用户名"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "姓名"
+                      },
+                      "email": {
+                        "type": "string",
+                        "description": "邮箱"
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "用户状态",
+                        "example": "ACTIVE"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "302": {
+            "description": "重定向到前端页面",
+            "headers": {
+              "Location": {
+                "description": "重定向地址",
+                "schema": {
+                  "type": "string",
+                  "example": "/auth-success?data=..."
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "SSO回调页面提示",
+        "description": "当通过GET方式访问SSO回调时，返回友好提示信息",
+        "tags": [
+          "SSO"
+        ],
+        "responses": {
+          "200": {
+            "description": "提示信息",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "请通过POST方式提交SSO认证数据"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {

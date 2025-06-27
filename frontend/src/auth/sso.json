@@ -1,0 +1,4 @@
+{
+    "sso-auth-url": "http://localhost:9001/auth/login",
+    "app": "7913b18c-e3f2-4d40-8b6b-b0239c98fef6"
+}

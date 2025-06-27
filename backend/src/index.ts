@@ -8,6 +8,7 @@ import path from 'path';
 import fs from 'fs';
 import { Logger } from './utils/logger';
 import apiDefinitionRouter from './routes/apiDefinitionRoutes';
+import ssoRoutes from './routes/ssoRoutes';
 
 // 在最开始就加载环境变量
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -80,10 +81,14 @@ const app = express();
 const PORT = process.env.PORT || 3300;
 
 // 中间件
-app.use(cors());
-app.use(express.json());
+
+// SSO 路由 - 不使用 /api 前缀，放在最前面
+app.use(cors()); // 允许跨域请求
+app.use(express.json()); // 解析 JSON 请求体
+app.use(express.urlencoded({ extended: true })); // 解析 URL 编码的请求体
 
 // API 路由
+app.use('/', ssoRoutes);
 app.use('/api/schemas', schemaRouter);
 app.use('/api/enums', enumRouter);
 app.use('/api/database-connections', databaseConnectionRouter);

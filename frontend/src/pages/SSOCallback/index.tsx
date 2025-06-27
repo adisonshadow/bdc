@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Spin, Alert, Button, Typography, Space } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import { history } from '@umijs/max';
+import { saveAuthInfo, User } from '../../auth';
 
 const { Title, Text } = Typography;
 
@@ -15,58 +16,102 @@ interface ErrorResponse {
 interface SuccessResponse {
   success: true;
   token: string;
-  user: {
-    user_id: string;
-    username: string;
-    name: string;
-    email: string;
-    phone?: string;
-    gender?: string;
-    status: string;
-    department_id?: string;
-  };
+  user: User;
 }
 
 const SSOCallback: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ErrorResponse | null>(null);
   const [success, setSuccess] = useState<SuccessResponse | null>(null);
+  const [formData, setFormData] = useState<any>(null);
 
   useEffect(() => {
-    handleSSOCallback();
+    // 检查是否有URL参数数据
+    const checkForUrlData = () => {
+      // 从URL参数读取数据
+      const urlParams = new URLSearchParams(window.location.search);
+      const params = Object.fromEntries(urlParams.entries());
+      
+      console.log('URL params:', params);
+      
+      if (Object.keys(params).length > 0) {
+        // 解析user_info JSON字符串
+        let userInfo = null;
+        if (params.user_info) {
+          try {
+            userInfo = JSON.parse(decodeURIComponent(params.user_info));
+            console.log('Parsed user_info:', userInfo);
+          } catch (err) {
+            console.error('Failed to parse user_info:', err);
+          }
+        }
+        
+        // 构建发送到后端的数据
+        const data = {
+          idp: params.idp,
+          access_token: params.access_token,
+          refresh_token: params.refresh_token,
+          token_type: params.token_type,
+          expires_in: params.expires_in,
+          state: params.state,
+          user_info: userInfo
+        };
+        
+        console.log('Processed data:', data);
+        setFormData(data);
+        handleSSOCallback(data);
+      } else {
+        // 没有数据，显示错误
+        setError({
+          success: false,
+          message: '未找到认证数据',
+          details: 'SSO回调页面未接收到任何认证信息。请检查SSO服务器是否正确传递参数。',
+          code: 'NO_DATA'
+        });
+        setLoading(false);
+      }
+    };
+
+    // 延迟检查，确保页面完全加载
+    setTimeout(checkForUrlData, 100);
   }, []);
 
-  const handleSSOCallback = async () => {
+  const handleSSOCallback = async (data?: any) => {
     try {
       setLoading(true);
       
-      // 获取 URL 参数
-      const urlParams = new URLSearchParams(window.location.search);
-      const params = Object.fromEntries(urlParams.entries());
+      // 使用传入的数据或状态中的数据
+      const params = data || formData;
+      
+      if (!params) {
+        throw new Error('没有认证数据');
+      }
+      
+      console.log('Sending data to backend:', params);
       
       // 发送 POST 请求到后端
       const response = await fetch('/api/auth/callback', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: new URLSearchParams(params).toString(),
+        body: JSON.stringify(params),
       });
 
-      const data = await response.json();
+      const responseData = await response.json();
+      console.log('Backend response:', responseData);
 
-      if (data.success) {
-        setSuccess(data);
-        // 保存 token 到 localStorage
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+      if (responseData.success) {
+        setSuccess(responseData);
+        // 使用认证模块保存用户信息
+        saveAuthInfo(responseData.token, responseData.user);
         
         // 延迟重定向，让用户看到成功信息
         setTimeout(() => {
           history.push('/');
         }, 2000);
       } else {
-        setError(data);
+        setError(responseData);
       }
     } catch (err) {
       console.error('SSO 回调处理错误:', err);
@@ -111,6 +156,13 @@ const SSOCallback: React.FC = () => {
           <Text type="secondary">
             请稍候，正在验证您的身份信息...
           </Text>
+          {formData && (
+            <div style={{ marginTop: 16, textAlign: 'left' }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                接收到的数据: {JSON.stringify(formData, null, 2)}
+              </Text>
+            </div>
+          )}
         </Card>
       </div>
     );
@@ -213,7 +265,22 @@ const SSOCallback: React.FC = () => {
     );
   }
 
-  return null;
+  return (
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '100vh',
+      background: '#f5f5f5'
+    }}>
+      <Card style={{ width: 400, textAlign: 'center' }}>
+        <Title level={3}>等待SSO数据</Title>
+        <Text type="secondary">
+          正在等待SSO服务器发送认证数据...
+        </Text>
+      </Card>
+    </div>
+  );
 };
 
-export default SSOCallback; 
+export default SSOCallback;

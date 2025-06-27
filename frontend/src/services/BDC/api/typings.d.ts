@@ -59,6 +59,37 @@ declare namespace API {
       type?: "boolean";
     };
 
+  type DatabaseColumn = {
+    /** 字段名 */
+    name: string;
+    /** 数据类型 */
+    type: string;
+    /** 是否为空 */
+    nullable: boolean;
+    /** 是否为主键 */
+    primaryKey: boolean;
+    /** 默认值 */
+    defaultValue?: string;
+    /** 字段描述 */
+    description?: string;
+    /** 字段长度 */
+    length?: number;
+    /** 精度（用于decimal类型） */
+    precision?: number;
+    /** 小数位数（用于decimal类型） */
+    scale?: number;
+    /** 是否自增 */
+    autoIncrement?: boolean;
+    /** 字段位置 */
+    ordinalPosition?: number;
+    /** 字符集 */
+    characterSet?: string;
+    /** 排序规则 */
+    collation?: string;
+    /** 最后修改时间 */
+    updatedAt?: string;
+  };
+
   type DatabaseConnection = {
     /** 数据库连接ID */
     id?: string;
@@ -211,6 +242,59 @@ declare namespace API {
     isActive?: boolean;
   };
 
+  type DatabaseForeignKey = {
+    /** 外键名 */
+    name: string;
+    /** 当前表字段 */
+    columnName: string;
+    /** 引用表名 */
+    referencedTableName: string;
+    /** 引用表Schema */
+    referencedTableSchema?: string;
+    /** 引用字段名 */
+    referencedColumnName: string;
+    /** 更新规则 */
+    updateRule?: string;
+    /** 删除规则 */
+    deleteRule?: string;
+  };
+
+  type DatabaseIndex = {
+    /** 索引名 */
+    name: string;
+    /** 索引类型 */
+    type: "PRIMARY" | "UNIQUE" | "INDEX";
+    /** 索引字段列表 */
+    columns: string[];
+    /** 索引描述 */
+    description?: string;
+  };
+
+  type DatabaseTable = {
+    /** 表名 */
+    tableName: string;
+    /** Schema名称 */
+    schema: string;
+    /** 表描述 */
+    description?: string;
+    /** 表类型 */
+    tableType?: string;
+    /** 行数 */
+    rowCount?: number;
+    /** 表大小（字节） */
+    size?: number;
+    /** 创建时间 */
+    createdAt?: string;
+    /** 最后修改时间 */
+    updatedAt?: string;
+    /** 字段列表 */
+    columns: DatabaseColumn[];
+    /** 索引列表 */
+    indexes?: DatabaseIndex[];
+    /** 外键列表 */
+    foreignKeys?: DatabaseForeignKey[];
+  };
+
   type DataStructure = {
     /** 数据结构ID */
     id?: string;
@@ -338,6 +422,11 @@ declare namespace API {
   };
 
   type getDatabaseConnectionsIdParams = {
+    /** 数据库连接ID */
+    id: string;
+  };
+
+  type getDatabaseConnectionsIdTablesParams = {
     /** 数据库连接ID */
     id: string;
   };
@@ -475,93 +564,4 @@ declare namespace API {
       /** UUID类型 */
       type?: "uuid";
     };
-
-  type DatabaseTable = {
-    /** 表名 */
-    tableName: string;
-    /** Schema名称 */
-    schema: string;
-    /** 表描述 */
-    description?: string;
-    /** 表类型 */
-    tableType?: string;
-    /** 行数 */
-    rowCount?: number;
-    /** 表大小（字节） */
-    size?: number;
-    /** 创建时间 */
-    createdAt?: string;
-    /** 最后修改时间 */
-    updatedAt?: string;
-    /** 字段列表 */
-    columns: DatabaseColumn[];
-    /** 索引列表 */
-    indexes?: DatabaseIndex[];
-    /** 外键列表 */
-    foreignKeys?: DatabaseForeignKey[];
-  };
-
-  type DatabaseColumn = {
-    /** 字段名 */
-    name: string;
-    /** 数据类型 */
-    type: string;
-    /** 是否为空 */
-    nullable: boolean;
-    /** 是否为主键 */
-    primaryKey: boolean;
-    /** 默认值 */
-    defaultValue?: string;
-    /** 字段描述 */
-    description?: string;
-    /** 字段长度 */
-    length?: number;
-    /** 精度（用于decimal类型） */
-    precision?: number;
-    /** 小数位数（用于decimal类型） */
-    scale?: number;
-    /** 是否自增 */
-    autoIncrement?: boolean;
-    /** 字段位置 */
-    ordinalPosition?: number;
-    /** 字符集 */
-    characterSet?: string;
-    /** 排序规则 */
-    collation?: string;
-    /** 最后修改时间 */
-    updatedAt?: string;
-  };
-
-  type DatabaseIndex = {
-    /** 索引名 */
-    name: string;
-    /** 索引类型 */
-    type: "PRIMARY" | "UNIQUE" | "INDEX";
-    /** 索引字段列表 */
-    columns: string[];
-    /** 索引描述 */
-    description?: string;
-  };
-
-  type DatabaseForeignKey = {
-    /** 外键名 */
-    name: string;
-    /** 当前表字段 */
-    columnName: string;
-    /** 引用表名 */
-    referencedTableName: string;
-    /** 引用表Schema */
-    referencedTableSchema?: string;
-    /** 引用字段名 */
-    referencedColumnName: string;
-    /** 更新规则 */
-    updateRule?: string;
-    /** 删除规则 */
-    deleteRule?: string;
-  };
-
-  type getDatabaseTablesParams = {
-    /** 数据库连接ID */
-    id: string;
-  };
 }

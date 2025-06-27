@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Table, Button, Space, Tag, Tooltip, Switch, message, Modal, Form, Input, Select, List, Flex, InputNumber, Cascader, TreeSelect, Badge, Popconfirm } from 'antd';
+import { Table, Button, Space, Tag, Tooltip, Switch, message, Modal, Form, Input, Select, List, Flex, InputNumber, Cascader, TreeSelect, Badge, Popconfirm, Checkbox } from 'antd';
 import type { CascaderProps } from 'antd';
 import type { DefaultOptionType } from 'antd/es/cascader';
-import { PlusOutlined, EditOutlined, DeleteOutlined, CloudServerOutlined, MoreOutlined, ApartmentOutlined, SyncOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, ExportOutlined, MoreOutlined, ApartmentOutlined, CloudDownloadOutlined, CaretDownOutlined, CaretRightOutlined, TableOutlined } from '@ant-design/icons';
 import { Splitter } from 'antd';
 import { getSchemas, putSchemasId, postSchemas, deleteSchemasId } from '@/services/BDC/api/schemaManagement';
 import { getEnums } from '@/services/BDC/api/enumManagement';
@@ -10,6 +10,7 @@ import { buildTree, enumTreeConfig } from '@/utils/treeBuilder';
 import { EnumTreeNode } from '@/types/enum';
 import SchemaValidator from '@/components/SchemaValidator';
 import { useNavigate } from 'react-router-dom';
+import { handleDownloadORM } from './ormGenerator';
 
 const { Option } = Select;
 
@@ -739,10 +740,13 @@ const SchemaManagement: React.FC = () => {
     }
   };
 
-  // 处理同步到数据库
-  const handleSyncToDatabase = () => {
-    // TODO: 实现同步逻辑
-    message.info('同步功能待实现');
+  // 处理将选择中的表下载为ORM文件
+  const handleDownloadORMClick = async () => {
+    // 获取选中的数据表
+    const selectedSchemas = schemas.filter(schema => selectedRowKeys.includes(schema.code));
+    
+    // 调用 ORM 生成器，传入枚举数据
+    await handleDownloadORM(selectedSchemas, schemas, enums);
   };
 
   // 处理全选/取消全选
@@ -799,7 +803,111 @@ const SchemaManagement: React.FC = () => {
     return selectedRowKeys.length > 0 && selectedRowKeys.length < allLeafCodes.length;
   }, [schemaTreeData, selectedRowKeys]);
 
+  // 处理虚拟节点选择（全选/全不选子节点）
+  const handleVirtualNodeSelect = (record: SchemaTreeItem, checked: boolean) => {
+    if (!record.children?.length) return;
+    
+    // 收集所有子节点的 code
+    const childCodes: string[] = [];
+    const collectChildCodes = (nodes: SchemaTreeItem[]) => {
+      nodes.forEach(node => {
+        if (node.children?.length) {
+          collectChildCodes(node.children);
+        } else {
+          childCodes.push(node.code);
+        }
+      });
+    };
+    collectChildCodes(record.children);
+    
+    // 更新选中状态
+    if (checked) {
+      // 全选：添加所有子节点
+      const newSelectedKeys = [...selectedRowKeys];
+      childCodes.forEach(code => {
+        if (!newSelectedKeys.includes(code)) {
+          newSelectedKeys.push(code);
+        }
+      });
+      setSelectedRowKeys(newSelectedKeys);
+    } else {
+      // 全不选：移除所有子节点
+      setSelectedRowKeys(selectedRowKeys.filter(key => !childCodes.includes(key)));
+    }
+  };
+
+  // 检查虚拟节点的选中状态
+  const getVirtualNodeCheckedStatus = (record: SchemaTreeItem) => {
+    if (!record.children?.length) return { checked: false, indeterminate: false };
+    
+    const childCodes: string[] = [];
+    const collectChildCodes = (nodes: SchemaTreeItem[]) => {
+      nodes.forEach(node => {
+        if (node.children?.length) {
+          collectChildCodes(node.children);
+        } else {
+          childCodes.push(node.code);
+        }
+      });
+    };
+    collectChildCodes(record.children);
+    
+    const selectedChildCount = childCodes.filter(code => selectedRowKeys.includes(code)).length;
+    
+    if (selectedChildCount === 0) {
+      return { checked: false, indeterminate: false };
+    } else if (selectedChildCount === childCodes.length) {
+      return { checked: true, indeterminate: false };
+    } else {
+      return { checked: false, indeterminate: true };
+    }
+  };
+
   const schemaColumns = [
+    // 自定义 checkbox 列
+    ...(isSyncMode ? [{
+      title: (
+        <Checkbox
+          checked={isAllSelected}
+          indeterminate={isIndeterminate}
+          onChange={(e) => handleSelectAll(e.target.checked)}
+        />
+      ),
+      key: 'selection',
+      width: 60,
+      fixed: 'left' as const,
+      render: (_: unknown, record: SchemaTreeItem) => {
+        if (record.children?.length) {
+          // 虚拟节点：根据子节点状态显示
+          const status = getVirtualNodeCheckedStatus(record);
+          return (
+            <Checkbox
+              checked={status.checked}
+              indeterminate={status.indeterminate}
+              onChange={(e) => {
+                e.stopPropagation();
+                handleVirtualNodeSelect(record, e.target.checked);
+              }}
+            />
+          );
+        } else {
+          // 叶子节点：正常状态
+          return (
+            <Checkbox
+              checked={selectedRowKeys.includes(record.code)}
+              onChange={(e) => {
+                e.stopPropagation();
+                if (e.target.checked) {
+                  setSelectedRowKeys([...selectedRowKeys, record.code]);
+                } else {
+                  setSelectedRowKeys(selectedRowKeys.filter(key => key !== record.code));
+                }
+              }}
+            />
+          );
+        }
+      },
+    }] : []),
     {
       title: 'code',
       dataIndex: 'code',
@@ -807,7 +915,12 @@ const SchemaManagement: React.FC = () => {
       render: (text: string, record: SchemaTreeItem) => {
         // 获取当前层级的名称（最后一个冒号后的部分）
         const currentLevelName = text.split(':').pop() || '';
-        return <span style={{ color: record.children?.length ? '#999' : undefined }}>{currentLevelName}</span>;
+        return (
+          <span style={{ color: record.children?.length ? '#999' : undefined }}>
+            {!record.children?.length && <TableOutlined style={{ fontSize: '12px', marginRight: '8px', color: '#444' }} />}
+            {currentLevelName}
+          </span>
+        );
       },
     },
     {
@@ -1145,17 +1258,17 @@ const SchemaManagement: React.FC = () => {
   return (
     <div className="f-fullscreen">
       <Splitter style={{ height: "calc(100vh - 57px)" }}>
-        <Splitter.Panel defaultSize="40%">
+        <Splitter.Panel defaultSize="50%">
           <div className="f-header">
-            <label className="fw-bold">数据表</label>
+            <label className="fw-bold">模型表</label>
             <Space>
               <Button
                 type={isSyncMode ? "primary" : "link"}
                 ghost={!isSyncMode}
-                icon={<CloudServerOutlined />}
+                icon={<ExportOutlined />}
                 onClick={handleSyncModeToggle}
               >
-                {isSyncMode ? "取消同步" : "开始同步"}
+                {isSyncMode ? "取消导出模型" : "导出模型"}
               </Button>
               <Button
                 type="link"
@@ -1194,15 +1307,6 @@ const SchemaManagement: React.FC = () => {
                 pagination={false}
                 showHeader={false}
                 size="small"
-                rowSelection={isSyncMode ? {
-                  selectedRowKeys,
-                  onChange: (selectedKeys) => {
-                    setSelectedRowKeys(selectedKeys as string[]);
-                  },
-                  getCheckboxProps: (record: SchemaTreeItem) => ({
-                    disabled: !!record.children?.length, // 禁用非叶子节点的选择
-                  }),
-                } : undefined}
                 expandable={{
                   expandedRowKeys,
                   onExpandedRowsChange: (expandedRows) => {
@@ -1210,11 +1314,44 @@ const SchemaManagement: React.FC = () => {
                   },
                   childrenColumnName: "children",
                   indentSize: 20,
+                  expandIcon: ({ expanded, onExpand, record }) => {
+                    // 如果是叶子节点（没有子节点），不显示图标
+                    if (!record.children?.length) {
+                      return null;
+                    }
+                    return (
+                      <span 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onExpand(record, e);
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {expanded ? <CaretDownOutlined style={{ fontSize: '12px', color: '#666', marginRight: '6px' }} /> : <CaretRightOutlined style={{ fontSize: '12px', color: '#999', marginRight: '6px', marginTop: '2px' }} />}
+                      </span>
+                    );
+                  },
                 }}
                 onRow={(record: any) => ({
-                  onClick: () => {
-                    // 只有叶子节点可以选中
-                    if (!record.children?.length) {
+                  onClick: (e) => {
+                    // 检查是否点击的是 checkbox 列
+                    const target = e.target as HTMLElement;
+                    const checkboxCell = target.closest('td');
+                    if (checkboxCell && checkboxCell.cellIndex === 0 && isSyncMode) {
+                      // 点击的是 checkbox 列，不处理
+                      return;
+                    }
+                    
+                    if (record.children?.length) {
+                      // 虚拟节点：点击整行展开/折叠
+                      const isExpanded = expandedRowKeys.includes(record.code);
+                      if (isExpanded) {
+                        setExpandedRowKeys(expandedRowKeys.filter(key => key !== record.code));
+                      } else {
+                        setExpandedRowKeys([...expandedRowKeys, record.code]);
+                      }
+                    } else {
+                      // 叶子节点：选中数据表
                       handleSchemaSelect(record as SchemaListItem);
                     }
                   },
@@ -1223,7 +1360,7 @@ const SchemaManagement: React.FC = () => {
                       ? "ant-table-row-selected"
                       : "",
                   style: {
-                    cursor: record.children?.length ? "default" : "pointer",
+                    cursor: "pointer",
                   },
                 })}
               />
@@ -1237,7 +1374,7 @@ const SchemaManagement: React.FC = () => {
                 bottom: 0, 
                 left: 0, 
                 width: '100%',
-                background: 'rgb(25 25 25 / 17%)',
+                background: 'rgb(38 105 191 / 17%)',
                 borderTop: '1px solid rgb(240 240 240 / 5%)',
                 padding: '12px 16px',
                 display: 'flex',
@@ -1248,24 +1385,22 @@ const SchemaManagement: React.FC = () => {
               }}
             >
               <Space>
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={isAllSelected}
-                  ref={(input) => {
-                    if (input) input.indeterminate = isIndeterminate;
-                  }}
+                  indeterminate={isIndeterminate}
                   onChange={(e) => handleSelectAll(e.target.checked)}
-                  style={{ marginRight: '8px' }}
-                />
+                >
+                  全选
+                </Checkbox>
                 <span>已选择 {selectedRowKeys.length} 个数据表</span>
               </Space>
               <Button
                 type="primary"
-                icon={<SyncOutlined />}
-                onClick={handleSyncToDatabase}
+                icon={<CloudDownloadOutlined />}
+                onClick={handleDownloadORMClick}
                 disabled={selectedRowKeys.length === 0}
               >
-                同步
+                导出Prisma模型
               </Button>
             </div>
           )}
