@@ -1,8 +1,12 @@
 import { Router } from 'express';
 import { DatabaseConnectionController } from '../controllers/databaseConnectionController';
+import { authenticateToken } from '../middlewares/auth';
 
 const router = Router();
 const controller = new DatabaseConnectionController();
+
+// 所有路由都需要认证
+router.use(authenticateToken);
 
 /**
  * @swagger

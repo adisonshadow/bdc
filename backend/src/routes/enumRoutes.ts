@@ -7,8 +7,12 @@ import {
   updateEnum,
   deleteEnum
 } from '../controllers/enumController';
+import { authenticateToken } from '../middlewares/auth';
 
 const router = Router();
+
+// 所有路由都需要认证
+router.use(authenticateToken);
 
 /**
  * @swagger

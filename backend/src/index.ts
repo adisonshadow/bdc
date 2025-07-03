@@ -64,6 +64,8 @@ import schemaRouter from './routes/schemaRoutes';
 import enumRouter from './routes/enumRoutes';
 import databaseConnectionRouter from './routes/databaseConnectionRoutes';
 import materializeRouter from './routes/materializeRoutes';
+import testRouter from './routes/testRoutes';
+import tokenManagementRouter from './routes/tokenManagementRoutes';
 
 Logger.info({ 
   message: '环境变量加载完成', 
@@ -94,6 +96,8 @@ app.use('/api/enums', enumRouter);
 app.use('/api/database-connections', databaseConnectionRouter);
 app.use('/api/api-definitions', apiDefinitionRouter);
 app.use('/api/materialize-tables', materializeRouter);
+app.use('/api/test', testRouter);
+app.use('/api/token-management', tokenManagementRouter);
 
 // Swagger UI
 app.use('/api-docs', swaggerRouter);

@@ -43,6 +43,12 @@ export default defineConfig({
       layout: false,
     },
     {
+      path: '/test-auth',
+      name: '认证测试',
+      component: './test-auth',
+      hideInMenu: true,
+    },
+    {
       path: '/data-structures',
       name: '数据结构管理',
       icon: 'BlockOutlined',

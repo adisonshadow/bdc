@@ -8,7 +8,7 @@ import {
   deleteApiDefinition,
   validateApiDefinition
 } from '../controllers/apiDefinitionController';
-import { authenticateToken } from '../middleware/auth';
+import { authenticateToken } from '../middlewares/auth';
 
 const router = express.Router();
 
