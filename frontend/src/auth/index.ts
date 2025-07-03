@@ -10,6 +10,7 @@ export interface User {
   gender?: string;
   status: string;
   department_id?: string;
+  avatar?: string; // 头像文件ID
 }
 
 export interface AuthState {
@@ -57,7 +58,7 @@ export const checkAuthStatus = (): AuthState => {
  * 跳转到登录页
  */
 export const redirectToLogin = () => {
-  const loginUrl = `${ssoConfig['sso-auth-url']}?app=${ssoConfig.app}`;
+  const loginUrl = `${ssoConfig['sso_domain'] + ssoConfig['sso-auth-path']}?app=${ssoConfig.app}`;
   window.location.href = loginUrl;
 };
 
@@ -74,8 +75,18 @@ export const logout = () => {
  * 保存用户认证信息
  */
 export const saveAuthInfo = (token: string, user: User) => {
+  console.log('Saving auth info - user:', user);
+  console.log('Saving auth info - avatar:', user.avatar);
   localStorage.setItem('token', token);
   localStorage.setItem('user', JSON.stringify(user));
+  
+  // 验证保存是否成功
+  const savedUser = localStorage.getItem('user');
+  if (savedUser) {
+    const parsedUser = JSON.parse(savedUser);
+    console.log('Saved user data:', parsedUser);
+    console.log('Saved avatar field:', parsedUser.avatar);
+  }
 };
 
 /**

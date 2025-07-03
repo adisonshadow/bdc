@@ -36,28 +36,11 @@ export default defineConfig({
       redirect: '/data-structures',
     },
     {
-      path: '/sso-callback',
-      name: 'SSO 回调',
-      component: './SSOCallback',
+      path: '/sso-success',
+      name: 'SSO 成功',
+      component: './SSOSuccess',
       hideInMenu: true,
       layout: false,
-      // action: async ({ request }: { request: Request }) => {
-      //   const formData = await request.formData();
-      //   return { data: Object.fromEntries(formData) };
-      // },
-    },
-    {
-      path: '/sso-test',
-      name: 'SSO 测试',
-      component: './SSOCallback/test',
-      hideInMenu: true,
-      layout: false,
-    },
-    {
-      path: '/test-auth',
-      name: '认证测试',
-      component: './test-auth',
-      hideInMenu: true,
     },
     {
       path: '/data-structures',
