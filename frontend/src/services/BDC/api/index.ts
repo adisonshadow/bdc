@@ -6,9 +6,11 @@ import * as databaseConnections from "./databaseConnections";
 import * as enumManagement from "./enumManagement";
 import * as materializeTables from "./materializeTables";
 import * as schemaManagement from "./schemaManagement";
+import * as sso from "./sso";
 export default {
   databaseConnections,
   enumManagement,
   materializeTables,
   schemaManagement,
+  sso,
 };

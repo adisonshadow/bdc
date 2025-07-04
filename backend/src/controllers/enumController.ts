@@ -182,7 +182,7 @@ export const updateEnum = async (req: Request, res: Response) => {
     let warning = null;
     const hasPrimaryKey = options?.some((option: any) => option.isPrimaryKey);
     if (!hasPrimaryKey) {
-      warning = new ValidationWarning('必须指定一个主键字段');
+      warning = new ValidationWarning('建议指定一个主键字段');
     }
 
     // 保存更新

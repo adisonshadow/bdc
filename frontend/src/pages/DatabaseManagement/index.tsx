@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, Tag, Tooltip, Switch, message, Modal, Form, Input, Select, List, Flex, InputNumber, Badge, Popconfirm, Card, Descriptions, Timeline, Checkbox, Divider, Tree, Tabs, Splitter } from 'antd';
+import { Table, Button, Space, Tag, message, Modal, Form, Input, Select, List, Flex, InputNumber, Badge, Popconfirm, Card, Descriptions, Timeline, Checkbox, Divider, Tree, Tabs, Splitter } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, CheckCircleOutlined, CloseCircleOutlined, SyncOutlined, DatabaseOutlined, ClockCircleOutlined, CloudServerOutlined } from '@ant-design/icons';
-import { getDatabaseConnections, postDatabaseConnections, deleteDatabaseConnectionsId, postDatabaseConnectionsIdTest, putDatabaseConnectionsId, getDatabaseConnectionsIdTables } from '@/services/BDC/api/databaseConnections';
+import { getDatabaseConnections, postDatabaseConnections, deleteDatabaseConnectionsId, postDatabaseConnectionsIdTest, putDatabaseConnectionsId } from '@/services/BDC/api/databaseConnections';
 import { postMaterializeTables } from '@/services/BDC/api/materializeTables';
 import { getSchemas } from '@/services/BDC/api/schemaManagement';
 import { buildTree } from '@/utils/treeBuilder';
+import DatabaseTables from '@/components/DatabaseTables';
 
 const { Option } = Select;
 
@@ -17,6 +18,7 @@ interface SyncRecord {
   message: string;
   timestamp: string;
   details?: any;
+  failureDetails?: string;
 }
 
 interface SchemaListItem {
@@ -63,8 +65,6 @@ const DatabaseManagement: React.FC = () => {
   const [checkedKeys, setCheckedKeys] = useState<string[]>([]);
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [isIndeterminate, setIsIndeterminate] = useState(false);
-  const [databaseTables, setDatabaseTables] = useState<any[]>([]);
-  const [tablesLoading, setTablesLoading] = useState(false);
   const [previewSchema, setPreviewSchema] = useState<SchemaListItem | null>(null);
 
   // 数据库类型选项
@@ -171,21 +171,7 @@ const DatabaseManagement: React.FC = () => {
     }
   };
 
-  // 获取数据库表结构
-  const fetchDatabaseTables = async (connectionId: string) => {
-    if (!connectionId) return;
-    
-    setTablesLoading(true);
-    try {
-      const response = await getDatabaseConnectionsIdTables({ id: connectionId });
-      if (response.success && response.data) {
-        setDatabaseTables(response.data);
-      }
-    } catch (error) {
-      message.error('获取数据库表结构失败');
-    }
-    setTablesLoading(false);
-  };
+
 
   // 测试连接
   const handleTestConnection = async (connection: API.DatabaseConnection) => {
@@ -204,11 +190,6 @@ const DatabaseManagement: React.FC = () => {
           timestamp: new Date().toISOString()
         });
         fetchConnections(); // 刷新列表以更新状态
-        
-        // 如果当前选中的连接是测试的连接，获取表结构
-        if (selectedConnection?.id === connection.id) {
-          fetchDatabaseTables(connection.id!);
-        }
       }
     } catch (error: any) {
       message.error(`连接测试失败: ${error.response?.data?.message || error.message}`);
@@ -418,6 +399,12 @@ const DatabaseManagement: React.FC = () => {
         const successCount = response.results?.filter(r => r.success).length || 0;
         const failCount = response.results?.filter(r => !r.success).length || 0;
         
+        // 构建详细的失败信息
+        const failedResults = response.results?.filter(r => !r.success) || [];
+        const failureDetails = failedResults.map(r => 
+          `${r.schemaCode}: ${r.message || r.error || '未知错误'}`
+        ).join('\n');
+        
         addSyncRecord({
           id: crypto.randomUUID(),
           connectionId: selectedConnection!.id!,
@@ -426,7 +413,8 @@ const DatabaseManagement: React.FC = () => {
           status: failCount === 0 ? 'success' : 'failed',
           message: `成功同步 ${successCount} 个表${failCount > 0 ? `，失败 ${failCount} 个表` : ''}`,
           timestamp: new Date().toISOString(),
-          details: response.results
+          details: response.results,
+          failureDetails: failCount > 0 ? failureDetails : undefined
         });
 
         setIsMaterializeModalVisible(false);
@@ -520,14 +508,7 @@ const DatabaseManagement: React.FC = () => {
     checkSelectionStatus();
   }, [checkedKeys, schemaTreeData]);
 
-  // 监听选中连接变化，获取表结构
-  useEffect(() => {
-    if (selectedConnection?.id && selectedConnection.lastTestSuccess) {
-      fetchDatabaseTables(selectedConnection.id);
-    } else {
-      setDatabaseTables([]);
-    }
-  }, [selectedConnection]);
+
 
   useEffect(() => {
     fetchConnections();
@@ -594,9 +575,10 @@ const DatabaseManagement: React.FC = () => {
                     <span>{field.name}</span>
                     {field.description && <span>({field.description})</span>}
                     <Tag color="blue">{field.type}</Tag>
-                    {(field.type === 'uuid' || field.type === 'auto_increment') && field.isPrimaryKey && (
+                    {/* 主键标识 - 暂时注释，等待前端更新 */}
+                    {/* {(field.type === 'uuid' || field.type === 'auto_increment') && field.isPrimaryKey && (
                       <Tag color="red">PK</Tag>
-                    )}
+                    )} */}
                   </Space>
                 }
                 description={
@@ -897,7 +879,22 @@ const DatabaseManagement: React.FC = () => {
                                           <div style={{ color: '#666', fontSize: '12px' }}>
                                             {record.message}
                                           </div>
-                                          <div style={{ color: '#999', fontSize: '12px' }}>
+                                          {record.failureDetails && (
+                                            <div style={{ 
+                                              color: '#ff4d4f', 
+                                              fontSize: '11px', 
+                                              marginTop: '4px',
+                                              backgroundColor: '#fff2f0',
+                                              padding: '4px 8px',
+                                              borderRadius: '4px',
+                                              border: '1px solid #ffccc7',
+                                              whiteSpace: 'pre-line'
+                                            }}>
+                                              <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>失败详情：</div>
+                                              {record.failureDetails}
+                                            </div>
+                                          )}
+                                          <div style={{ color: '#999', fontSize: '12px', marginTop: '4px' }}>
                                             {new Date(record.timestamp).toLocaleString()}
                                           </div>
                                         </div>
@@ -920,262 +917,10 @@ const DatabaseManagement: React.FC = () => {
                       label: '库表结构',
                       children: (
                         <div style={{ padding: '16px' }}>
-                          {!selectedConnection.lastTestSuccess ? (
-                            <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
-                              <DatabaseOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
-                              <div>请先完成测试连接</div>
-                            </div>
-                          ) : (
-                            <div>
-                              {tablesLoading ? (
-                                <div style={{ textAlign: 'center', padding: '40px' }}>
-                                  <SyncOutlined spin style={{ fontSize: '24px' }} />
-                                  <div style={{ marginTop: '8px' }}>正在获取表结构...</div>
-                                </div>
-                              ) : databaseTables.length > 0 ? (
-                                <div>
-                                  {databaseTables.map((table, index) => (
-                                    <Card 
-                                      key={index} 
-                                      title={
-                                        <div>
-                                          <div style={{ fontWeight: 'bold' }}>
-                                            {table.schema}.{table.tableName}
-                                          </div>
-                                          {table.description && (
-                                            <div style={{ color: '#666', fontSize: '12px', marginTop: '4px' }}>
-                                              {table.description}
-                                            </div>
-                                          )}
-                                        </div>
-                                      }
-                                      style={{ marginBottom: '16px' }}
-                                      size="small"
-                                      extra={
-                                        <div style={{ fontSize: '12px', color: '#999' }}>
-                                          {table.rowCount !== undefined && (
-                                            <span style={{ marginRight: '12px' }}>
-                                              行数: {table.rowCount.toLocaleString()}
-                                            </span>
-                                          )}
-                                          {table.size !== undefined && (
-                                            <span style={{ marginRight: '12px' }}>
-                                              大小: {(table.size / 1024).toFixed(2)} KB
-                                            </span>
-                                          )}
-                                          {table.updatedAt && (
-                                            <span>
-                                              更新: {new Date(table.updatedAt).toLocaleDateString()}
-                                            </span>
-                                          )}
-                                        </div>
-                                      }
-                                    >
-                                      <Table
-                                        columns={[
-                                          {
-                                            title: '字段名',
-                                            dataIndex: 'name',
-                                            key: 'name',
-                                            width: '20%',
-                                            render: (name: string, record: API.DatabaseColumn) => (
-                                              <div>
-                                                <div style={{ fontWeight: 'bold' }}>{name}</div>
-                                                {record.description && (
-                                                  <div style={{ color: '#666', fontSize: '11px' }}>
-                                                    {record.description}
-                                                  </div>
-                                                )}
-                                              </div>
-                                            ),
-                                          },
-                                          {
-                                            title: '数据类型',
-                                            dataIndex: 'type',
-                                            key: 'type',
-                                            width: '25%',
-                                            render: (type: string, record: API.DatabaseColumn) => (
-                                              <div>
-                                                <div>{type}</div>
-                                                {record.length && (
-                                                  <div style={{ color: '#666', fontSize: '11px' }}>
-                                                    长度: {record.length}
-                                                  </div>
-                                                )}
-                                                {record.precision && record.scale && (
-                                                  <div style={{ color: '#666', fontSize: '11px' }}>
-                                                    精度: {record.precision},{record.scale}
-                                                  </div>
-                                                )}
-                                              </div>
-                                            ),
-                                          },
-                                          {
-                                            title: '约束',
-                                            key: 'constraints',
-                                            width: '20%',
-                                            render: (_, record: API.DatabaseColumn) => (
-                                              <div>
-                                                {record.primaryKey && (
-                                                  <Tag color="red">主键</Tag>
-                                                )}
-                                                {!record.nullable && (
-                                                  <Tag color="green">非空</Tag>
-                                                )}
-                                                {record.autoIncrement && (
-                                                  <Tag color="blue">自增</Tag>
-                                                )}
-                                                {record.defaultValue && (
-                                                  <div style={{ color: '#666', fontSize: '11px', marginTop: '2px' }}>
-                                                    默认: {record.defaultValue}
-                                                  </div>
-                                                )}
-                                              </div>
-                                            ),
-                                          },
-                                          {
-                                            title: '字符集',
-                                            key: 'charset',
-                                            width: '15%',
-                                            render: (_, record: API.DatabaseColumn) => (
-                                              <div>
-                                                {record.characterSet && (
-                                                  <div style={{ fontSize: '12px' }}>{record.characterSet}</div>
-                                                )}
-                                                {record.collation && (
-                                                  <div style={{ color: '#666', fontSize: '11px' }}>
-                                                    {record.collation}
-                                                  </div>
-                                                )}
-                                              </div>
-                                            ),
-                                          },
-                                          {
-                                            title: '更新时间',
-                                            dataIndex: 'updatedAt',
-                                            key: 'updatedAt',
-                                            width: '20%',
-                                            render: (updatedAt: string) => (
-                                              updatedAt ? (
-                                                <div style={{ fontSize: '12px' }}>
-                                                  {new Date(updatedAt).toLocaleString()}
-                                                </div>
-                                              ) : (
-                                                <span style={{ color: '#999' }}>-</span>
-                                              )
-                                            ),
-                                          },
-                                        ]}
-                                        dataSource={table.columns}
-                                        rowKey="name"
-                                        pagination={false}
-                                        size="small"
-                                      />
-                                      
-                                      {/* 显示索引信息 */}
-                                      {table.indexes && table.indexes.length > 0 && (
-                                        <div style={{ marginTop: '16px' }}>
-                                          <Divider orientation="left" style={{ fontSize: '12px' }}>索引</Divider>
-                                          <Table
-                                            columns={[
-                                              {
-                                                title: '索引名',
-                                                dataIndex: 'name',
-                                                key: 'name',
-                                                width: '30%',
-                                              },
-                                              {
-                                                title: '类型',
-                                                dataIndex: 'type',
-                                                key: 'type',
-                                                width: '20%',
-                                                render: (type: string) => (
-                                                  <Tag color={
-                                                    type === 'PRIMARY' ? 'red' : 
-                                                    type === 'UNIQUE' ? 'orange' : 'blue'
-                                                  }>
-                                                    {type}
-                                                  </Tag>
-                                                ),
-                                              },
-                                              {
-                                                title: '字段',
-                                                dataIndex: 'columns',
-                                                key: 'columns',
-                                                width: '50%',
-                                                render: (columns: string[]) => columns.join(', '),
-                                              },
-                                            ]}
-                                            dataSource={table.indexes}
-                                            rowKey="name"
-                                            pagination={false}
-                                            size="small"
-                                          />
-                                        </div>
-                                      )}
-                                      
-                                      {/* 显示外键信息 */}
-                                      {table.foreignKeys && table.foreignKeys.length > 0 && (
-                                        <div style={{ marginTop: '16px' }}>
-                                          <Divider orientation="left" style={{ fontSize: '12px' }}>外键</Divider>
-                                          <Table
-                                            columns={[
-                                              {
-                                                title: '外键名',
-                                                dataIndex: 'name',
-                                                key: 'name',
-                                                width: '25%',
-                                              },
-                                              {
-                                                title: '字段',
-                                                dataIndex: 'columnName',
-                                                key: 'columnName',
-                                                width: '20%',
-                                              },
-                                              {
-                                                title: '引用表',
-                                                dataIndex: 'referencedTableName',
-                                                key: 'referencedTableName',
-                                                width: '25%',
-                                                render: (tableName: string, record: API.DatabaseForeignKey) => (
-                                                  `${record.referencedTableSchema || ''}.${tableName}`
-                                                ),
-                                              },
-                                              {
-                                                title: '引用字段',
-                                                dataIndex: 'referencedColumnName',
-                                                key: 'referencedColumnName',
-                                                width: '20%',
-                                              },
-                                              {
-                                                title: '规则',
-                                                key: 'rules',
-                                                width: '10%',
-                                                render: (_, record: API.DatabaseForeignKey) => (
-                                                  <div style={{ fontSize: '11px' }}>
-                                                    <div>更新: {record.updateRule || '-'}</div>
-                                                    <div>删除: {record.deleteRule || '-'}</div>
-                                                  </div>
-                                                ),
-                                              },
-                                            ]}
-                                            dataSource={table.foreignKeys}
-                                            rowKey="name"
-                                            pagination={false}
-                                            size="small"
-                                          />
-                                        </div>
-                                      )}
-                                    </Card>
-                                  ))}
-                                </div>
-                              ) : (
-                                <div style={{ textAlign: 'center', color: '#999', padding: '20px' }}>
-                                  暂无表结构信息
-                                </div>
-                              )}
-                            </div>
-                          )}
+                          <DatabaseTables 
+                            connectionId={selectedConnection?.id}
+                            lastTestSuccess={selectedConnection?.lastTestSuccess}
+                          />
                         </div>
                       ),
                     },
@@ -1428,7 +1173,7 @@ const DatabaseManagement: React.FC = () => {
                 marginBottom: '16px'
             }}>
             <Splitter style={{ height: '100%' }}>
-              <Splitter.Panel defaultSize="50%">
+              <Splitter.Panel defaultSize="40%">
                 <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', margin: '4px 8px 12px 8px' }}>

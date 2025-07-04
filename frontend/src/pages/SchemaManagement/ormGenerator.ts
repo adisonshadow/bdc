@@ -168,32 +168,30 @@ const generateTypeORMEntity = (schema: SchemaListItem, config: ORMConfig): strin
     let fieldDef = '';
     const fieldType = field.type as keyof typeof fieldTypeMapping.typeorm;
     
-    // 主键装饰器
-    if ('isPrimaryKey' in field && field.isPrimaryKey) {
-      if (field.type === 'uuid') {
-        fieldDef += `  @PrimaryGeneratedColumn('uuid')\n`;
-      } else if (field.type === 'auto_increment') {
-        fieldDef += `  @PrimaryGeneratedColumn()\n`;
-      }
-    }
+    // 主键装饰器 - 暂时注释，等待前端更新
+    // if ('isPrimaryKey' in field && field.isPrimaryKey) {
+    //   if (field.type === 'uuid') {
+    //     fieldDef += `  @PrimaryGeneratedColumn('uuid')\n`;
+    //   } else if (field.type === 'auto_increment') {
+    //     fieldDef += `  @PrimaryGeneratedColumn()\n`;
+    //   }
+    // }
     
     // 字段装饰器
-    if (!('isPrimaryKey' in field && field.isPrimaryKey)) {
-      fieldDef += `  @Column({\n`;
-      fieldDef += `    type: '${fieldTypeMapping.typeorm[fieldType]}',\n`;
-      
-      if (field.type === 'string' && 'length' in field && field.length) {
-        fieldDef += `    length: ${field.length},\n`;
-      }
-      
-      if ('required' in field && field.required) {
-        fieldDef += `    nullable: false,\n`;
-      } else {
-        fieldDef += `    nullable: true,\n`;
-      }
-      
-      fieldDef += `  })\n`;
+    fieldDef += `  @Column({\n`;
+    fieldDef += `    type: '${fieldTypeMapping.typeorm[fieldType]}',\n`;
+    
+    if (field.type === 'string' && 'length' in field && field.length) {
+      fieldDef += `    length: ${field.length},\n`;
     }
+    
+    if ('required' in field && field.required) {
+      fieldDef += `    nullable: false,\n`;
+    } else {
+      fieldDef += `    nullable: true,\n`;
+    }
+    
+    fieldDef += `  })\n`;
     
     // 字段定义
     fieldDef += `  ${field.name}: ${fieldTypeMapping.typeorm[fieldType]}`;
@@ -229,9 +227,10 @@ const generateSequelizeModel = (schema: SchemaListItem, config: ORMConfig): stri
     const fieldType = field.type as keyof typeof fieldTypeMapping.sequelize;
     fieldDef += `      type: DataTypes.${fieldTypeMapping.sequelize[fieldType]},\n`;
     
-    if ('isPrimaryKey' in field && field.isPrimaryKey) {
-      fieldDef += `      primaryKey: true,\n`;
-    }
+    // 主键检查 - 暂时注释，等待前端更新
+    // if ('isPrimaryKey' in field && field.isPrimaryKey) {
+    //   fieldDef += `      primaryKey: true,\n`;
+    // }
     
     if (field.type === 'uuid') {
       fieldDef += `      defaultValue: DataTypes.UUIDV4,\n`;
@@ -295,9 +294,10 @@ const generateMongooseSchema = (schema: SchemaListItem, config: ORMConfig): stri
     const fieldType = field.type as keyof typeof fieldTypeMapping.mongoose;
     fieldDef += `    type: ${fieldTypeMapping.mongoose[fieldType]},\n`;
     
-    if ('isPrimaryKey' in field && field.isPrimaryKey) {
-      fieldDef += `    _id: true,\n`;
-    }
+    // 主键检查 - 暂时注释，等待前端更新
+    // if ('isPrimaryKey' in field && field.isPrimaryKey) {
+    //   fieldDef += `    _id: true,\n`;
+    // }
     
     if (field.type === 'string' && 'length' in field && field.length) {
       fieldDef += `    maxlength: ${field.length},\n`;
@@ -554,7 +554,6 @@ export const testPrismaGeneration = () => {
         id: '1',
         name: 'id',
         type: 'uuid',
-        isPrimaryKey: true,
         required: true
       } as API.UuidField,
       {

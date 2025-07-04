@@ -7,7 +7,7 @@ export interface DataStructureInput {
   code: string;
   fields: Array<DeepPartial<Field>>;
   keyIndexes?: {
-    primaryKey?: string;
+    primaryKey?: string[];
     indexes?: Array<{
       name: string;
       fields: string[];

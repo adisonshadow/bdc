@@ -1,7 +1,7 @@
 // @ts-ignore
 /* eslint-disable */
 import { request } from "@umijs/max";
-
+ 
 /** 获取数据库连接列表 分页获取数据库连接列表，支持按类型、状态和是否激活进行筛选 GET /api/database-connections */
 export async function getDatabaseConnections(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

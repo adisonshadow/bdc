@@ -28,9 +28,6 @@
  *         required:
  *           type: boolean
  *           description: 是否必填
- *         isPrimaryKey:
- *           type: boolean
- *           description: 是否为主键
  *         length:
  *           type: integer
  *           description: 字段长度（适用于字符串类型）
@@ -398,8 +395,10 @@
  *           description: 主键和索引信息
  *           properties:
  *             primaryKey:
- *               type: string
- *               description: 主键字段名
+ *               type: array
+ *               items:
+ *                 type: string
+ *               description: 主键字段名列表（支持联合主键）
  *             indexes:
  *               type: array
  *               items:

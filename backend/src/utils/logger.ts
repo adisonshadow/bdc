@@ -32,8 +32,13 @@ const format = winston.format.combine(
 
 // 定义日志输出目标
 const transports = [
-  // 控制台输出
-  new winston.transports.Console(),
+  // 控制台输出 - 确保 console.log 能正常显示
+  new winston.transports.Console({
+    format: winston.format.combine(
+      winston.format.colorize({ all: true }),
+      winston.format.simple()
+    )
+  }),
   // 错误日志文件
   new winston.transports.File({
     filename: 'logs/error.log',

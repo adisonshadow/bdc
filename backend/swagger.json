@@ -38,6 +38,7 @@
         "tags": [
           "Database Connections"
         ],
+        "operationId": "postDatabaseConnections",
         "summary": "创建数据库连接",
         "description": "创建新的数据库连接配置",
         "requestBody": {
@@ -82,6 +83,7 @@
         "tags": [
           "Database Connections"
         ],
+        "operationId": "getDatabaseConnections",
         "summary": "获取数据库连接列表",
         "description": "分页获取数据库连接列表，支持按类型、状态和是否激活进行筛选",
         "parameters": [
@@ -192,6 +194,7 @@
         "tags": [
           "Database Connections"
         ],
+        "operationId": "postDatabaseConnectionsIdTest",
         "summary": "测试数据库连接",
         "description": "测试指定ID的数据库连接是否可用",
         "parameters": [
@@ -244,6 +247,7 @@
         "tags": [
           "Database Connections"
         ],
+        "operationId": "getDatabaseConnectionsIdTables",
         "summary": "获取数据库表结构",
         "description": "获取指定数据库连接的表结构信息",
         "parameters": [
@@ -298,6 +302,7 @@
         "tags": [
           "Database Connections"
         ],
+        "operationId": "getDatabaseConnectionsId",
         "summary": "获取单个数据库连接",
         "description": "根据ID获取数据库连接详情",
         "parameters": [
@@ -344,6 +349,7 @@
         "tags": [
           "Database Connections"
         ],
+        "operationId": "putDatabaseConnectionsId",
         "summary": "更新数据库连接",
         "description": "更新指定ID的数据库连接配置",
         "parameters": [
@@ -403,6 +409,7 @@
         "tags": [
           "Database Connections"
         ],
+        "operationId": "deleteDatabaseConnectionsId",
         "summary": "删除数据库连接",
         "description": "删除指定ID的数据库连接",
         "parameters": [
@@ -456,6 +463,7 @@
         "tags": [
           "Enum Management"
         ],
+        "operationId": "postEnums",
         "requestBody": {
           "required": true,
           "content": {
@@ -509,6 +517,7 @@
         "tags": [
           "Enum Management"
         ],
+        "operationId": "getEnums",
         "parameters": [
           {
             "in": "query",
@@ -565,6 +574,7 @@
         "tags": [
           "Enum Management"
         ],
+        "operationId": "getEnumsId",
         "parameters": [
           {
             "in": "path",
@@ -598,6 +608,7 @@
         "tags": [
           "Enum Management"
         ],
+        "operationId": "putEnumsId",
         "parameters": [
           {
             "in": "path",
@@ -662,6 +673,7 @@
         "tags": [
           "Enum Management"
         ],
+        "operationId": "deleteEnumsId",
         "parameters": [
           {
             "in": "path",
@@ -693,6 +705,7 @@
         "tags": [
           "Enum Management"
         ],
+        "operationId": "getEnumsCodeCode",
         "parameters": [
           {
             "in": "path",
@@ -727,6 +740,7 @@
         "tags": [
           "Materialize Tables"
         ],
+        "operationId": "postMaterializeTables",
         "summary": "物化表结构到数据库",
         "description": "将选中的表结构物化到指定的数据库连接中",
         "requestBody": {
@@ -857,6 +871,7 @@
         "tags": [
           "Materialize Tables"
         ],
+        "operationId": "getMaterializeTablesHistory",
         "summary": "获取物化历史记录",
         "description": "分页获取表物化的历史记录",
         "parameters": [
@@ -977,6 +992,7 @@
         "tags": [
           "Schema Management"
         ],
+        "operationId": "postSchemas",
         "summary": "创建新的数据结构定义",
         "requestBody": {
           "required": true,
@@ -1079,6 +1095,7 @@
         "tags": [
           "Schema Management"
         ],
+        "operationId": "getSchemas",
         "summary": "获取所有数据结构定义",
         "parameters": [
           {
@@ -1273,6 +1290,7 @@
         "tags": [
           "Schema Management"
         ],
+        "operationId": "getSchemasId",
         "summary": "获取指定数据结构定义",
         "parameters": [
           {
@@ -1352,6 +1370,7 @@
         "tags": [
           "Schema Management"
         ],
+        "operationId": "putSchemasId",
         "summary": "更新数据结构定义",
         "parameters": [
           {
@@ -1450,6 +1469,7 @@
         "tags": [
           "Schema Management"
         ],
+        "operationId": "deleteSchemasId",
         "summary": "删除数据结构定义",
         "parameters": [
           {
@@ -1481,6 +1501,7 @@
         "tags": [
           "Schema Management"
         ],
+        "operationId": "postSchemasIdValidate",
         "summary": "验证数据结构定义",
         "parameters": [
           {
@@ -1550,15 +1571,15 @@
     },
     "/sso-callback": {
       "post": {
-        "summary": "SSO认证回调处理",
-        "description": "处理第三方SSO服务器的认证回调，验证用户信息并生成JWT令牌",
+        "summary": "SSO认证回调",
+        "description": "处理第三方SSO服务器的认证回调",
         "tags": [
           "SSO"
         ],
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "application/x-www-form-urlencoded": {
               "schema": {
                 "type": "object",
                 "required": [
@@ -1572,56 +1593,31 @@
                 "properties": {
                   "idp": {
                     "type": "string",
-                    "description": "身份提供者标识",
-                    "example": "IAM"
+                    "description": "身份提供者标识"
                   },
                   "access_token": {
                     "type": "string",
-                    "description": "SSO访问令牌"
+                    "description": "访问令牌"
                   },
                   "refresh_token": {
                     "type": "string",
-                    "description": "SSO刷新令牌"
+                    "description": "刷新令牌"
                   },
                   "token_type": {
                     "type": "string",
-                    "description": "令牌类型",
-                    "example": "Bearer"
+                    "description": "令牌类型"
                   },
                   "expires_in": {
                     "type": "string",
-                    "description": "过期时间（秒）"
+                    "description": "过期时间"
                   },
                   "state": {
                     "type": "string",
                     "description": "状态参数"
                   },
                   "user_info": {
-                    "type": "object",
-                    "description": "用户信息",
-                    "properties": {
-                      "user_id": {
-                        "type": "string",
-                        "description": "用户ID"
-                      },
-                      "username": {
-                        "type": "string",
-                        "description": "用户名"
-                      },
-                      "name": {
-                        "type": "string",
-                        "description": "姓名"
-                      },
-                      "email": {
-                        "type": "string",
-                        "description": "邮箱"
-                      },
-                      "status": {
-                        "type": "string",
-                        "description": "用户状态",
-                        "example": "ACTIVE"
-                      }
-                    }
+                    "type": "string",
+                    "description": "用户信息"
                   }
                 }
               }
@@ -1630,36 +1626,25 @@
         },
         "responses": {
           "302": {
-            "description": "重定向到前端页面",
-            "headers": {
-              "Location": {
-                "description": "重定向地址",
-                "schema": {
-                  "type": "string",
-                  "example": "/auth-success?data=..."
-                }
-              }
-            }
+            "description": "重定向到前端页面"
+          },
+          "400": {
+            "description": "请求参数错误"
+          },
+          "500": {
+            "description": "服务器内部错误"
           }
         }
       },
       "get": {
-        "summary": "SSO回调页面提示",
-        "description": "当通过GET方式访问SSO回调时，返回友好提示信息",
+        "summary": "SSO回调页面",
+        "description": "GET方法访问SSO回调页面时的友好提示",
         "tags": [
           "SSO"
         ],
         "responses": {
           "200": {
-            "description": "提示信息",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string",
-                  "example": "请通过POST方式提交SSO认证数据"
-                }
-              }
-            }
+            "description": "提示信息"
           }
         }
       }
@@ -1732,10 +1717,6 @@
           "required": {
             "type": "boolean",
             "description": "是否必填"
-          },
-          "isPrimaryKey": {
-            "type": "boolean",
-            "description": "是否为主键"
           },
           "length": {
             "type": "integer",
@@ -2332,8 +2313,11 @@
             "description": "主键和索引信息",
             "properties": {
               "primaryKey": {
-                "type": "string",
-                "description": "主键字段名"
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "主键字段名列表（支持联合主键）"
               },
               "indexes": {
                 "type": "array",

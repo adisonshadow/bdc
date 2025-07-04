@@ -96,11 +96,17 @@ export class FieldValidator {
     if (!targetSchemaCode) {
       throw new ValidationError('必须指定目标数据结构');
     }
-    if (!['restrict', 'cascade', 'setNull'].includes(cascadeDelete)) {
+    
+    // 为 cascadeDelete 提供默认值
+    const cascadeDeleteValue = cascadeDelete || 'restrict';
+    if (!['restrict', 'cascade', 'setNull'].includes(cascadeDeleteValue)) {
       throw new ValidationError('无效的级联删除策略');
     }
-    if (!Array.isArray(displayFields) || displayFields.length === 0) {
-      throw new ValidationError('必须指定显示字段');
+    
+    // 为 displayFields 提供默认值
+    const displayFieldsValue = displayFields || [];
+    if (!Array.isArray(displayFieldsValue)) {
+      throw new ValidationError('显示字段必须是数组');
     }
   }
 

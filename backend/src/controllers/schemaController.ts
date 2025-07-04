@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 export const createSchema = async (req: Request, res: Response) => {
   const dataStructureRepository = getDataSource().getRepository(DataStructure);
   try {
-    const { name, code, fields = [], description } = req.body;
+    const { name, code, fields = [], description, keyIndexes } = req.body;
     
     // 验证基本参数
     if (!name || !code) {
@@ -43,15 +43,15 @@ export const createSchema = async (req: Request, res: Response) => {
       id: field.id || uuidv4()
     }));
 
-    // 检查主键字段（改为警告）
-    let warning = null;
-    const hasPrimaryKey = fieldsWithIds.some((field: Field) => field.isPrimaryKey);
-    if (!hasPrimaryKey) {
-      warning = new ValidationWarning('必须指定一个主键字段');
-    }
-
     // 验证字段定义
     FieldValidator.validateFields(fieldsWithIds);
+
+    // 检查主键配置
+    let warning = null;
+    const hasPrimaryKey = keyIndexes?.primaryKey && keyIndexes.primaryKey.length > 0;
+    if (!hasPrimaryKey) {
+      warning = new ValidationWarning('建议在keyIndexes中配置主键字段');
+    }
 
     // 创建数据结构
     const dataStructure = dataStructureRepository.create({
@@ -59,6 +59,7 @@ export const createSchema = async (req: Request, res: Response) => {
       code,
       fields: fieldsWithIds,
       description,
+      keyIndexes,
       version: 1,
       isActive: true
     });
@@ -102,7 +103,7 @@ export const getAllSchemas = async (req: Request, res: Response) => {
     console.log('开始查询数据库...');
     const schemas = await dataStructureRepository.find({
       where,
-      select: ['id', 'code', 'name', 'fields', 'description', 'isActive', 'version', 'createdAt', 'updatedAt'],
+      select: ['id', 'code', 'name', 'fields', 'description', 'isActive', 'version', 'createdAt', 'updatedAt', 'keyIndexes'],
       order: { createdAt: 'DESC' }
     });
     console.log('查询结果数量:', schemas.length);
@@ -185,6 +186,8 @@ export const updateSchema = async (req: Request, res: Response) => {
 
     // 如果更新字段定义，验证字段
     let warning = null;
+    let updatedKeyIndexes = keyIndexes || schema.keyIndexes;
+    
     if (fields) {
       // 为每个字段生成 ID
       const fieldsWithIds = fields.map((field: Partial<Field>) => ({
@@ -192,14 +195,14 @@ export const updateSchema = async (req: Request, res: Response) => {
         id: field.id || uuidv4()
       }));
 
-      // 检查主键字段（改为警告）
-      const hasPrimaryKey = fieldsWithIds.some((field: Field) => field.isPrimaryKey);
-      if (!hasPrimaryKey) {
-        warning = new ValidationWarning('必须指定一个主键字段');
-      }
-
       // 验证字段定义
       FieldValidator.validateFields(fieldsWithIds);
+    }
+
+    // 检查主键配置
+    const hasPrimaryKey = updatedKeyIndexes?.primaryKey && updatedKeyIndexes.primaryKey.length > 0;
+    if (!hasPrimaryKey) {
+      warning = new ValidationWarning('建议在keyIndexes中配置主键字段');
     }
 
     // 更新数据结构
@@ -209,7 +212,7 @@ export const updateSchema = async (req: Request, res: Response) => {
     if (fields !== undefined) updateData.fields = fields;
     if (description !== undefined) updateData.description = description;
     if (isActive !== undefined) updateData.isActive = isActive;
-    if (keyIndexes !== undefined) updateData.keyIndexes = keyIndexes;
+    if (updatedKeyIndexes !== undefined) updateData.keyIndexes = updatedKeyIndexes;
     if (physicalStorage !== undefined) updateData.physicalStorage = physicalStorage;
     if (validationErrors !== undefined) updateData.validationErrors = validationErrors;
 
@@ -234,13 +237,13 @@ export const updateSchema = async (req: Request, res: Response) => {
       res.json(updatedSchema);
     }
   } catch (error) {
+    Logger.error(`更新数据结构失败: ${error.message}`);
     if (error instanceof ValidationError) {
-      res.status(400).json({ message: error.message, code: error.code });
+      res.status(400).json({ success: false, message: error.message });
     } else if (error instanceof NotFoundError) {
-      res.status(404).json({ message: error.message, code: error.code });
+      res.status(404).json({ success: false, message: error.message });
     } else {
-      Logger.error({ message: '更新数据结构失败', error });
-      res.status(500).json({ message: '服务器内部错误', code: 'INTERNAL_SERVER_ERROR' });
+      res.status(500).json({ success: false, message: '更新数据结构失败' });
     }
   }
 };

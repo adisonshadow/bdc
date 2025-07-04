@@ -16,6 +16,7 @@ router.use(authenticateToken);
  * /api/materialize-tables:
  *   post:
  *     tags: [Materialize Tables]
+ *     operationId: postMaterializeTables
  *     summary: 物化表结构到数据库
  *     description: 将选中的表结构物化到指定的数据库连接中
  *     requestBody:
@@ -103,6 +104,7 @@ router.use(authenticateToken);
  * /api/materialize-tables/history:
  *   get:
  *     tags: [Materialize Tables]
+ *     operationId: getMaterializeTablesHistory
  *     summary: 获取物化历史记录
  *     description: 分页获取表物化的历史记录
  *     parameters:

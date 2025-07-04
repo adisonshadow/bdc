@@ -20,6 +20,7 @@ router.use(authenticateToken);
  * /api/database-connections:
  *   post:
  *     tags: [Database Connections]
+ *     operationId: postDatabaseConnections
  *     summary: 创建数据库连接
  *     description: 创建新的数据库连接配置
  *     requestBody:
@@ -53,6 +54,7 @@ router.post('/', controller.create.bind(controller));
  * /api/database-connections:
  *   get:
  *     tags: [Database Connections]
+ *     operationId: getDatabaseConnections
  *     summary: 获取数据库连接列表
  *     description: 分页获取数据库连接列表，支持按类型、状态和是否激活进行筛选
  *     parameters:
@@ -122,6 +124,7 @@ router.get('/', controller.list.bind(controller));
  * /api/database-connections/{id}/test:
  *   post:
  *     tags: [Database Connections]
+ *     operationId: postDatabaseConnectionsIdTest
  *     summary: 测试数据库连接
  *     description: 测试指定ID的数据库连接是否可用
  *     parameters:
@@ -160,6 +163,7 @@ router.post('/:id/test', controller.testConnection.bind(controller));
  * /api/database-connections/{id}/tables:
  *   get:
  *     tags: [Database Connections]
+ *     operationId: getDatabaseConnectionsIdTables
  *     summary: 获取数据库表结构
  *     description: 获取指定数据库连接的表结构信息
  *     parameters:
@@ -199,6 +203,7 @@ router.get('/:id/tables', controller.getTables.bind(controller));
  * /api/database-connections/{id}:
  *   get:
  *     tags: [Database Connections]
+ *     operationId: getDatabaseConnectionsId
  *     summary: 获取单个数据库连接
  *     description: 根据ID获取数据库连接详情
  *     parameters:
@@ -234,6 +239,7 @@ router.get('/:id', controller.get.bind(controller));
  * /api/database-connections/{id}:
  *   put:
  *     tags: [Database Connections]
+ *     operationId: putDatabaseConnectionsId
  *     summary: 更新数据库连接
  *     description: 更新指定ID的数据库连接配置
  *     parameters:
@@ -277,6 +283,7 @@ router.put('/:id', controller.update.bind(controller));
  * /api/database-connections/{id}:
  *   delete:
  *     tags: [Database Connections]
+ *     operationId: deleteDatabaseConnectionsId
  *     summary: 删除数据库连接
  *     description: 删除指定ID的数据库连接
  *     parameters:

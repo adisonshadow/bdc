@@ -3,7 +3,6 @@ export interface SchemaField {
   type: 'string' | 'number' | 'boolean' | 'date' | 'enum' | 'relation';
   length?: number;
   allowNull: boolean;
-  isPrimaryKey: boolean;
   relationType?: 'has-one' | 'has-many';
   enumValues?: string[];
 }

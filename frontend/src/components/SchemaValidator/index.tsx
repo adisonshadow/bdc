@@ -35,15 +35,15 @@ const SchemaValidator: React.FC<SchemaValidatorProps> = ({ fields, schemas }) =>
       return { isValid: true, errors: [] };
     }
 
-    // 检查主键
-    const primaryKeys = fields.filter(field => 
-      (field.type === 'uuid' || field.type === 'auto_increment') && field.isPrimaryKey
-    );
-    if (primaryKeys.length === 0) {
-      errors.push('未设置主键字段');
-    } else if (primaryKeys.length > 1) {
-      errors.push('设置了多个主键字段');
-    }
+    // 检查主键 - 暂时注释，等待前端更新
+    // const primaryKeys = fields.filter(field => 
+    //   (field.type === 'uuid' || field.type === 'auto_increment') && field.isPrimaryKey
+    // );
+    // if (primaryKeys.length === 0) {
+    //   errors.push('未设置主键字段');
+    // } else if (primaryKeys.length > 1) {
+    //   errors.push('设置了多个主键字段');
+    // }
 
     // 检查关联字段
     fields.forEach(field => {

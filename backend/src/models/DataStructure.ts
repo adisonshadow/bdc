@@ -27,7 +27,6 @@ export interface Field {
   type: FieldType;
   description?: string;
   required: boolean;
-  isPrimaryKey?: boolean;
   length?: number;
   dateType?: DateType;
   enumConfig?: {
@@ -112,7 +111,7 @@ export class DataStructure {
     comment: '存储表的主键和索引信息'
   })
   keyIndexes: {
-    primaryKey?: string;
+    primaryKey?: string[];
     indexes?: Array<{
       name: string;
       fields: string[];

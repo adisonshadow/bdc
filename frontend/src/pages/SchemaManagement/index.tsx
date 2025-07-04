@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Table, Button, Space, Tag, Tooltip, Switch, message, Modal, Form, Input, Select, List, Flex, InputNumber, Cascader, TreeSelect, Badge, Popconfirm, Checkbox } from 'antd';
+import { Table, Button, Space, Tag, Tooltip, Switch, message, Modal, Form, Input, Select, List, Flex, InputNumber, Cascader, TreeSelect, Badge, Popconfirm, Checkbox, notification } from 'antd';
 import type { CascaderProps } from 'antd';
 import type { DefaultOptionType } from 'antd/es/cascader';
 import { PlusOutlined, EditOutlined, DeleteOutlined, ExportOutlined, BuildOutlined, ApartmentOutlined, CloudDownloadOutlined, CaretDownOutlined, CaretRightOutlined, TableOutlined } from '@ant-design/icons';
@@ -23,10 +23,10 @@ const isValidRelationField = (field: Field) => {
   return false;
 };
 
-// 判断字段是否是主键
-const isPrimaryKeyField = (field: Field) => {
-  return field.type === 'string' && field.name === 'id';
-};
+// 判断字段是否是主键 - 暂时注释，等待前端更新
+// const isPrimaryKeyField = (field: Field) => {
+//   return field.type === 'string' && field.name === 'id';
+// };
 
 type Field = API.UuidField | API.AutoIncrementField | API.StringField | API.TextField | API.NumberField | API.BooleanField | API.DateField | API.EnumField | API.RelationField | API.MediaField | API.ApiField;
 
@@ -45,6 +45,14 @@ interface SchemaListItem {
   createdAt?: string;
   updatedAt?: string;
   fields: Field[];
+  keyIndexes?: {
+    primaryKey?: string[];
+    indexes?: {
+      name?: string;
+      fields?: string[];
+      type?: "unique" | "index" | "fulltext" | "spatial";
+    }[];
+  };
 }
 
 interface SchemaTreeItem extends Omit<SchemaListItem, 'fields'> {
@@ -172,7 +180,7 @@ const SchemaManagement: React.FC = () => {
             name: fieldData.name,
             description: fieldData.description,
             required: fieldData.required,
-            isPrimaryKey: fieldData.isPrimaryKey,
+            // isPrimaryKey: fieldData.isPrimaryKey, // 暂时注释，等待前端更新
             length: fieldData.length,
             dateType: fieldData.dateType
           };
@@ -246,8 +254,8 @@ const SchemaManagement: React.FC = () => {
                 relationConfig: fieldData.relationConfig || {
                   targetSchemaCode: fieldData.targetSchemaCode,
                   targetField: fieldData.targetField,
-                  multiple: fieldData.multiple,
-                  cascadeDelete: fieldData.cascadeDelete,
+                  multiple: fieldData.multiple || false,
+                  cascadeDelete: fieldData.cascadeDelete || 'restrict',
                   displayFields: fieldData.displayFields || []
                 }
               };
@@ -296,8 +304,18 @@ const SchemaManagement: React.FC = () => {
           version: itemData.version,
           createdAt: itemData.createdAt,
           updatedAt: itemData.updatedAt,
-          fields
+          fields,
+          keyIndexes: itemData.keyIndexes || {
+            primaryKey: [],
+            indexes: []
+          }
         };
+        
+        // 调试日志：检查keyIndexes数据
+        if (itemData.keyIndexes) {
+          console.log(`Schema ${schemaItem.name} keyIndexes:`, itemData.keyIndexes);
+        }
+        
         return schemaItem;
       });
 
@@ -392,7 +410,7 @@ const SchemaManagement: React.FC = () => {
         type: values.type as API.BaseField['type'],
         description: values.description,
         required: values.required,
-        isPrimaryKey: values.isPrimaryKey,
+        // isPrimaryKey: values.isPrimaryKey, // 暂时注释，等待前端更新
         length: values.length,
         dateType: values.dateType
       };
@@ -552,7 +570,7 @@ const SchemaManagement: React.FC = () => {
         type: values.type as API.BaseField['type'],
         description: values.description,
         required: values.required,
-        isPrimaryKey: values.isPrimaryKey,
+        // isPrimaryKey: values.isPrimaryKey, // 暂时注释，等待前端更新
         length: values.length,
         dateType: values.dateType
       };
@@ -988,6 +1006,244 @@ const SchemaManagement: React.FC = () => {
     },
   ];
 
+  // 获取字段的索引类型
+  const getFieldIndexType = (fieldName: string) => {
+    if (!selectedSchema?.keyIndexes) return '';
+    
+    // 调试日志
+    console.log(`Checking index type for field: ${fieldName}`, {
+      keyIndexes: selectedSchema.keyIndexes,
+      primaryKey: selectedSchema.keyIndexes.primaryKey,
+      indexes: selectedSchema.keyIndexes.indexes
+    });
+    
+    // 检查是否为主键
+    if (selectedSchema.keyIndexes.primaryKey?.includes(fieldName)) {
+      return 'primary';
+    }
+    
+    // 检查是否为其他索引
+    const index = selectedSchema.keyIndexes.indexes?.find((idx: any) => 
+      idx.fields?.includes(fieldName)
+    );
+    
+    const result = index?.type || '';
+    console.log(`Index type result for ${fieldName}:`, result);
+    return result;
+  };
+
+  // 检查字段类型是否适合做主键
+  const isFieldSuitableForPrimaryKey = (field: Field): { suitable: boolean; reason?: string } => {
+    // 不适合做主键的字段类型
+    const unsuitableTypes = ['text', 'media', 'api'];
+    
+    if (unsuitableTypes.includes(field.type)) {
+      return { 
+        suitable: false, 
+        reason: `${field.type} 类型字段不适合作为主键，因为这种类型通常用于存储大量文本、媒体文件或API数据` 
+      };
+    }
+    
+    // 检查日期类型字段
+    if (field.type === 'date') {
+      return { 
+        suitable: false, 
+        reason: '日期类型字段不适合作为主键，因为日期值可能会重复且不够稳定' 
+      };
+    }
+    
+    // 检查枚举类型字段
+    if (field.type === 'enum') {
+      return { 
+        suitable: false, 
+        reason: '枚举类型字段不适合作为主键，因为枚举值有限且可能重复' 
+      };
+    }
+    
+    // 检查关联类型字段
+    if (field.type === 'relation') {
+      return { 
+        suitable: false, 
+        reason: '关联类型字段不适合作为主键，建议使用关联的目标字段作为主键' 
+      };
+    }
+    
+    // 检查布尔类型字段
+    if (field.type === 'boolean') {
+      return { 
+        suitable: false, 
+        reason: '布尔类型字段不适合作为主键，因为只有两个可能的值，无法唯一标识记录' 
+      };
+    }
+    
+    // 适合做主键的字段类型
+    const suitableTypes = ['uuid', 'auto_increment', 'string', 'number'];
+    if (suitableTypes.includes(field.type)) {
+      return { suitable: true };
+    }
+    
+    return { suitable: true };
+  };
+
+  // 检查是否有UUID或自增长字段
+  const hasUuidOrAutoIncrementField = (): boolean => {
+    return selectedSchema?.fields.some(field => 
+      field.type === 'uuid' || field.type === 'auto_increment'
+    ) || false;
+  };
+
+  // 处理索引类型变更
+  const handleIndexTypeChange = async (fieldName: string, indexType: string) => {
+    if (!selectedSchema) return;
+    
+    // 获取当前字段
+    const currentField = selectedSchema.fields.find(field => field.name === fieldName);
+    if (!currentField) return;
+    
+    // 如果是设置主键，进行验证
+    if (indexType === 'primary') {
+      // 1. 检查字段类型是否适合做主键
+      const fieldSuitability = isFieldSuitableForPrimaryKey(currentField);
+      if (!fieldSuitability.suitable) {
+        notification.warning({
+          message: '字段类型不适合做主键',
+          description: `字段 "${fieldName}" 的类型为 ${currentField.type}。${fieldSuitability.reason}。建议使用 UUID、自增长ID 或字符串类型字段作为主键。`,
+          duration: 5,
+        });
+        // 不阻止保存，只是提醒用户
+      }
+    }
+    
+    // 如果是设置全文索引，进行验证
+    if (indexType === 'fulltext') {
+      // 全文索引只适用于文本类型字段
+      if (currentField.type !== 'text' && currentField.type !== 'string') {
+        notification.warning({
+          message: '字段类型不适合做全文索引',
+          description: `字段 "${fieldName}" 的类型为 ${currentField.type}。全文索引只适用于文本类型字段（text、string）。`,
+          duration: 5,
+        });
+        return;
+      }
+    }
+    
+    // 如果是设置空间索引，进行验证
+    if (indexType === 'spatial') {
+      // 空间索引只适用于特定的几何类型字段（这里可以根据需要扩展）
+      if (currentField.type !== 'string') {
+        notification.warning({
+          message: '字段类型不适合做空间索引',
+          description: `字段 "${fieldName}" 的类型为 ${currentField.type}。空间索引通常适用于存储几何数据的字段。`,
+          duration: 5,
+        });
+        return;
+      }
+    }
+    
+    // 2. 检查是否已有主键，以及是否有UUID或自增长字段（仅在设置主键时）
+    if (indexType === 'primary') {
+      const currentPrimaryKeys = selectedSchema.keyIndexes?.primaryKey || [];
+      const hasUuidOrAutoIncrement = hasUuidOrAutoIncrementField();
+      
+      if (currentPrimaryKeys.length > 0 && hasUuidOrAutoIncrement) {
+        // 显示确认对话框
+        Modal.confirm({
+          title: '创建联合主键',
+          content: (
+            <div>
+              <p><strong>当前已有主键字段：</strong>{currentPrimaryKeys.join(', ')}</p>
+              <p><strong>要添加的主键字段：</strong>{fieldName}</p>
+              <p style={{ marginTop: '12px', color: '#666' }}>
+                系统中存在 UUID 或自增长字段，通常这些字段更适合作为单一主键。
+                联合主键适用于需要多个字段组合来唯一标识记录的场景。
+              </p>
+              <p style={{ color: '#666' }}>
+                您确定要创建联合主键吗？
+              </p>
+            </div>
+          ),
+          okText: '创建联合主键',
+          cancelText: '取消',
+          width: 500,
+          onOk: () => {
+            updateSchemaKeyIndexes(fieldName, indexType);
+          },
+          onCancel: () => {
+            // 取消操作，不更新
+          }
+        });
+        return;
+      }
+    }
+    
+    // 直接更新索引
+    updateSchemaKeyIndexes(fieldName, indexType);
+  };
+
+  // 更新Schema的keyIndexes
+  const updateSchemaKeyIndexes = async (fieldName: string, indexType: string) => {
+    if (!selectedSchema) return;
+    
+    const updatedSchema = { ...selectedSchema };
+    if (!updatedSchema.keyIndexes) {
+      updatedSchema.keyIndexes = { primaryKey: [], indexes: [] };
+    }
+    
+    // 移除字段的所有现有索引
+    if (updatedSchema.keyIndexes.primaryKey) {
+      updatedSchema.keyIndexes.primaryKey = updatedSchema.keyIndexes.primaryKey.filter(
+        field => field !== fieldName
+      );
+    }
+    
+    if (updatedSchema.keyIndexes.indexes) {
+      updatedSchema.keyIndexes.indexes = updatedSchema.keyIndexes.indexes.filter(
+        index => !index.fields?.includes(fieldName)
+      );
+    }
+    
+    // 添加新的索引类型
+    if (indexType === 'primary') {
+      if (!updatedSchema.keyIndexes.primaryKey) {
+        updatedSchema.keyIndexes.primaryKey = [];
+      }
+      updatedSchema.keyIndexes.primaryKey.push(fieldName);
+    } else if (['unique', 'index', 'fulltext', 'spatial'].includes(indexType)) {
+      if (!updatedSchema.keyIndexes.indexes) {
+        updatedSchema.keyIndexes.indexes = [];
+      }
+      updatedSchema.keyIndexes.indexes.push({
+        name: `${fieldName}_${indexType}`,
+        fields: [fieldName],
+        type: indexType as 'unique' | 'index' | 'fulltext' | 'spatial'
+      });
+    }
+    
+    try {
+      await putSchemasId({
+        id: selectedSchema.id!
+      }, {
+        name: updatedSchema.name,
+        description: updatedSchema.description,
+        fields: updatedSchema.fields as any,
+        keyIndexes: updatedSchema.keyIndexes
+      } as any);
+      
+      // 更新本地状态
+      setSelectedSchema(updatedSchema);
+      setSchemas(prevSchemas => 
+        prevSchemas.map(schema => 
+          schema.id === selectedSchema.id ? updatedSchema : schema
+        )
+      );
+      
+      message.success('索引设置已更新');
+    } catch (error) {
+      message.error('更新索引设置失败');
+      console.error('更新索引设置失败:', error);
+    }
+  };
+
   const renderFieldList = () => {
     if (!selectedSchema) {
       return (
@@ -1037,6 +1293,21 @@ const SchemaManagement: React.FC = () => {
               key={field.id || index}
               className="px-0"
               actions={[
+                <Select
+                  key="index"
+                  size="small"
+                  style={{ width: 100 }}
+                  placeholder="索引类型"
+                  value={getFieldIndexType(field.name)}
+                  onChange={(value) => handleIndexTypeChange(field.name, value)}
+                  allowClear
+                >
+                  <Option value="primary">主键</Option>
+                  <Option value="unique">唯一索引</Option>
+                  <Option value="index">普通索引</Option>
+                  <Option value="fulltext">全文索引</Option>
+                  <Option value="spatial">空间索引</Option>
+                </Select>,
                 <Button
                   key="edit"
                   type="link"
@@ -1069,15 +1340,32 @@ const SchemaManagement: React.FC = () => {
                     <span>{field.name}</span>
                     {field.description && <span>({field.description})</span>}
                     <Tag color="blue">{field.type}</Tag>
-                    {(field.type === 'uuid' || field.type === 'auto_increment') && field.isPrimaryKey && (
+                    {/* 主键标识 - 暂时注释，等待前端更新 */}
+                    {/* {(field.type === 'uuid' || field.type === 'auto_increment') && field.isPrimaryKey && (
                       <Tag color="red">PK</Tag>
-                    )}
+                    )} */}
                   </Space>
                 }
                 description={
                   <div style={{ marginTop: '4px' }}>
                     {/* 必填 */}
                     {field.required && <Tag color="cyan" bordered={false}>必填</Tag>}
+                    {/* 索引状态 */}
+                    {getFieldIndexType(field.name) === 'primary' && (
+                      <Tag color="red" bordered={false}>主键</Tag>
+                    )}
+                    {getFieldIndexType(field.name) === 'unique' && (
+                      <Tag color="orange" bordered={false}>唯一索引</Tag>
+                    )}
+                    {getFieldIndexType(field.name) === 'index' && (
+                      <Tag color="green" bordered={false}>普通索引</Tag>
+                    )}
+                    {getFieldIndexType(field.name) === 'fulltext' && (
+                      <Tag color="purple" bordered={false}>全文索引</Tag>
+                    )}
+                    {getFieldIndexType(field.name) === 'spatial' && (
+                      <Tag color="blue" bordered={false}>空间索引</Tag>
+                    )}
                     {/* 长度 */}
                     {field.type === 'string' && (field as API.StringField).length && (
                       <Tag color="cyan" bordered={false}>
@@ -1210,7 +1498,7 @@ const SchemaManagement: React.FC = () => {
       type: field.type,
       description: field.description,
       required: field.required,
-      isPrimaryKey: field.isPrimaryKey,
+      // isPrimaryKey: field.isPrimaryKey, // 暂时注释，等待前端更新
       length: field.length,
       dateType: field.dateType
     };
@@ -1563,8 +1851,8 @@ const SchemaManagement: React.FC = () => {
             <Switch />
           </Form.Item>
 
-          {/* UUID和自增长ID类型特有的配置 */}
-          {(fieldType === 'uuid' || fieldType === 'auto_increment') && (
+          {/* UUID和自增长ID类型特有的配置 - 暂时注释，等待前端更新 */}
+          {/* {(fieldType === 'uuid' || fieldType === 'auto_increment') && (
             <Form.Item
               name="isPrimaryKey"
               valuePropName="checked"
@@ -1572,7 +1860,7 @@ const SchemaManagement: React.FC = () => {
             >
               <Switch />
             </Form.Item>
-          )}
+          )} */}
 
           {/* 普通字段的通用配置（排除UUID和自增长ID） */}
           {!['uuid', 'auto_increment'].includes(fieldType) && (
@@ -1779,7 +2067,7 @@ const SchemaManagement: React.FC = () => {
                         >
                           {field.name}
                           {field.description ? ` (${field.description})` : ''}
-                          {isPrimaryKeyField(field) ? ' [主键]' : ''}
+                          {/* {isPrimaryKeyField(field) ? ' [主键]' : ''} */}
                         </Option>
                       ))}
                     </Select>

@@ -23,6 +23,7 @@ router.use(authenticateToken);
  * /api/schemas:
  *   post:
  *     tags: [Schema Management]
+ *     operationId: postSchemas
  *     summary: 创建新的数据结构定义
  *     requestBody:
  *       required: true
@@ -83,6 +84,7 @@ router.use(authenticateToken);
  *         description: 数据结构代码已存在
  *   get:
  *     tags: [Schema Management]
+ *     operationId: getSchemas
  *     summary: 获取所有数据结构定义
  *     parameters:
  *       - in: query
@@ -206,6 +208,7 @@ router.use(authenticateToken);
  * /api/schemas/{id}:
  *   get:
  *     tags: [Schema Management]
+ *     operationId: getSchemasId
  *     summary: 获取指定数据结构定义
  *     parameters:
  *       - in: path
@@ -248,6 +251,7 @@ router.use(authenticateToken);
  *         description: 数据结构定义不存在
  *   put:
  *     tags: [Schema Management]
+ *     operationId: putSchemasId
  *     summary: 更新数据结构定义
  *     parameters:
  *       - in: path
@@ -303,6 +307,7 @@ router.use(authenticateToken);
  *         description: 数据结构定义不存在
  *   delete:
  *     tags: [Schema Management]
+ *     operationId: deleteSchemasId
  *     summary: 删除数据结构定义
  *     parameters:
  *       - in: path
@@ -323,6 +328,7 @@ router.use(authenticateToken);
  * /api/schemas/{id}/validate:
  *   post:
  *     tags: [Schema Management]
+ *     operationId: postSchemasIdValidate
  *     summary: 验证数据结构定义
  *     parameters:
  *       - in: path

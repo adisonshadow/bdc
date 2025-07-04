@@ -44,8 +44,6 @@ declare namespace API {
     description?: string;
     /** 是否必填 */
     required: boolean;
-    /** 是否为主键 */
-    isPrimaryKey?: boolean;
     /** 字段长度（适用于字符串类型） */
     length?: number;
     /** 日期类型（适用于date类型） */
@@ -318,11 +316,11 @@ declare namespace API {
     )[];
     /** 主键和索引信息 */
     keyIndexes?: {
-      primaryKey?: string;
+      primaryKey?: string[];
       indexes?: {
         name?: string;
         fields?: string[];
-        type?: "unique" | "index";
+        type?: "unique" | "index" | "fulltext" | "spatial";
       }[];
     };
     /** 物理存储信息 */

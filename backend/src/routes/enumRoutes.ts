@@ -27,6 +27,7 @@ router.use(authenticateToken);
  *   post:
  *     summary: 创建枚举
  *     tags: [Enum Management]
+ *     operationId: postEnums
  *     requestBody:
  *       required: true
  *       content:
@@ -64,6 +65,7 @@ router.post('/', createEnum);
  *   get:
  *     summary: 获取枚举列表
  *     tags: [Enum Management]
+ *     operationId: getEnums
  *     parameters:
  *       - in: query
  *         name: isActive
@@ -102,6 +104,7 @@ router.get('/', getAllEnums);
  *   get:
  *     summary: 根据ID获取枚举
  *     tags: [Enum Management]
+ *     operationId: getEnumsId
  *     parameters:
  *       - in: path
  *         name: id
@@ -128,6 +131,7 @@ router.get('/:id', getEnumById);
  *   get:
  *     summary: 根据代码获取枚举
  *     tags: [Enum Management]
+ *     operationId: getEnumsCodeCode
  *     parameters:
  *       - in: path
  *         name: code
@@ -154,6 +158,7 @@ router.get('/code/:code', getEnumByCode);
  *   put:
  *     summary: 更新枚举
  *     tags: [Enum Management]
+ *     operationId: putEnumsId
  *     parameters:
  *       - in: path
  *         name: id
@@ -198,6 +203,7 @@ router.put('/:id', updateEnum);
  *   delete:
  *     summary: 删除枚举
  *     tags: [Enum Management]
+ *     operationId: deleteEnumsId
  *     parameters:
  *       - in: path
  *         name: id

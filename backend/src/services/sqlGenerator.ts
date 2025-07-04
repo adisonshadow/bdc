@@ -10,6 +10,7 @@ export function generateCreateTableSQL(
     includeConstraints?: boolean;
     targetSchema?: string;
     tablePrefix?: string;
+    databaseType?: string;
   }
 ): string {
   const fields = dataStructure.fields || [];
@@ -29,11 +30,6 @@ export function generateCreateTableSQL(
       constraints.push('NOT NULL');
     }
 
-    // 添加主键约束
-    if (primaryKey === fieldName) {
-      constraints.push('PRIMARY KEY');
-    }
-
     return `  ${fieldName} ${fieldType}${constraints.length > 0 ? ' ' + constraints.join(' ') : ''}`;
   });
 
@@ -41,6 +37,11 @@ export function generateCreateTableSQL(
 
   // 添加表级约束
   const tableConstraints: string[] = [];
+
+  // 添加主键约束
+  if (primaryKey && primaryKey.length > 0) {
+    tableConstraints.push(`  PRIMARY KEY (${primaryKey.join(', ')})`);
+  }
 
   // 添加唯一约束
   if (config.includeConstraints) {
@@ -57,6 +58,10 @@ export function generateCreateTableSQL(
 
   sql += '\n);\n';
 
+  // 添加表注释和字段注释
+  const databaseType = config.databaseType || 'postgresql';
+  sql += addComments(dataStructure, tableName, schema, fields, databaseType);
+
   // 添加索引
   if (config.includeIndexes) {
     indexes.forEach(index => {
@@ -67,6 +72,85 @@ export function generateCreateTableSQL(
   }
 
   return sql;
+}
+
+function addComments(
+  dataStructure: DataStructure,
+  tableName: string,
+  schema: string,
+  fields: Field[],
+  databaseType: string
+): string {
+  let commentSQL = '';
+  
+  switch (databaseType.toLowerCase()) {
+    case 'postgresql':
+      // PostgreSQL 注释语法
+      if (dataStructure.description) {
+        commentSQL += `COMMENT ON TABLE ${schema}.${tableName} IS '${escapeComment(dataStructure.description)}';\n`;
+      }
+      fields.forEach(field => {
+        if (field.description) {
+          commentSQL += `COMMENT ON COLUMN ${schema}.${tableName}.${field.name} IS '${escapeComment(field.description)}';\n`;
+        }
+      });
+      break;
+      
+    case 'mysql':
+      // MySQL 注释语法
+      if (dataStructure.description) {
+        commentSQL += `ALTER TABLE ${schema}.${tableName} COMMENT = '${escapeComment(dataStructure.description)}';\n`;
+      }
+      fields.forEach(field => {
+        if (field.description) {
+          commentSQL += `ALTER TABLE ${schema}.${tableName} MODIFY COLUMN ${field.name} ${getFieldType(field)} COMMENT '${escapeComment(field.description)}';\n`;
+        }
+      });
+      break;
+      
+    case 'oracle':
+      // Oracle 注释语法
+      if (dataStructure.description) {
+        commentSQL += `COMMENT ON TABLE ${schema}.${tableName} IS '${escapeComment(dataStructure.description)}';\n`;
+      }
+      fields.forEach(field => {
+        if (field.description) {
+          commentSQL += `COMMENT ON COLUMN ${schema}.${tableName}.${field.name} IS '${escapeComment(field.description)}';\n`;
+        }
+      });
+      break;
+      
+    case 'sqlserver':
+      // SQL Server 注释语法
+      if (dataStructure.description) {
+        commentSQL += `EXEC sp_addextendedproperty 'MS_Description', '${escapeComment(dataStructure.description)}', 'SCHEMA', '${schema}', 'TABLE', '${tableName}';\n`;
+      }
+      fields.forEach(field => {
+        if (field.description) {
+          commentSQL += `EXEC sp_addextendedproperty 'MS_Description', '${escapeComment(field.description)}', 'SCHEMA', '${schema}', 'TABLE', '${tableName}', 'COLUMN', '${field.name}';\n`;
+        }
+      });
+      break;
+      
+    default:
+      // 默认使用 PostgreSQL 语法
+      if (dataStructure.description) {
+        commentSQL += `COMMENT ON TABLE ${schema}.${tableName} IS '${escapeComment(dataStructure.description)}';\n`;
+      }
+      fields.forEach(field => {
+        if (field.description) {
+          commentSQL += `COMMENT ON COLUMN ${schema}.${tableName}.${field.name} IS '${escapeComment(field.description)}';\n`;
+        }
+      });
+      break;
+  }
+  
+  return commentSQL;
+}
+
+function escapeComment(comment: string): string {
+  // 转义单引号，避免 SQL 注入
+  return comment.replace(/'/g, "''");
 }
 
 function getFieldType(field: Field): string {

@@ -61,7 +61,16 @@ export class DatabaseExecutor {
 
     try {
       console.log('执行SQL:', sql);
+      
+      // 开始事务
+      await this.client.query('BEGIN');
+      
+      // 执行SQL
       const result = await this.client.query(sql);
+      
+      // 提交事务
+      await this.client.query('COMMIT');
+      
       console.log('SQL执行成功:', result);
       return {
         success: true,
@@ -70,6 +79,14 @@ export class DatabaseExecutor {
       };
     } catch (error) {
       console.error('SQL执行失败:', error);
+      
+      // 回滚事务
+      try {
+        await this.client!.query('ROLLBACK');
+      } catch (rollbackError) {
+        console.error('事务回滚失败:', rollbackError);
+      }
+      
       return {
         success: false,
         message: 'SQL执行失败',
