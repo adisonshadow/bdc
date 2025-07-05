@@ -2,13 +2,14 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Table, Button, Space, Tag, Tooltip, Switch, message, Modal, Form, Input, Select, List, Flex, InputNumber, Cascader, TreeSelect, Badge, Popconfirm, Checkbox, notification } from 'antd';
 import type { CascaderProps } from 'antd';
 import type { DefaultOptionType } from 'antd/es/cascader';
-import { PlusOutlined, EditOutlined, DeleteOutlined, ExportOutlined, BuildOutlined, ApartmentOutlined, CloudDownloadOutlined, CaretDownOutlined, CaretRightOutlined, TableOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, ExportOutlined, BuildOutlined, ApartmentOutlined, CloudDownloadOutlined, CaretDownOutlined, CaretRightOutlined, TableOutlined, RobotOutlined } from '@ant-design/icons';
 import { Splitter } from 'antd';
 import { getSchemas, putSchemasId, postSchemas, deleteSchemasId } from '@/services/BDC/api/schemaManagement';
 import { getEnums } from '@/services/BDC/api/enumManagement';
 import { buildTree, enumTreeConfig } from '@/utils/treeBuilder';
 import { EnumTreeNode } from '@/types/enum';
 import SchemaValidator from '@/components/SchemaValidator';
+import AICreateSchema from '@/components/AICreateSchema';
 import { useNavigate } from 'react-router-dom';
 import { handleDownloadORM } from './ormGenerator';
 
@@ -86,6 +87,7 @@ const SchemaManagement: React.FC = () => {
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [isSyncMode, setIsSyncMode] = useState(false);
+  const [isAICreateModalVisible, setIsAICreateModalVisible] = useState(false);
   const navigate = useNavigate();
 
   // 使用 useMemo 缓存过滤后的枚举列表
@@ -765,6 +767,86 @@ const SchemaManagement: React.FC = () => {
     await handleDownloadORM(selectedSchemas, schemas, enums);
   };
 
+  // 处理自动修复
+  const handleAutoFix = async (fixedFields: Field[], fixedKeyIndexes: any) => {
+    if (!selectedSchema) {
+      message.error('没有选中的数据模型');
+      return;
+    }
+
+    try {
+      // 更新选中的数据模型
+      const updatedSchema = {
+        ...selectedSchema,
+        fields: fixedFields,
+        keyIndexes: fixedKeyIndexes
+      };
+
+      // 调用 API 更新数据模型
+      await putSchemasId(
+        { id: selectedSchema.id! },
+        {
+          fields: updatedSchema.fields as any
+        }
+      );
+
+      // 更新本地状态
+      setSelectedSchema(updatedSchema);
+      
+      // 重新获取数据模型列表
+      await fetchSchemas();
+      
+      message.success('自动修复完成！');
+    } catch (error) {
+      console.error('自动修复失败:', error);
+      message.error('自动修复失败，请检查网络连接或手动修复');
+    }
+  };
+
+  // 处理 AI 新建模型
+  const handleAICreateSchema = async (schemaData: {
+    name: string;
+    code: string;
+    description: string;
+    fields: Field[];
+    keyIndexes?: {
+      primaryKey?: string[];
+      indexes?: {
+        name?: string;
+        fields?: string[];
+        type?: "unique" | "index" | "fulltext" | "spatial";
+      }[];
+    };
+  }) => {
+    try {
+      // 修正数据格式：
+      // name: 代码的最后一部分（如：user_profile）
+      // code: 完整的代码（如：enterprise:user_profile）
+      // description: 原来的 name（如：企业用户信息表）
+      const modelName = schemaData.code.split(':').pop() || schemaData.code;
+      
+      // 调用 API 创建数据模型
+      await postSchemas({
+        name: modelName,
+        code: schemaData.code,
+        description: schemaData.name,
+        fields: schemaData.fields as any,
+        keyIndexes: schemaData.keyIndexes
+      });
+
+      // 重新获取数据模型列表
+      await fetchSchemas();
+      
+      message.success('AI 创建数据模型成功！');
+    } catch (error: any) {
+      console.error('AI 创建数据模型失败:', error);
+      // 获取详细的错误信息
+      const errorMessage = error?.response?.data?.message || error?.message || 'AI 创建数据模型失败，请检查网络连接或重试';
+      message.error(`创建失败：${errorMessage}`);
+      throw new Error(errorMessage); // 抛出包含详细错误信息的异常
+    }
+  };
+
   // 处理全选/取消全选
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -983,7 +1065,7 @@ const SchemaManagement: React.FC = () => {
               }}
             />
             <Popconfirm
-              title="删除数据表"
+              title="删除数据模型"
               description={`确定要删除 "${record.name}" 吗？此操作不可恢复。`}
               onConfirm={(e) => {
                 e?.stopPropagation();
@@ -1249,7 +1331,7 @@ const SchemaManagement: React.FC = () => {
       return (
         <div className="d-flex mt-5 pt-5 flex-column align-items-center justify-content-center">
           <img src="/toleft.svg" alt="empty" style={{ width: '100px', height: '100px' }} />
-          <p style={{ textAlign: 'center', padding: '5px' }}>请选择左侧的数据表</p>
+          <p style={{ textAlign: 'center', padding: '5px' }}>请选择左侧的数据模型</p>
         </div>
       );
     }
@@ -1266,7 +1348,7 @@ const SchemaManagement: React.FC = () => {
       }
     };
 
-    // 获取目标数据表的描述信息
+    // 获取目标数据模型的描述信息
     const getTargetSchemaDescription = (code: string | undefined) => {
       if (!code) return '';
       const schema = schemas.find(s => s.code === code);
@@ -1462,7 +1544,7 @@ const SchemaManagement: React.FC = () => {
   const processTreeData = (nodes: SchemaTreeItem[], currentCode: string): SchemaTreeItem[] => {
     return nodes.map(node => {
       const newNode = { ...node };
-      // 如果节点的值与当前数据表的代码相同，则禁用该节点
+      // 如果节点的值与当前数据模型的代码相同，则禁用该节点
       if (newNode.code === currentCode) {
         newNode.disabled = true;
       }
@@ -1547,7 +1629,7 @@ const SchemaManagement: React.FC = () => {
       <Splitter style={{ height: "calc(100vh - 57px)" }}>
         <Splitter.Panel defaultSize="50%">
           <div className="f-header">
-            <label className="fw-bold">模型表</label>
+            <label className="fw-bold">所有模型</label>
             <Space>
               <Button
                 type={isSyncMode ? "primary" : "link"}
@@ -1570,13 +1652,28 @@ const SchemaManagement: React.FC = () => {
               <Button
                 type="primary"
                 ghost
+                icon={<RobotOutlined />}
+                onClick={() => {
+                  setIsAICreateModalVisible(true);
+                }}
+                style={{
+                  background: 'radial-gradient(117.61% 84.5% at 147.46% 76.45%, rgba(82, 99, 255, 0.8) 0%, rgba(143, 65, 238, 0) 100%), linear-gradient(72deg, rgb(60, 115, 255) 18.03%, rgb(110, 65, 238) 75.58%, rgb(214, 65, 238) 104.34%)',
+                  border: 'none',
+                  color: 'white'
+                }}
+              >
+                AI新建模型
+              </Button>
+              <Button
+                type="primary"
+                ghost
                 icon={<PlusOutlined />}
                 onClick={() => {
                   schemaForm.resetFields();
                   setIsSchemaModalVisible(true);
                 }}
               >
-                新建表
+                新建模型
               </Button>
             </Space>
             
@@ -1679,7 +1776,7 @@ const SchemaManagement: React.FC = () => {
                 >
                   全选
                 </Checkbox>
-                <span>已选择 {selectedRowKeys.length} 个数据表</span>
+                <span>已选择 {selectedRowKeys.length} 个数据模型</span>
               </Space>
               <Button
                 type="primary"
@@ -1699,10 +1796,17 @@ const SchemaManagement: React.FC = () => {
                 <Space>
                   <span className='fw-bold'>{selectedSchema?.name}</span>
                   { selectedSchema?.description && <span className='me-1'>({selectedSchema?.description})</span> }
-                  <span className='fw-bold me-2'> 的数据表字段</span>
+                  <span className='fw-bold me-2'> 的模型字段</span>
                   <SchemaValidator
                     fields={selectedSchema?.fields ?? []}
                     schemas={schemas}
+                    keyIndexes={selectedSchema?.keyIndexes}
+                    enums={enums}
+                    onValidationChange={(issues) => {
+                      // 可以在这里处理验证结果变化
+                      console.log('Schema validation issues:', issues);
+                    }}
+                    onAutoFix={handleAutoFix}
                   />
                 </Space>
                 <Tooltip title="新建字段">
@@ -1731,9 +1835,9 @@ const SchemaManagement: React.FC = () => {
         </Splitter.Panel>
       </Splitter>
 
-      {/* 数据表创建/编辑模态框 */}
+      {/* 数据模型创建/编辑模态框 */}
       <Modal
-        title={selectedSchema ? "编辑数据表" : "新建数据表"}
+        title={selectedSchema ? "编辑数据模型" : "新建数据模型"}
         open={isSchemaModalVisible}
         onOk={() => schemaForm.submit()}
         onCancel={() => setIsSchemaModalVisible(false)}
@@ -2003,10 +2107,10 @@ const SchemaManagement: React.FC = () => {
 
                   <Form.Item
                     name="targetSchema"
-                    label="目标数据表"
-                    rules={[{ required: true, message: '请选择目标数据表' }]}
+                    label="目标模型"
+                    rules={[{ required: true, message: '请选择目标模型' }]}
                     tooltip={{
-                      title: '不能选择当前正在编辑的数据表作为关联目标'
+                      title: '不能选择当前正在编辑的数据模型作为关联目标'
                     }}
                   >
                     <TreeSelect
@@ -2026,14 +2130,14 @@ const SchemaManagement: React.FC = () => {
                           }))
                         }))
                       }))}
-                      placeholder="请选择目标数据表"
+                      placeholder="请选择目标模型"
                       allowClear
                       showSearch
                       treeNodeFilterProp="title"
                       filterTreeNode={treeFilter}
                       treeDefaultExpandAll
                       onChange={(value) => {
-                        console.log('选择的目标数据表:', value);
+                        console.log('选择的目标模型:', value);
                         // 清空关联字段的选择
                         fieldForm.setFieldValue('targetField', undefined);
                       }}
@@ -2046,7 +2150,7 @@ const SchemaManagement: React.FC = () => {
                     tooltip={{
                       title: (
                         <div>
-                          <p>选择目标数据表中用于关联的字段</p>
+                          <p>选择目标模型中用于关联的字段</p>
                           <p>- 默认使用主键（id 字段）</p>
                           <p>- 也可以选择其他唯一标识字段（如：商品编码、员工工号等）</p>
                           <p>- 支持字符串和数字类型的字段</p>
@@ -2231,6 +2335,13 @@ const SchemaManagement: React.FC = () => {
           )}
         />
       </Modal>
+
+      {/* AI 新建模型模态框 */}
+      <AICreateSchema
+        open={isAICreateModalVisible}
+        onCancel={() => setIsAICreateModalVisible(false)}
+        onSuccess={handleAICreateSchema}
+      />
     </div>
   );
 };

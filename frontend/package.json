@@ -14,10 +14,12 @@
   "dependencies": {
     "@ant-design/icons": "^5.0.1",
     "@ant-design/pro-components": "^2.4.4",
+    "@ant-design/x": "^1.4.0",
     "@antv/g6": "^5.0.48",
     "@antv/graphin": "latest",
     "@antv/graphin-components": "^2.4.1",
     "@antv/graphin-icons": "^1.0.0",
+    "@lottiefiles/dotlottie-react": "^0.14.2",
     "@monaco-editor/react": "^4.7.0",
     "@types/cytoscape-d3-force": "^1.0.0",
     "@types/d3": "^7.4.3",
@@ -29,6 +31,9 @@
     "cytoscape-react": "^4.0.0",
     "d3": "^7.9.0",
     "d3-graph-controller": "^3.1.1",
+    "i": "^0.3.7",
+    "lottie-react-web": "^2.2.2",
+    "npm": "^11.4.2",
     "react-force-graph": "^1.47.7",
     "react-force-graph-2d": "^1.27.1"
   },

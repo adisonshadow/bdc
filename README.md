@@ -16,8 +16,10 @@ BDC 是一个灵活的数据结构设计与查询平台，主要用于处理和�
 - Apollo Client
 - GraphQL
 
-## 核心功能
+## 依赖
+本项目依赖 UAC 作为 鉴权、用户管理、应用管理（ https://github.com/adisonshadow/fyIAMAdmin、 https://github.com/adisonshadow/fyUAC ）
 
+## 核心功能
 ### 1. 数据结构设计
 - 可视化数据结构设计界面
 - AI 辅助数据结构设计

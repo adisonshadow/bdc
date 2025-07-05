@@ -55,6 +55,14 @@ export async function postSchemas(
       | API.MediaField
       | API.ApiField
     )[];
+    keyIndexes?: {
+      primaryKey?: string[];
+      indexes?: {
+        name?: string;
+        fields?: string[];
+        type?: "unique" | "index" | "fulltext" | "spatial";
+      }[];
+    };
   },
   options?: { [key: string]: any }
 ) {
@@ -114,6 +122,14 @@ export async function putSchemasId(
       | API.MediaField
       | API.ApiField
     )[];
+    keyIndexes?: {
+      primaryKey?: string[];
+      indexes?: {
+        name?: string;
+        fields?: string[];
+        type?: "unique" | "index" | "fulltext" | "spatial";
+      }[];
+    };
   },
   options?: { [key: string]: any }
 ) {
