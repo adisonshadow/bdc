@@ -102,7 +102,7 @@ interface KeyIndexes {
   indexes?: {
     name?: string;
     fields?: string[];
-    type?: "unique" | "index" | "fulltext" | "spatial";
+    type?: "unique" | "normal" | "fulltext" | "spatial";
   }[];
 }
 

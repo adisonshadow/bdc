@@ -30,8 +30,8 @@ const AILoading: React.FC<AILoadingProps> = ({
               loop: true,
               autoplay: true
             }}
-            width={120}
-            height={120}
+            width={200}
+            height={200}
           />
         </div>
         <div className="ai-loading-text">

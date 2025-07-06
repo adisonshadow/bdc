@@ -516,9 +516,51 @@
                     "type": "string",
                     "description": "数据结构名称"
                   },
-                  "schema": {
+                  "fields": {
+                    "type": "array",
+                    "description": "字段定义列表"
+                  },
+                  "keyIndexes": {
                     "type": "object",
-                    "description": "数据结构定义"
+                    "description": "主键和索引信息",
+                    "properties": {
+                      "primaryKey": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "主键字段名列表（支持联合主键）"
+                      },
+                      "indexes": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "description": "索引名称"
+                            },
+                            "fields": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "description": "索引字段列表"
+                            },
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "unique",
+                                "normal",
+                                "fulltext",
+                                "spatial"
+                              ],
+                              "description": "索引类型：unique(唯一索引)、normal(普通索引)、fulltext(全文索引)、spatial(空间索引)"
+                            }
+                          }
+                        }
+                      }
+                    }
                   },
                   "description": {
                     "type": "string",

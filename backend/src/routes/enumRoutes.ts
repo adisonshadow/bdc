@@ -36,8 +36,8 @@ router.use(authenticateToken);
  *             $ref: '#/components/schemas/Enum'
  *           example:
  *             code: "system:user:status"
- *             name: "用户状态"
- *             description: "系统用户状态枚举"
+ *             name: "user_status"
+ *             description: "用户状态枚举"
  *             options:
  *               - value: "active"
  *                 label: "正常"

@@ -15,7 +15,7 @@ export interface SchemaListItem {
     indexes?: {
       name?: string;
       fields?: string[];
-      type?: "unique" | "index" | "fulltext" | "spatial";
+      type?: "unique" | "normal" | "fulltext" | "spatial";
     }[];
   };
 } 

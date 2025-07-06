@@ -28,13 +28,6 @@
  *         required:
  *           type: boolean
  *           description: 是否必填
- *         length:
- *           type: integer
- *           description: 字段长度（适用于字符串类型）
- *         dateType:
- *           type: string
- *           enum: [year, year-month, date, datetime]
- *           description: 日期类型（适用于date类型）
  *
  *     UuidField:
  *       allOf:
@@ -65,6 +58,9 @@
  *               type: string
  *               enum: [string]
  *               description: 字符串类型（varchar）
+ *             length:
+ *               type: integer
+ *               description: 字段长度（适用于字符串类型）
  *
  *     TextField:
  *       allOf:
@@ -85,6 +81,21 @@
  *               type: string
  *               enum: [number]
  *               description: 数字类型
+ *             numberConfig:
+ *               type: object
+ *               required:
+ *                 - numberType
+ *               properties:
+ *                 numberType:
+ *                   type: string
+ *                   enum: [integer, float, decimal]
+ *                   description: 数字类型（整数、浮点数、精确小数）
+ *                 precision:
+ *                   type: integer
+ *                   description: 精度（用于浮点数和精确小数类型，表示数字的总位数）
+ *                 scale:
+ *                   type: integer
+ *                   description: 小数位数（用于浮点数和精确小数类型，表示小数点后的位数）
  *
  *     BooleanField:
  *       allOf:
@@ -105,6 +116,15 @@
  *               type: string
  *               enum: [date]
  *               description: 日期类型
+ *             dateConfig:
+ *               type: object
+ *               required:
+ *                 - dateType
+ *               properties:
+ *                 dateType:
+ *                   type: string
+ *                   enum: [year, year-month, date, datetime]
+ *                   description: 日期格式（年、年月、年月日、年月日时间）
  *
  *     EnumField:
  *       allOf:
@@ -317,7 +337,8 @@
  *           description: 枚举代码（使用:分隔的多级结构，如 system:user:status）
  *         name:
  *           type: string
- *           description: 枚举名称
+ *           pattern: ^[a-z][a-z0-9_]*$
+ *           description: 枚举名称 (必须以字母开头，只能包含小写字母、数字和下划线)
  *         description:
  *           type: string
  *           maxLength: 100
@@ -414,7 +435,7 @@
  *                     description: 索引字段列表
  *                   type:
  *                     type: string
- *                     enum: [unique, index]
+ *                     enum: [unique, normal, fulltext, spatial]
  *                     description: 索引类型
  *         physicalStorage:
  *           type: object
@@ -912,7 +933,7 @@
  *           description: 索引名
  *         type:
  *           type: string
- *           enum: [PRIMARY, UNIQUE, INDEX]
+ *           enum: [primary, unique, normal, fulltext, spatial]
  *           description: 索引类型
  *         columns:
  *           type: array
@@ -922,6 +943,33 @@
  *         description:
  *           type: string
  *           description: 索引描述
+ *
+ *     keyIndexes:
+ *       type: object
+ *       description: 主键和索引信息
+ *       properties:
+ *         primaryKey:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: 主键字段名列表（支持联合主键）
+ *         indexes:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: 索引名称
+ *               fields:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: 索引字段列表
+ *               type:
+ *                 type: string
+ *                 enum: [unique, normal, fulltext, spatial]
+ *                 description: 索引类型
  *
  *     DatabaseForeignKey:
  *       type: object

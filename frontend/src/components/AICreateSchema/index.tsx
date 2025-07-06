@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Button, message, Spin, Space, Typography, Card, Tag } from 'antd';
-import { RobotOutlined, CheckOutlined, EditOutlined } from '@ant-design/icons';
-import { getSchemaHelp } from '@/AIHelper';
+import { Modal, Form, Input, Button, message, Space, Typography } from 'antd';
+import { RobotOutlined } from '@ant-design/icons';
+import { Sender } from '@ant-design/x';
+import { getSchemaHelp, generateModelDesignPrompt } from '@/AIHelper';
 import type { Field } from '@/components/SchemaValidator/types';
 import AILoading from '@/components/AILoading';
+import SchemaConfirmation from '@/components/SchemaConfirmation';
 import { getEnums, postEnums } from '@/services/BDC/api/enumManagement';
 
 const { TextArea } = Input;
@@ -22,7 +24,7 @@ interface AICreateSchemaProps {
       indexes?: {
         name?: string;
         fields?: string[];
-        type?: "unique" | "index" | "fulltext" | "spatial";
+        type?: "unique" | "normal" | "fulltext" | "spatial";
       }[];
     };
   }) => void;
@@ -38,7 +40,7 @@ interface GeneratedSchema {
     indexes?: {
       name?: string;
       fields?: string[];
-      type?: "unique" | "index" | "fulltext" | "spatial";
+      type?: "unique" | "normal" | "fulltext" | "spatial";
     }[];
   };
 }
@@ -83,114 +85,16 @@ const AICreateSchema: React.FC<AICreateSchemaProps> = ({
       setIsGenerating(true);
       setIsAILoading(true);
 
-      const prompt = `请根据以下业务需求自动生成一个数据表模型：
-
-业务描述：${values.description}
-
-## 现有枚举列表
-${existingEnums.map(enumItem => `- ${enumItem.code}: ${enumItem.name} (${enumItem.options?.map(opt => `${opt.value}:${opt.label}`).join(', ')})`).join('\n')}
-
-## 数据模型规则
-
-### 支持的字段类型：
-1. **uuid** - UUID类型，用于主键，自动生成
-2. **auto_increment** - 自增长ID，用于主键
-3. **string** - 字符串类型，必须设置length（1-255）
-4. **text** - 长文本类型，无长度限制
-5. **number** - 数字类型（整数或小数）
-6. **boolean** - 布尔类型（true/false）
-7. **date** - 日期类型，必须设置dateType（year/year-month/date/datetime）
-8. **enum** - 枚举类型，需要enumConfig配置
-   - 如果现有枚举中有合适的，使用 targetEnumCode 指向现有枚举
-   - 如果没有合适的，需要新建枚举，在 newEnums 数组中提供新枚举定义
-9. **relation** - 关联类型，需要relationConfig配置
-10. **media** - 媒体类型，需要mediaConfig配置
-11. **api** - API数据源类型，需要apiConfig配置
-
-### 字段命名规则：
-- 字段名必须以小写字母开头
-- 只能包含小写字母、数字和下划线
-- 示例：user_name, email_address, created_at
-
-### 必填字段配置：
-- 每个字段必须有 id、name、type、required 属性
-- 字符串类型必须设置 length
-- 日期类型必须设置 dateType
-- 枚举类型需要 enumConfig
-- 关联类型需要 relationConfig
-- 媒体类型需要 mediaConfig
-- API类型需要 apiConfig
-
-### 系统字段建议：
-- id: uuid类型，作为主键
-- created_at: date类型，datetime格式，记录创建时间
-- updated_at: date类型，datetime格式，记录更新时间
-
-### 主键和索引规则：
-- 每个表必须有主键，通常使用 id 字段（uuid类型）
-- 根据业务需求设置合适的索引：
-  - 唯一索引：用于唯一性约束（如邮箱、手机号）
-  - 普通索引：用于查询优化（如状态、分类）
-  - 复合索引：用于多字段查询优化
-
-请生成一个完整的数据表模型，包含：
-1. 合适的表名和代码（根据业务描述自动生成，支持多级命名如：enterprise:user_profile）
-2. 详细的表描述
-3. 完整的字段列表，严格按照上述规则配置
-4. 主键和索引配置
-
-请返回 JSON 格式的数据：
-{
-  "name": "表的中文名称（如：企业用户信息表）",
-  "code": "表的完整代码（如：enterprise:user_profile，支持多级命名）",
-  "description": "表的详细描述",
-  "fields": [
-    {
-      "id": "field_001",
-      "name": "字段名",
-      "type": "字段类型",
-      "description": "字段描述",
-      "required": true/false,
-      "length": 长度（字符串类型必须设置）
-    }
-  ],
-  "keyIndexes": {
-    "primaryKey": ["id"],
-    "indexes": [
-      {
-        "name": "idx_field_name",
-        "fields": ["field_name"],
-        "type": "unique"
-      },
-      {
-        "name": "idx_status",
-        "fields": ["status"],
-        "type": "index"
-      }
-    ]
-  },
-  "newEnums": [
-    {
-      "code": "新枚举代码（如：system:gender）",
-      "name": "新枚举名称",
-      "description": "新枚举描述",
-      "options": [
+      const prompt = generateModelDesignPrompt(
         {
-          "value": "枚举值",
-          "label": "显示标签"
+          userRequirement: values.description,
+          existingEnums
+        },
+        {
+          operationType: 'create',
+          includeNewEnums: true
         }
-      ]
-    }
-  ]
-}
-
-注意：
-- 字符串字段必须设置length属性
-- 日期字段必须设置dateType属性
-- 字段类型必须是上述11种类型之一
-- 字段名必须符合命名规则
-
-只返回 JSON 格式的数据，不要包含其他说明文字。`;
+      );
 
       const aiResponse = await getSchemaHelp(prompt);
       
@@ -211,20 +115,35 @@ ${existingEnums.map(enumItem => `- ${enumItem.code}: ${enumItem.name} (${enumIte
 
       // 验证生成的模型
       if (parsedSchema.name && parsedSchema.code && parsedSchema.fields && Array.isArray(parsedSchema.fields)) {
-        // 为字段添加必要的属性
-        const processedFields = parsedSchema.fields.map((field: any, index: number) => ({
-          id: field.id || `field_${index}`,
-          name: field.name,
-          type: field.type,
-          description: field.description || '',
-          required: field.required || false,
-          length: field.length,
-          dateType: field.dateType,
-          enumConfig: field.enumConfig,
-          relationConfig: field.relationConfig,
-          mediaConfig: field.mediaConfig,
-          apiConfig: field.apiConfig
-        }));
+        // 自动修正 enum 字段的 enumConfig
+        const allNewEnums: any[] = [];
+        const processedFields = parsedSchema.fields.map((field: any, index: number) => {
+          // 处理 enum 字段
+          if (field.type === 'enum' && field.enumConfig) {
+            // 1. 如果 enumConfig 里有 newEnums，提取出来
+            if (Array.isArray(field.enumConfig.newEnums) && field.enumConfig.newEnums.length > 0) {
+              allNewEnums.push(...field.enumConfig.newEnums);
+              // 2. 自动补全 targetEnumCode
+              if (!field.enumConfig.targetEnumCode) {
+                field.enumConfig.targetEnumCode = field.enumConfig.newEnums[0].code;
+              }
+              delete field.enumConfig.newEnums;
+            }
+          }
+          return {
+            id: field.id || `field_${index}`,
+            name: field.name,
+            type: field.type,
+            description: field.description || '',
+            required: field.required || false,
+            length: field.length,
+            dateConfig: field.dateConfig,
+            enumConfig: field.enumConfig,
+            relationConfig: field.relationConfig,
+            mediaConfig: field.mediaConfig,
+            apiConfig: field.apiConfig
+          };
+        });
 
         const schema: GeneratedSchema = {
           name: parsedSchema.name,
@@ -237,9 +156,9 @@ ${existingEnums.map(enumItem => `- ${enumItem.code}: ${enumItem.name} (${enumIte
           }
         };
 
-        // 处理新枚举
-        if (parsedSchema.newEnums && Array.isArray(parsedSchema.newEnums)) {
-          setNewEnums(parsedSchema.newEnums);
+        // 合并所有 newEnums
+        if ((parsedSchema.newEnums && Array.isArray(parsedSchema.newEnums)) || allNewEnums.length > 0) {
+          setNewEnums([...(parsedSchema.newEnums || []), ...allNewEnums]);
         } else {
           setNewEnums([]);
         }
@@ -267,21 +186,33 @@ ${existingEnums.map(enumItem => `- ${enumItem.code}: ${enumItem.name} (${enumIte
       // 先创建新枚举
       if (newEnums.length > 0) {
         message.info(`正在创建 ${newEnums.length} 个新枚举...`);
+        const createdEnums = [];
+        const failedEnums = [];
+        
         for (const enumItem of newEnums) {
           try {
             await postEnums(enumItem);
             console.log(`枚举创建成功: ${enumItem.code}`);
+            createdEnums.push(enumItem.code);
           } catch (error: any) {
             console.error(`枚举创建失败: ${enumItem.code}`, error);
-            // 如果枚举已存在，继续处理
+            // 如果枚举已存在，记录但继续处理
             if (error?.response?.status === 409) {
               console.log(`枚举已存在: ${enumItem.code}`);
+              createdEnums.push(enumItem.code); // 视为成功，因为枚举已存在
             } else {
-              throw error;
+              failedEnums.push(enumItem.code);
             }
           }
         }
-        message.success('新枚举创建完成！');
+        
+        if (createdEnums.length > 0) {
+          message.success(`枚举处理完成：${createdEnums.length} 个成功`);
+        }
+        
+        if (failedEnums.length > 0) {
+          message.warning(`部分枚举创建失败：${failedEnums.join(', ')}`);
+        }
       }
 
       // 再创建数据模型
@@ -319,46 +250,16 @@ ${existingEnums.map(enumItem => `- ${enumItem.code}: ${enumItem.name} (${enumIte
     setIsAILoading(true);
     
     try {
-      const prompt = `请根据以下要求修改现有的数据模型：
-
-原始模型：
-${JSON.stringify(generatedSchema, null, 2)}
-
-修改要求：${modifyInput}
-
-## 现有枚举列表
-${existingEnums.map(enumItem => `- ${enumItem.code}: ${enumItem.name} (${enumItem.options?.map(opt => `${opt.value}:${opt.label}`).join(', ')})`).join('\n')}
-
-请根据修改要求重新生成完整的数据模型，保持原有的字段类型和配置规则。
-
-请返回 JSON 格式的数据：
-{
-  "name": "表的中文名称",
-  "code": "表的完整代码",
-  "description": "表的详细描述",
-  "fields": [
-    {
-      "id": "field_001",
-      "name": "字段名",
-      "type": "字段类型",
-      "description": "字段描述",
-      "required": true/false,
-      "length": 长度（字符串类型必须设置）
-    }
-  ],
-  "keyIndexes": {
-    "primaryKey": ["id"],
-    "indexes": [
-      {
-        "name": "idx_field_name",
-        "fields": ["field_name"],
-        "type": "unique"
-      }
-    ]
-  }
-}
-
-只返回 JSON 格式的数据，不要包含其他说明文字。`;
+      const prompt = generateModelDesignPrompt(
+        {
+          currentModel: generatedSchema,
+          modifyRequirement: modifyInput,
+          existingEnums
+        },
+        {
+          operationType: 'modify'
+        }
+      );
 
       const aiResponse = await getSchemaHelp(prompt);
       
@@ -379,20 +280,35 @@ ${existingEnums.map(enumItem => `- ${enumItem.code}: ${enumItem.name} (${enumIte
 
       // 验证生成的模型
       if (parsedSchema.name && parsedSchema.code && parsedSchema.fields && Array.isArray(parsedSchema.fields)) {
-        // 为字段添加必要的属性
-        const processedFields = parsedSchema.fields.map((field: any, index: number) => ({
-          id: field.id || `field_${index}`,
-          name: field.name,
-          type: field.type,
-          description: field.description || '',
-          required: field.required || false,
-          length: field.length,
-          dateType: field.dateType,
-          enumConfig: field.enumConfig,
-          relationConfig: field.relationConfig,
-          mediaConfig: field.mediaConfig,
-          apiConfig: field.apiConfig
-        }));
+        // 自动修正 enum 字段的 enumConfig
+        const allNewEnums: any[] = [];
+        const processedFields = parsedSchema.fields.map((field: any, index: number) => {
+          // 处理 enum 字段
+          if (field.type === 'enum' && field.enumConfig) {
+            // 1. 如果 enumConfig 里有 newEnums，提取出来
+            if (Array.isArray(field.enumConfig.newEnums) && field.enumConfig.newEnums.length > 0) {
+              allNewEnums.push(...field.enumConfig.newEnums);
+              // 2. 自动补全 targetEnumCode
+              if (!field.enumConfig.targetEnumCode) {
+                field.enumConfig.targetEnumCode = field.enumConfig.newEnums[0].code;
+              }
+              delete field.enumConfig.newEnums;
+            }
+          }
+          return {
+            id: field.id || `field_${index}`,
+            name: field.name,
+            type: field.type,
+            description: field.description || '',
+            required: field.required || false,
+            length: field.length,
+            dateConfig: field.dateConfig,
+            enumConfig: field.enumConfig,
+            relationConfig: field.relationConfig,
+            mediaConfig: field.mediaConfig,
+            apiConfig: field.apiConfig
+          };
+        });
 
         const schema: GeneratedSchema = {
           name: parsedSchema.name,
@@ -405,9 +321,9 @@ ${existingEnums.map(enumItem => `- ${enumItem.code}: ${enumItem.name} (${enumIte
           }
         };
 
-        // 处理新枚举
-        if (parsedSchema.newEnums && Array.isArray(parsedSchema.newEnums)) {
-          setNewEnums(parsedSchema.newEnums);
+        // 合并所有 newEnums
+        if ((parsedSchema.newEnums && Array.isArray(parsedSchema.newEnums)) || allNewEnums.length > 0) {
+          setNewEnums([...(parsedSchema.newEnums || []), ...allNewEnums]);
         } else {
           setNewEnums([]);
         }
@@ -435,31 +351,7 @@ ${existingEnums.map(enumItem => `- ${enumItem.code}: ${enumItem.name} (${enumIte
     onCancel();
   };
 
-  // 渲染字段列表
-  const renderFields = (fields: Field[]) => {
-    return fields.map((field, index) => (
-      <Card 
-        key={field.id || index} 
-        size="small" 
-        style={{ marginBottom: 8 }}
-        bodyStyle={{ padding: '8px 12px' }}
-      >
-        <Space>
-          <span style={{ fontWeight: 500, minWidth: 80 }}>{field.name}</span>
-          <Tag color="blue">{field.type}</Tag>
-          {field.required && <Tag color="cyan">必填</Tag>}
-          {field.type === 'string' && field.length && (
-            <Tag color="green">VARCHAR({field.length})</Tag>
-          )}
-          {field.description && (
-            <span style={{ color: '#666', fontSize: '12px' }}>
-              {field.description}
-            </span>
-          )}
-        </Space>
-      </Card>
-    ));
-  };
+
 
   return (
       <Modal
@@ -490,8 +382,7 @@ ${existingEnums.map(enumItem => `- ${enumItem.code}: ${enumItem.name} (${enumIte
                 label="业务描述"
                 rules={[{ required: true, message: '请详细描述业务需求' }]}
               >
-                <TextArea
-                  rows={8}
+                <Sender
                   placeholder="请详细描述你想要创建的数据模型，AI 将根据你的描述自动生成完整的模型结构。
 
 例如：
@@ -505,6 +396,7 @@ ${existingEnums.map(enumItem => `- ${enumItem.code}: ${enumItem.name} (${enumIte
 - 需要支持商品上架下架、库存管理、分类管理等功能
 - 价格需要精确到分，库存不能为负数
 - 需要记录创建时间和更新时间"
+                  autoSize={{ minRows: 8, maxRows: 12 }}
                 />
               </Form.Item>
             </Form>
@@ -542,125 +434,25 @@ ${existingEnums.map(enumItem => `- ${enumItem.code}: ${enumItem.name} (${enumIte
             </div>
           </div>
         ) : (
-          // 第二步：确认生成的模型
-          <div>
-            <Title level={4}>第二步：确认生成的模型</Title>
-            <Paragraph type="secondary">
-              AI 已根据你的需求生成了模型结构，请确认是否符合预期。
-            </Paragraph>
-
-            <Card title="模型信息" style={{ marginBottom: 16 }}>
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <div>
-                  <strong>模型名：</strong>
-                  <span>{generatedSchema.code.split(':').pop()}</span>
-                </div>
-                <div>
-                  <strong>代码：</strong>
-                  <Tag color="blue">{generatedSchema.code}</Tag>
-                </div>
-                <div>
-                  <strong>描述：</strong>
-                  <span>{generatedSchema.name}</span>
-                </div>
-              </Space>
-            </Card>
-
-            <Card title={`字段列表 (${generatedSchema.fields.length} 个字段)`} style={{ marginBottom: 16 }}>
-              {renderFields(generatedSchema.fields)}
-            </Card>
-
-            {/* 索引信息展示 */}
-            {generatedSchema.keyIndexes && (
-              <Card title="主键和索引配置" style={{ marginBottom: 16 }}>
-                <div><strong>主键：</strong>{generatedSchema.keyIndexes.primaryKey?.join(', ') || '-'}</div>
-                <div>
-                  <strong>索引：</strong>
-                  {generatedSchema.keyIndexes.indexes && generatedSchema.keyIndexes.indexes.length > 0 ? (
-                    <ul style={{ margin: 0, paddingLeft: 20 }}>
-                      {generatedSchema.keyIndexes.indexes.map((idx, i) => (
-                        <li key={i}>
-                          {idx.type === 'unique' ? '唯一索引' : '普通索引'}
-                          ：{idx.fields?.join(', ')}
-                          {idx.name ? `（${idx.name}）` : ''}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : '无'}
-                </div>
-              </Card>
-            )}
-
-            {/* 新枚举信息展示 */}
-            {newEnums.length > 0 && (
-              <Card title={`新枚举 (${newEnums.length} 个)`} style={{ marginBottom: 16 }}>
-                {newEnums.map((enumItem, index) => (
-                  <div key={index} style={{ marginBottom: 12 }}>
-                    <div><strong>代码：</strong><Tag color="blue">{enumItem.code}</Tag></div>
-                    <div><strong>名称：</strong>{enumItem.name}</div>
-                    <div><strong>描述：</strong>{enumItem.description || '-'}</div>
-                    <div>
-                      <strong>选项：</strong>
-                      <ul style={{ margin: 0, paddingLeft: 20 }}>
-                        {enumItem.options?.map((option, optIndex) => (
-                          <li key={optIndex}>
-                            {option.value}: {option.label}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                ))}
-              </Card>
-            )}
-
-            {/* 对话窗口：用户可输入修改要求 */}
-            <Card title="对模型有进一步要求？" style={{ marginBottom: 16 }}>
-              <Input.TextArea
-                value={modifyInput}
-                onChange={e => setModifyInput(e.target.value)}
-                rows={3}
-                placeholder="如：增加一个唯一索引，添加手机号字段，主键改为自增长ID等"
-                disabled={isModifying}
-              />
-              <div style={{ textAlign: 'right', marginTop: 8 }}>
-                <Button
-                  type="primary"
-                  loading={isModifying}
-                  disabled={!modifyInput.trim()}
-                  onClick={handleModify}
-                >
-                  提交修改要求并重新生成
-                </Button>
-              </div>
-            </Card>
-
-            <div style={{ textAlign: 'center', marginTop: 24 }}>
-              <Space size="large">
-                <Button
-                  icon={<EditOutlined />}
-                  onClick={handleRegenerate}
-                  loading={isGenerating}
-                >
-                  重新生成
-                </Button>
-                <Button
-                  type="primary"
-                  icon={<CheckOutlined />}
-                  onClick={handleConfirm}
-                  loading={isConfirming}
-                  style={{
-                    background: 'radial-gradient(117.61% 84.5% at 147.46% 76.45%, rgba(82, 99, 255, 0.8) 0%, rgba(143, 65, 238, 0) 100%), linear-gradient(72deg, rgb(60, 115, 255) 18.03%, rgb(110, 65, 238) 75.58%, rgb(214, 65, 238) 104.34%)',
-                    border: 'none',
-                    height: 40,
-                    padding: '0 24px'
-                  }}
-                >
-                  确认创建
-                </Button>
-              </Space>
-            </div>
-          </div>
+          <SchemaConfirmation
+            schema={{
+              ...generatedSchema,
+              newEnums
+            }}
+            stepTitle="第二步：确认生成的模型"
+            stepDescription="AI 已根据你的需求生成了模型结构，请确认是否符合预期。"
+            modifyInput={modifyInput}
+            onModifyInputChange={setModifyInput}
+            onModify={handleModify}
+            onRegenerate={handleRegenerate}
+            onConfirm={handleConfirm}
+            isModifying={isModifying}
+            isRegenerating={isGenerating}
+            isConfirming={isConfirming}
+            modifyButtonText="提交修改要求并重新生成"
+            regenerateButtonText="重新生成"
+            confirmButtonText="确认创建"
+          />
         )}
       </div>
       <AILoading visible={isAILoading} text="AI 正在生成模型..." />

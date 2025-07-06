@@ -46,7 +46,18 @@ export class FieldValidator {
    * @param field 字段定义
    */
   static validateDateField(field: Field): void {
-    if (field.dateType && !Object.values(DateType).includes(field.dateType)) {
+    // 检查是否有 dateConfig 结构
+    if (!field.dateConfig) {
+      throw new ValidationError('日期类型字段必须提供 dateConfig');
+    }
+    
+    // 检查 dateConfig.dateType 是否存在
+    if (!field.dateConfig.dateType) {
+      throw new ValidationError('日期类型字段必须设置 dateConfig.dateType');
+    }
+    
+    // 检查 dateType 值是否有效
+    if (!Object.values(DateType).includes(field.dateConfig.dateType)) {
       throw new ValidationError('无效的日期类型');
     }
   }

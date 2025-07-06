@@ -65,8 +65,18 @@ export function generateCreateTableSQL(
   // 添加索引
   if (config.includeIndexes) {
     indexes.forEach(index => {
-      if (index.type === 'index') {
-        sql += `CREATE INDEX ${index.name || `idx_${tableName}_${index.fields.join('_')}`} ON ${schema}.${tableName} (${index.fields.join(', ')});\n`;
+      switch (index.type) {
+        case 'normal':
+          sql += `CREATE INDEX ${index.name || `idx_${tableName}_${index.fields.join('_')}`} ON ${schema}.${tableName} (${index.fields.join(', ')});\n`;
+          break;
+        case 'fulltext':
+          // 全文索引（MySQL语法）
+          sql += `CREATE FULLTEXT INDEX ${index.name || `ft_${tableName}_${index.fields.join('_')}`} ON ${schema}.${tableName} (${index.fields.join(', ')});\n`;
+          break;
+        case 'spatial':
+          // 空间索引（MySQL语法）
+          sql += `CREATE SPATIAL INDEX ${index.name || `sp_${tableName}_${index.fields.join('_')}`} ON ${schema}.${tableName} (${index.fields.join(', ')});\n`;
+          break;
       }
     });
   }
@@ -169,11 +179,11 @@ function getFieldType(field: Field): string {
     case 'boolean':
       return 'BOOLEAN';
     case 'date':
-      if (field.dateType === 'date') {
+      if (field.dateConfig?.dateType === 'date') {
         return 'DATE';
-      } else if (field.dateType === 'year') {
+      } else if (field.dateConfig?.dateType === 'year') {
         return 'INTEGER';
-      } else if (field.dateType === 'year-month') {
+      } else if (field.dateConfig?.dateType === 'year-month') {
         return 'VARCHAR(7)';
       } else {
         return 'TIMESTAMP WITH TIME ZONE';

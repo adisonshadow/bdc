@@ -28,7 +28,9 @@ export interface Field {
   description?: string;
   required: boolean;
   length?: number;
-  dateType?: DateType;
+  dateConfig?: {
+    dateType: DateType;
+  };
   enumConfig?: {
     targetEnumCode: string;
     multiple: boolean;
@@ -115,7 +117,7 @@ export class DataStructure {
     indexes?: Array<{
       name: string;
       fields: string[];
-      type: 'unique' | 'index';
+      type: 'unique' | 'normal' | 'fulltext' | 'spatial';
     }>;
   };
 

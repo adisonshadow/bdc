@@ -13,4 +13,6 @@ export {
   getSchemaHelp,
   getSQLHelp,
   getBusinessAnalysis
-} from './aiService'; 
+} from './aiService';
+export { generateModelDesignPrompt } from './modelDesignPromptGenerator';
+export type { ModelDesignContext, ModelDesignPromptOptions } from './modelDesignPromptGenerator'; 

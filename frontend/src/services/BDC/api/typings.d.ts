@@ -44,10 +44,6 @@ declare namespace API {
     description?: string;
     /** 是否必填 */
     required: boolean;
-    /** 字段长度（适用于字符串类型） */
-    length?: number;
-    /** 日期类型（适用于date类型） */
-    dateType?: "year" | "year-month" | "date" | "datetime";
   };
 
   type BooleanField =
@@ -261,7 +257,7 @@ declare namespace API {
     /** 索引名 */
     name: string;
     /** 索引类型 */
-    type: "PRIMARY" | "UNIQUE" | "INDEX";
+    type: "primary" | "unique" | "normal" | "fulltext" | "spatial";
     /** 索引字段列表 */
     columns: string[];
     /** 索引描述 */
@@ -320,7 +316,7 @@ declare namespace API {
       indexes?: {
         name?: string;
         fields?: string[];
-        type?: "unique" | "index" | "fulltext" | "spatial";
+        type?: "unique" | "normal" | "fulltext" | "spatial";
       }[];
     };
     /** 物理存储信息 */
@@ -354,6 +350,7 @@ declare namespace API {
     BaseField & {
       /** 日期类型 */
       type?: "date";
+      dateConfig?: { dateType: "year" | "year-month" | "date" | "datetime" };
     };
 
   type deleteDatabaseConnectionsIdParams = {
@@ -376,7 +373,7 @@ declare namespace API {
     id?: string;
     /** 枚举代码（使用:分隔的多级结构，如 system:user:status） */
     code: string;
-    /** 枚举名称 */
+    /** 枚举名称 (必须以字母开头，只能包含小写字母、数字和下划线) */
     name: string;
     /** 枚举描述 */
     description?: string;
@@ -482,6 +479,16 @@ declare namespace API {
     name?: string;
   };
 
+  type keyIndexes = {
+    /** 主键字段名列表（支持联合主键） */
+    primaryKey?: string[];
+    indexes?: {
+      name?: string;
+      fields?: string[];
+      type?: "unique" | "normal" | "fulltext" | "spatial";
+    }[];
+  };
+
   type MediaField =
     // #/components/schemas/BaseField
     BaseField & {
@@ -500,6 +507,11 @@ declare namespace API {
     BaseField & {
       /** 数字类型 */
       type?: "number";
+      numberConfig?: {
+        numberType: "integer" | "float" | "decimal";
+        precision?: number;
+        scale?: number;
+      };
     };
 
   type postDatabaseConnectionsIdTestParams = {
@@ -547,6 +559,8 @@ declare namespace API {
     BaseField & {
       /** 字符串类型（varchar） */
       type?: "string";
+      /** 字段长度（适用于字符串类型） */
+      length?: number;
     };
 
   type TextField =

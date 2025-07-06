@@ -598,8 +598,8 @@ const DatabaseManagement: React.FC = () => {
                       </Tag>
                     )}
                     {/* 日期 */}
-                    {field.type === 'date' && field.dateType && (
-                      <Tag color="cyan" bordered={false}>{field.dateType}</Tag>
+                    {field.type === 'date' && field.dateConfig?.dateType && (
+                      <Tag color="cyan" bordered={false}>{field.dateConfig.dateType}</Tag>
                     )}
                     {/* 枚举 */}
                     {field.type === 'enum' && field.enumConfig && (

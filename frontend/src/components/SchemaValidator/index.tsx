@@ -3,7 +3,10 @@ import { Tag, Tooltip, List, Badge, Space, Button, message } from 'antd';
 import { ExclamationCircleOutlined, WarningOutlined, RobotOutlined } from '@ant-design/icons';
 import { validateSchema, groupIssuesByType, type ValidationIssue } from './rules';
 import type { Field, SchemaListItem } from './types';
-import { getSchemaHelp } from '@/AIHelper';
+import { getSchemaHelp, generateModelDesignPrompt } from '@/AIHelper';
+import AIButton from '@/components/AIButton';
+import AILoading from '@/components/AILoading';
+import { useSimpleAILoading } from '@/components/AILoading/useAILoading';
 
 interface SchemaValidatorProps {
   fields: Field[];
@@ -13,7 +16,7 @@ interface SchemaValidatorProps {
     indexes?: {
       name?: string;
       fields?: string[];
-      type?: "unique" | "index" | "fulltext" | "spatial";
+      type?: "unique" | "normal" | "fulltext" | "spatial";
     }[];
   };
   enums?: any[];
@@ -31,7 +34,7 @@ const SchemaValidator: React.FC<SchemaValidatorProps> = ({
 }) => {
   const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([]);
   const [isValidating, setIsValidating] = useState(false);
-  const [isAutoFixing, setIsAutoFixing] = useState(false);
+  const { isVisible: isAutoFixing, text: aiLoadingText, showLoading, hideLoading } = useSimpleAILoading();
 
   // 执行验证
   const performValidation = () => {
@@ -58,7 +61,7 @@ const SchemaValidator: React.FC<SchemaValidatorProps> = ({
       return;
     }
 
-    setIsAutoFixing(true);
+    showLoading('AI 正在分析并修复验证错误...');
     try {
       // 构建当前模型的 JSON 数据
       const currentModel = {
@@ -73,21 +76,17 @@ const SchemaValidator: React.FC<SchemaValidatorProps> = ({
       };
 
       // 构建 AI 提示词
-      const prompt = `请帮我修复这个数据模型中的验证错误。以下是当前的模型定义和验证错误：
-
-当前模型：
-${JSON.stringify(currentModel, null, 2)}
-
-验证错误：
-${validationIssues.map(issue => `- ${issue.type}: ${issue.message}${issue.details ? ` (${issue.details})` : ''}`).join('\n')}
-
-请返回修复后的完整模型 JSON，格式如下：
-{
-  "fields": [...],
-  "keyIndexes": {...}
-}
-
-只返回 JSON 格式的数据，不要包含其他说明文字。`;
+      const prompt = generateModelDesignPrompt(
+        {
+          currentModel,
+          validationIssues,
+          existingEnums: enums || []
+        },
+        {
+          operationType: 'fix',
+          includeNewEnums: true
+        }
+      );
 
       // 调用 AI 服务
       const aiResponse = await getSchemaHelp(prompt);
@@ -110,6 +109,44 @@ ${validationIssues.map(issue => `- ${issue.type}: ${issue.message}${issue.detail
 
       // 验证修复后的模型
       if (fixedModel.fields && Array.isArray(fixedModel.fields)) {
+        // 如果有新枚举，先创建它们
+        if (fixedModel.newEnums && Array.isArray(fixedModel.newEnums) && fixedModel.newEnums.length > 0) {
+          message.info(`正在创建 ${fixedModel.newEnums.length} 个新枚举...`);
+          const createdEnums = [];
+          const failedEnums = [];
+          
+          try {
+            const { postEnums } = await import('@/services/BDC/api/enumManagement');
+            for (const enumItem of fixedModel.newEnums) {
+              try {
+                await postEnums(enumItem);
+                console.log(`枚举创建成功: ${enumItem.code}`);
+                createdEnums.push(enumItem.code);
+              } catch (error: any) {
+                console.error(`枚举创建失败: ${enumItem.code}`, error);
+                // 如果枚举已存在，记录但继续处理
+                if (error?.response?.status === 409) {
+                  console.log(`枚举已存在: ${enumItem.code}`);
+                  createdEnums.push(enumItem.code); // 视为成功，因为枚举已存在
+                } else {
+                  failedEnums.push(enumItem.code);
+                }
+              }
+            }
+            
+            if (createdEnums.length > 0) {
+              message.success(`枚举处理完成：${createdEnums.length} 个成功`);
+            }
+            
+            if (failedEnums.length > 0) {
+              message.warning(`部分枚举创建失败：${failedEnums.join(', ')}`);
+            }
+          } catch (error) {
+            console.error('创建新枚举失败:', error);
+            message.warning('创建新枚举失败，但继续应用修复结果');
+          }
+        }
+
         // 调用父组件的修复回调
         onAutoFix(fixedModel.fields, fixedModel.keyIndexes || keyIndexes);
         message.success('自动修复完成！');
@@ -120,7 +157,7 @@ ${validationIssues.map(issue => `- ${issue.type}: ${issue.message}${issue.detail
       console.error('自动修复失败:', error);
       message.error('自动修复失败，请检查网络连接或手动修复');
     } finally {
-      setIsAutoFixing(false);
+      hideLoading();
     }
   };
 
@@ -168,7 +205,7 @@ ${validationIssues.map(issue => `- ${issue.type}: ${issue.message}${issue.detail
                       {issue.message}
                     </div>
                     {issue.details && (
-                      <div style={{ color: '#666', marginTop: '2px' }}>
+                      <div style={{ color: '#999', marginTop: '2px' }}>
                         {issue.details}
                       </div>
                     )}
@@ -195,7 +232,7 @@ ${validationIssues.map(issue => `- ${issue.type}: ${issue.message}${issue.detail
                       {issue.message}
                     </div>
                     {issue.details && (
-                      <div style={{ color: '#666', marginTop: '2px' }}>
+                      <div style={{ color: '#999', marginTop: '2px' }}>
                         {issue.details}
                       </div>
                     )}
@@ -213,27 +250,17 @@ ${validationIssues.map(issue => `- ${issue.type}: ${issue.message}${issue.detail
             paddingTop: '12px', 
             textAlign: 'center'
           }}>
-            <Button
+            <AIButton
               type="primary"
-              size="small"
               icon={<RobotOutlined />}
               loading={isAutoFixing}
               onClick={handleAutoFix}
               style={{ 
                 width: '100%',
-                background: 'radial-gradient(117.61% 84.5% at 147.46% 76.45%, rgba(82, 99, 255, 0.8) 0%, rgba(143, 65, 238, 0) 100%), linear-gradient(72deg, rgb(60, 115, 255) 18.03%, rgb(110, 65, 238) 75.58%, rgb(214, 65, 238) 104.34%)'
               }}
             >
-              {isAutoFixing ? 'AI 修复中...' : '自动修复'}
-            </Button>
-            <div style={{ 
-              fontSize: '11px', 
-              color: '#999', 
-              marginTop: '4px',
-              lineHeight: '1.3'
-            }}>
-              点击后 AI 将自动分析并修复验证问题
-            </div>
+              {isAutoFixing ? 'AI 修复中...' : 'AI 自动修复'}
+            </AIButton>
           </div>
         )}
       </div>
@@ -241,32 +268,38 @@ ${validationIssues.map(issue => `- ${issue.type}: ${issue.message}${issue.detail
   };
 
   return (
-    <Tooltip
-      title={renderValidationContent()}
-      placement="bottom"
-      overlayStyle={{ maxWidth: '500px' }}
-      overlayInnerStyle={{ padding: '12px' }}
-    >
-      <div style={{ display: 'inline-block' }}>
-        {isValidating ? (
-          <Tag color="processing">验证中...</Tag>
-        ) : hasIssues ? (
-          <Tag color="error">
-            <Space size="small">
-              {errors.length > 0 && (
-                <Badge count={errors.length} size="small" style={{ backgroundColor: '#ff4d4f' }} />
-              )}
-              {warnings.length > 0 && (
-                <Badge count={warnings.length} size="small" style={{ backgroundColor: '#faad14' }} />
-              )}
-              验证未通过
-            </Space>
-          </Tag>
-        ) : (
-          <Tag color="success">验证通过</Tag>
-        )}
-      </div>
-    </Tooltip>
+    <>
+      <AILoading 
+        visible={isAutoFixing} 
+        text={aiLoadingText} 
+      />
+      <Tooltip
+        title={renderValidationContent()}
+        placement="bottom"
+        overlayStyle={{ maxWidth: '500px' }}
+        overlayInnerStyle={{ padding: '12px' }}
+      >
+        <div style={{ display: 'inline-block' }}>
+          {isValidating ? (
+            <Tag color="processing">验证中...</Tag>
+          ) : hasIssues ? (
+            <Tag color="error">
+              <Space size="small">
+                {errors.length > 0 && (
+                  <Badge count={errors.length} size="small" style={{ backgroundColor: '#ff4d4f' }} />
+                )}
+                {warnings.length > 0 && (
+                  <Badge count={warnings.length} size="small" style={{ backgroundColor: '#faad14' }} />
+                )}
+                验证未通过
+              </Space>
+            </Tag>
+          ) : (
+            <Tag color="success">验证通过</Tag>
+          )}
+        </div>
+      </Tooltip>
+    </>
   );
 };
 

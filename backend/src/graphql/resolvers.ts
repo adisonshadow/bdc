@@ -11,7 +11,7 @@ export interface DataStructureInput {
     indexes?: Array<{
       name: string;
       fields: string[];
-      type: 'unique' | 'index';
+      type: 'unique' | 'normal' | 'fulltext' | 'spatial';
     }>;
   };
   physicalStorage?: {

@@ -12,6 +12,9 @@ import SchemaValidator from '@/components/SchemaValidator';
 import AICreateSchema from '@/components/AICreateSchema';
 import { useNavigate } from 'react-router-dom';
 import { handleDownloadORM } from './ormGenerator';
+import AIButton from '@/components/AIButton';
+import AIAssistModal from './AIAssistModal';
+import { ConfigProvider } from 'antd';
 
 const { Option } = Select;
 
@@ -51,7 +54,7 @@ interface SchemaListItem {
     indexes?: {
       name?: string;
       fields?: string[];
-      type?: "unique" | "index" | "fulltext" | "spatial";
+      type?: "unique" | "normal" | "fulltext" | "spatial";
     }[];
   };
 }
@@ -88,6 +91,7 @@ const SchemaManagement: React.FC = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [isSyncMode, setIsSyncMode] = useState(false);
   const [isAICreateModalVisible, setIsAICreateModalVisible] = useState(false);
+  const [isAIAssistModalVisible, setIsAIAssistModalVisible] = useState(false);
   const navigate = useNavigate();
 
   // 使用 useMemo 缓存过滤后的枚举列表
@@ -314,9 +318,9 @@ const SchemaManagement: React.FC = () => {
         };
         
         // 调试日志：检查keyIndexes数据
-        if (itemData.keyIndexes) {
-          console.log(`Schema ${schemaItem.name} keyIndexes:`, itemData.keyIndexes);
-        }
+        // if (itemData.keyIndexes) {
+        //   console.log(`Schema ${schemaItem.name} keyIndexes:`, itemData.keyIndexes);
+        // }
         
         return schemaItem;
       });
@@ -448,7 +452,12 @@ const SchemaManagement: React.FC = () => {
         case 'number':
           newField = {
             ...baseFieldData,
-            type: 'number'
+            type: 'number',
+            numberConfig: {
+              numberType: values.numberType,
+              precision: values.precision,
+              scale: values.scale
+            }
           } as API.NumberField;
           break;
         case 'boolean':
@@ -460,7 +469,10 @@ const SchemaManagement: React.FC = () => {
         case 'date':
           newField = {
             ...baseFieldData,
-            type: 'date'
+            type: 'date',
+            dateConfig: {
+              dateType: values.dateType
+            }
           } as API.DateField;
           break;
         case 'enum':
@@ -608,7 +620,12 @@ const SchemaManagement: React.FC = () => {
         case 'number':
           updatedField = {
             ...baseFieldData,
-            type: 'number'
+            type: 'number',
+            numberConfig: {
+              numberType: values.numberType,
+              precision: values.precision,
+              scale: values.scale
+            }
           } as API.NumberField;
           break;
         case 'boolean':
@@ -620,7 +637,10 @@ const SchemaManagement: React.FC = () => {
         case 'date':
           updatedField = {
             ...baseFieldData,
-            type: 'date'
+            type: 'date',
+            dateConfig: {
+              dateType: values.dateType
+            }
           } as API.DateField;
           break;
         case 'enum':
@@ -803,6 +823,43 @@ const SchemaManagement: React.FC = () => {
     }
   };
 
+  // 处理字段优化
+  const handleFieldOptimize = async (optimizedFields: Field[], optimizedKeyIndexes: any) => {
+    if (!selectedSchema) {
+      message.error('没有选中的数据模型');
+      return;
+    }
+
+    try {
+      // 更新选中的数据模型
+      const updatedSchema = {
+        ...selectedSchema,
+        fields: optimizedFields,
+        keyIndexes: optimizedKeyIndexes
+      };
+
+      // 调用 API 更新数据模型
+      await putSchemasId(
+        { id: selectedSchema.id! },
+        {
+          fields: updatedSchema.fields as any,
+          keyIndexes: updatedSchema.keyIndexes
+        }
+      );
+
+      // 更新本地状态
+      setSelectedSchema(updatedSchema);
+      
+      // 重新获取数据模型列表
+      await fetchSchemas();
+      
+      message.success('字段优化完成！');
+    } catch (error) {
+      console.error('字段优化失败:', error);
+      message.error('字段优化失败，请检查网络连接或重试');
+    }
+  };
+
   // 处理 AI 新建模型
   const handleAICreateSchema = async (schemaData: {
     name: string;
@@ -814,7 +871,7 @@ const SchemaManagement: React.FC = () => {
       indexes?: {
         name?: string;
         fields?: string[];
-        type?: "unique" | "index" | "fulltext" | "spatial";
+        type?: "unique" | "normal" | "fulltext" | "spatial";
       }[];
     };
   }) => {
@@ -1290,14 +1347,14 @@ const SchemaManagement: React.FC = () => {
         updatedSchema.keyIndexes.primaryKey = [];
       }
       updatedSchema.keyIndexes.primaryKey.push(fieldName);
-    } else if (['unique', 'index', 'fulltext', 'spatial'].includes(indexType)) {
+    } else if (['unique', 'normal', 'fulltext', 'spatial'].includes(indexType)) {
       if (!updatedSchema.keyIndexes.indexes) {
         updatedSchema.keyIndexes.indexes = [];
       }
       updatedSchema.keyIndexes.indexes.push({
         name: `${fieldName}_${indexType}`,
         fields: [fieldName],
-        type: indexType as 'unique' | 'index' | 'fulltext' | 'spatial'
+        type: indexType as 'unique' | 'normal' | 'fulltext' | 'spatial'
       });
     }
     
@@ -1366,145 +1423,161 @@ const SchemaManagement: React.FC = () => {
     };
 
     return (
-      <div style={{ padding: '16px' }}>
-        <List
-          dataSource={selectedSchema.fields}
-          size="small"
-          renderItem={(field: Field, index: number) => (
-            <List.Item
-              key={field.id || index}
-              className="px-0"
-              actions={[
-                <Select
-                  key="index"
-                  size="small"
-                  style={{ width: 100 }}
-                  placeholder="索引类型"
-                  value={getFieldIndexType(field.name)}
-                  onChange={(value) => handleIndexTypeChange(field.name, value)}
-                  allowClear
-                >
-                  <Option value="primary">主键</Option>
-                  <Option value="unique">唯一索引</Option>
-                  <Option value="index">普通索引</Option>
-                  <Option value="fulltext">全文索引</Option>
-                  <Option value="spatial">空间索引</Option>
-                </Select>,
-                <Button
-                  key="edit"
-                  type="link"
-                  icon={<EditOutlined />}
-                  shape='circle'
-                  onClick={() => {
-                    handleEditField(field);
-                  }}
-                />,
-                <Popconfirm
-                  key="delete"
-                  title="删除字段"
-                  description={`确定要删除字段 "${field.name}" 吗？此操作不可恢复。`}
-                  onConfirm={() => handleFieldDelete(index)}
-                  okText="确定"
-                  cancelText="取消"
-                >
+        <div style={{ padding: '16px' }}>
+          <List
+            dataSource={selectedSchema.fields}
+            size="small"
+            renderItem={(field: Field, index: number) => (
+              <List.Item
+                key={field.id || index}
+                className="px-0"
+                actions={[
+                  <Select
+                    key="normal"
+                    size="small"
+                    style={{ width: 100 }}
+                    placeholder="索引类型"
+                    value={getFieldIndexType(field.name)}
+                    onChange={(value) => handleIndexTypeChange(field.name, value)}
+                    allowClear
+                  >
+                    <Option value="primary">主键</Option>
+                    <Option value="unique">唯一索引</Option>
+                    <Option value="normal">普通索引</Option>
+                    <Option value="fulltext">全文索引</Option>
+                    <Option value="spatial">空间索引</Option>
+                  </Select>,
                   <Button
+                    key="edit"
                     type="link"
+                    icon={<EditOutlined />}
                     shape='circle'
-                    danger
-                    icon={<DeleteOutlined />}
-                  />
-                </Popconfirm>,
-              ]}
-            >
-              <List.Item.Meta
-                title={
-                  <Space>
-                    <span>{field.name}</span>
-                    {field.description && <span>({field.description})</span>}
-                    <Tag color="blue">{field.type}</Tag>
-                    {/* 主键标识 - 暂时注释，等待前端更新 */}
-                    {/* {(field.type === 'uuid' || field.type === 'auto_increment') && field.isPrimaryKey && (
-                      <Tag color="red">PK</Tag>
-                    )} */}
-                  </Space>
-                }
-                description={
-                  <div style={{ marginTop: '4px' }}>
-                    {/* 必填 */}
-                    {field.required && <Tag color="cyan" bordered={false}>必填</Tag>}
-                    {/* 索引状态 */}
-                    {getFieldIndexType(field.name) === 'primary' && (
-                      <Tag color="red" bordered={false}>主键</Tag>
-                    )}
-                    {getFieldIndexType(field.name) === 'unique' && (
-                      <Tag color="orange" bordered={false}>唯一索引</Tag>
-                    )}
-                    {getFieldIndexType(field.name) === 'index' && (
-                      <Tag color="green" bordered={false}>普通索引</Tag>
-                    )}
-                    {getFieldIndexType(field.name) === 'fulltext' && (
-                      <Tag color="purple" bordered={false}>全文索引</Tag>
-                    )}
-                    {getFieldIndexType(field.name) === 'spatial' && (
-                      <Tag color="blue" bordered={false}>空间索引</Tag>
-                    )}
-                    {/* 长度 */}
-                    {field.type === 'string' && (field as API.StringField).length && (
-                      <Tag color="cyan" bordered={false}>
-                        VARCHAR({(field as API.StringField).length})
-                      </Tag>
-                    )}
-                    {/* 长文本 */}
-                    {field.type === 'text' && (
-                      <Tag color="cyan" bordered={false}>
-                        TEXT
-                      </Tag>
-                    )}
-                    {/* 日期 */}
-                    {field.type === 'date' && (field as API.DateField).dateType && (
-                      <Tag color="cyan" bordered={false}>{(field as API.DateField).dateType}</Tag>
-                    )}
-                    {/* 枚举 */}
-                    {field.type === 'enum' && (field as API.EnumField).enumConfig && (
-                      <>
+                    onClick={() => {
+                      handleEditField(field);
+                    }}
+                  />,
+                  <Popconfirm
+                    key="delete"
+                    title="删除字段"
+                    description={`确定要删除字段 "${field.name}" 吗？此操作不可恢复。`}
+                    onConfirm={() => handleFieldDelete(index)}
+                    okText="确定"
+                    cancelText="取消"
+                  >
+                    <Button
+                      type="link"
+                      shape='circle'
+                      danger
+                      icon={<DeleteOutlined />}
+                    />
+                  </Popconfirm>,
+                ]}
+              >
+                <List.Item.Meta
+                  title={
+                    <Space>
+                      <span>{field.name}</span>
+                      {field.description && <span>({field.description})</span>}
+                      <Tag color="blue">{field.type}</Tag>
+                      {/* 主键标识 - 暂时注释，等待前端更新 */}
+                      {/* {(field.type === 'uuid' || field.type === 'auto_increment') && field.isPrimaryKey && (
+                        <Tag color="red">PK</Tag>
+                      )} */}
+                    </Space>
+                  }
+                  description={
+                    <div style={{ marginTop: '4px' }}>
+                      {/* 必填 */}
+                      {field.required && <Tag color="cyan" bordered={false}>必填</Tag>}
+                      {/* 索引状态 */}
+                      {getFieldIndexType(field.name) === 'primary' && (
+                        <Tag color="red" bordered={false}>主键</Tag>
+                      )}
+                      {getFieldIndexType(field.name) === 'unique' && (
+                        <Tag color="orange" bordered={false}>唯一索引</Tag>
+                      )}
+                      {getFieldIndexType(field.name) === 'normal' && (
+                        <Tag color="green" bordered={false}>普通索引</Tag>
+                      )}
+                      {getFieldIndexType(field.name) === 'fulltext' && (
+                        <Tag color="purple" bordered={false}>全文索引</Tag>
+                      )}
+                      {getFieldIndexType(field.name) === 'spatial' && (
+                        <Tag color="blue" bordered={false}>空间索引</Tag>
+                      )}
+                      {/* 长度 */}
+                      {field.type === 'string' && (field as API.StringField).length && (
                         <Tag color="cyan" bordered={false}>
-                          枚举: {getEnumDescription((field as API.EnumField).enumConfig?.targetEnumCode)}
+                          VARCHAR({(field as API.StringField).length})
                         </Tag>
-                        {(field as API.EnumField).enumConfig?.multiple && (
-                          <Tag color="purple" bordered={false}>允许多选</Tag>
-                        )}
-                      </>
-                    )}
-                    {/* 关联 */}
-                    {field.type === 'relation' && (field as API.RelationField).relationConfig && (
-                      <>
+                      )}
+                      {/* 长文本 */}
+                      {field.type === 'text' && (
                         <Tag color="cyan" bordered={false}>
-                          {getRelationTypeText(field as ExtendedRelationField)}
+                          TEXT
                         </Tag>
+                      )}
+                      {/* 日期 */}
+                      {field.type === 'date' && (field as API.DateField).dateConfig && (
                         <Tag color="cyan" bordered={false}>
-                          关联: {getTargetSchemaDescription((field as API.RelationField).relationConfig?.targetSchemaCode)}
+                          {(field as API.DateField).dateConfig?.dateType === 'year' ? '年' :
+                           (field as API.DateField).dateConfig?.dateType === 'year-month' ? '年月' :
+                           (field as API.DateField).dateConfig?.dateType === 'date' ? '年月日' :
+                           (field as API.DateField).dateConfig?.dateType === 'datetime' ? '年月日时间' : '日期'}
                         </Tag>
-                      </>
-                    )}
-                    {/* 媒体 */}
-                    {field.type === 'media' && (field as API.MediaField).mediaConfig && (
-                      <Tag color="cyan" bordered={false}>媒体类型: {(field as API.MediaField).mediaConfig?.mediaType}</Tag>
-                    )}
-                    {/* API */}
-                    {field.type === 'api' && (field as API.ApiField).apiConfig && (
-                      <Tag color="cyan" bordered={false}>API: {(field as API.ApiField).apiConfig?.endpoint}</Tag>
-                    )}
-                    {/* 数字类型 */}
-                    {field.type === 'number' && (
-                      <Tag color="cyan" bordered={false}>数字</Tag>
-                    )}
-                  </div>
-                }
-              />
-            </List.Item>
-          )}
-        />
-      </div>
+                      )}
+                      {/* 枚举 */}
+                      {field.type === 'enum' && (field as API.EnumField).enumConfig && (
+                        <>
+                          <Tag color="cyan" bordered={false}>
+                            枚举: {getEnumDescription((field as API.EnumField).enumConfig?.targetEnumCode)}
+                          </Tag>
+                          {(field as API.EnumField).enumConfig?.multiple && (
+                            <Tag color="purple" bordered={false}>允许多选</Tag>
+                          )}
+                        </>
+                      )}
+                      {/* 关联 */}
+                      {field.type === 'relation' && (field as API.RelationField).relationConfig && (
+                        <>
+                          <Tag color="cyan" bordered={false}>
+                            {getRelationTypeText(field as ExtendedRelationField)}
+                          </Tag>
+                          <Tag color="cyan" bordered={false}>
+                            关联: {getTargetSchemaDescription((field as API.RelationField).relationConfig?.targetSchemaCode)}
+                          </Tag>
+                        </>
+                      )}
+                      {/* 媒体 */}
+                      {field.type === 'media' && (field as API.MediaField).mediaConfig && (
+                        <Tag color="cyan" bordered={false}>媒体类型: {(field as API.MediaField).mediaConfig?.mediaType}</Tag>
+                      )}
+                      {/* API */}
+                      {field.type === 'api' && (field as API.ApiField).apiConfig && (
+                        <Tag color="cyan" bordered={false}>API: {(field as API.ApiField).apiConfig?.endpoint}</Tag>
+                      )}
+                      {/* 数字类型 */}
+                      {field.type === 'number' && (field as API.NumberField).numberConfig && (
+                        <>
+                          <Tag color="cyan" bordered={false}>
+                            {(field as API.NumberField).numberConfig?.numberType === 'integer' ? '整数' :
+                             (field as API.NumberField).numberConfig?.numberType === 'float' ? '浮点数' :
+                             (field as API.NumberField).numberConfig?.numberType === 'decimal' ? '精确小数' : '数字'}
+                          </Tag>
+                          {(field as API.NumberField).numberConfig?.precision && (field as API.NumberField).numberConfig?.scale && (
+                            <Tag color="cyan" bordered={false}>
+                              精度: {(field as API.NumberField).numberConfig?.precision},{(field as API.NumberField).numberConfig?.scale}
+                            </Tag>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  }
+                />
+              </List.Item>
+            )}
+          />
+        </div>
     );
   };
 
@@ -1581,12 +1654,24 @@ const SchemaManagement: React.FC = () => {
       description: field.description,
       required: field.required,
       // isPrimaryKey: field.isPrimaryKey, // 暂时注释，等待前端更新
-      length: field.length,
-      dateType: field.dateType
+      ...(field.type === 'string' && { length: (field as API.StringField).length }),
+      ...(field.type === 'date' && { dateType: (field as API.DateField).dateConfig?.dateType })
     };
 
     // 根据字段类型设置特定的配置
     switch (field.type) {
+      case 'number':
+        if (field.numberConfig) {
+          formData.numberType = field.numberConfig.numberType;
+          formData.precision = field.numberConfig.precision;
+          formData.scale = field.numberConfig.scale;
+        }
+        break;
+      case 'date':
+        if (field.dateConfig) {
+          formData.dateType = field.dateConfig.dateType;
+        }
+        break;
       case 'enum':
         if (field.enumConfig) {
           formData.targetEnumCode = field.enumConfig.targetEnumCode;
@@ -1633,7 +1718,7 @@ const SchemaManagement: React.FC = () => {
             <Space>
               <Button
                 type={isSyncMode ? "primary" : "link"}
-                ghost={!isSyncMode}
+                // ghost={!isSyncMode}
                 icon={<ExportOutlined />}
                 onClick={handleSyncModeToggle}
               >
@@ -1641,7 +1726,6 @@ const SchemaManagement: React.FC = () => {
               </Button>
               <Button
                 type="link"
-                ghost
                 icon={<ApartmentOutlined />}
                 onClick={() => {
                   navigate('/schema-graph');
@@ -1649,32 +1733,24 @@ const SchemaManagement: React.FC = () => {
               >
                 图谱
               </Button>
-              <Button
+              <AIButton
                 type="primary"
-                ghost
-                icon={<RobotOutlined />}
                 onClick={() => {
                   setIsAICreateModalVisible(true);
                 }}
-                style={{
-                  background: 'radial-gradient(117.61% 84.5% at 147.46% 76.45%, rgba(82, 99, 255, 0.8) 0%, rgba(143, 65, 238, 0) 100%), linear-gradient(72deg, rgb(60, 115, 255) 18.03%, rgb(110, 65, 238) 75.58%, rgb(214, 65, 238) 104.34%)',
-                  border: 'none',
-                  color: 'white'
-                }}
               >
                 AI新建模型
-              </Button>
-              <Button
-                type="primary"
-                ghost
-                icon={<PlusOutlined />}
-                onClick={() => {
-                  schemaForm.resetFields();
-                  setIsSchemaModalVisible(true);
-                }}
-              >
-                新建模型
-              </Button>
+              </AIButton>
+              <Tooltip title="手工新建模型">
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => {
+                    schemaForm.resetFields();
+                    setIsSchemaModalVisible(true);
+                  }}
+                />
+              </Tooltip>
             </Space>
             
           </div>
@@ -1795,8 +1871,8 @@ const SchemaManagement: React.FC = () => {
               <div className="f-header">
                 <Space>
                   <span className='fw-bold'>{selectedSchema?.name}</span>
-                  { selectedSchema?.description && <span className='me-1'>({selectedSchema?.description})</span> }
-                  <span className='fw-bold me-2'> 的模型字段</span>
+                  {/* { selectedSchema?.description && <span className='me-1'>({selectedSchema?.description})</span> } */}
+                  <span className='fw-bold me-2'> 的字段</span>
                   <SchemaValidator
                     fields={selectedSchema?.fields ?? []}
                     schemas={schemas}
@@ -1809,13 +1885,21 @@ const SchemaManagement: React.FC = () => {
                     onAutoFix={handleAutoFix}
                   />
                 </Space>
+                <AIButton
+                  type="default"
+                  icon={<RobotOutlined />}
+                  // size="small"
+                  onClick={() => setIsAIAssistModalVisible(true)}
+                >
+                  AI 优化
+                </AIButton>
                 <Tooltip title="新建字段">
                   <Button
                     type="primary"
                     icon={<PlusOutlined />}
                     shape="circle"
-                    ghost={true}
-                    size="small"
+                    // ghost
+                    // size="small"
                     onClick={() => {
                       setEditingField(null);
                       fieldForm.resetFields();
@@ -2341,6 +2425,14 @@ const SchemaManagement: React.FC = () => {
         open={isAICreateModalVisible}
         onCancel={() => setIsAICreateModalVisible(false)}
         onSuccess={handleAICreateSchema}
+      />
+
+      {/* AI 协助模态框 */}
+      <AIAssistModal
+        open={isAIAssistModalVisible}
+        onCancel={() => setIsAIAssistModalVisible(false)}
+        selectedSchema={selectedSchema}
+        onFieldOptimize={handleFieldOptimize}
       />
     </div>
   );

@@ -58,6 +58,8 @@ router.use(authenticateToken);
  *                     - $ref: '#/components/schemas/RelationField'
  *                     - $ref: '#/components/schemas/MediaField'
  *                     - $ref: '#/components/schemas/ApiField'
+ *               keyIndexes:
+ *                 $ref: '#/components/schemas/DataStructure/properties/keyIndexes'
  *           example:
  *             name: "用户信息"
  *             code: "user_info"
@@ -284,6 +286,8 @@ router.use(authenticateToken);
  *                     - $ref: '#/components/schemas/RelationField'
  *                     - $ref: '#/components/schemas/MediaField'
  *                     - $ref: '#/components/schemas/ApiField'
+ *               keyIndexes:
+ *                 $ref: '#/components/schemas/DataStructure/properties/keyIndexes'
  *           example:
  *             name: "用户信息"
  *             description: "系统用户基本信息表-已更新"

@@ -194,12 +194,12 @@
       name: "uk_user_email"
     },
     {
-      type: "index",
+      type: "normal",
       fields: ["status"],
       name: "idx_user_status"
     },
     {
-      type: "index",
+      type: "normal",
       fields: ["department_id"],
       name: "idx_user_department"
     }

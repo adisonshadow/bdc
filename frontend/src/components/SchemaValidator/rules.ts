@@ -429,7 +429,7 @@ export const validationRules: ValidationRule[] = [
       fields.forEach(field => {
         if (field.type === 'date') {
           const dateField = field as API.DateField;
-          if (!dateField.dateType) {
+          if (!dateField.dateConfig?.dateType) {
             issues.push({
               ruleId: 'date-field-without-type',
               type: 'error',
