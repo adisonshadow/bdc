@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { handleDownloadORM } from './ormGenerator';
 import AIButton from '@/components/AIButton';
 import AIAssistModal from './AIAssistModal';
+import EnumManagement from '@/components/EnumManagement';
 import { ConfigProvider } from 'antd';
 
 const { Option } = Select;
@@ -92,6 +93,7 @@ const SchemaManagement: React.FC = () => {
   const [isSyncMode, setIsSyncMode] = useState(false);
   const [isAICreateModalVisible, setIsAICreateModalVisible] = useState(false);
   const [isAIAssistModalVisible, setIsAIAssistModalVisible] = useState(false);
+  const [enumModalVisible, setEnumModalVisible] = useState(false);
   const navigate = useNavigate();
 
   // 使用 useMemo 缓存过滤后的枚举列表
@@ -1743,6 +1745,7 @@ const SchemaManagement: React.FC = () => {
                   type="link"
                   className='px-1'
                   icon={<ProfileOutlined />}
+                  onClick={() => setEnumModalVisible(true)}
                 >
                   枚举
                 </Button>
@@ -2447,6 +2450,12 @@ const SchemaManagement: React.FC = () => {
         onCancel={() => setIsAIAssistModalVisible(false)}
         selectedSchema={selectedSchema}
         onFieldOptimize={handleFieldOptimize}
+      />
+
+      {/* 枚举管理模态框 */}
+      <EnumManagement
+        visible={enumModalVisible}
+        onClose={() => setEnumModalVisible(false)}
       />
     </div>
   );
