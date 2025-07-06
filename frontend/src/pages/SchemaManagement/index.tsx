@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Table, Button, Space, Tag, Tooltip, Switch, message, Modal, Form, Input, Select, List, Flex, InputNumber, Cascader, TreeSelect, Badge, Popconfirm, Checkbox, notification } from 'antd';
 import type { CascaderProps } from 'antd';
 import type { DefaultOptionType } from 'antd/es/cascader';
-import { PlusOutlined, EditOutlined, DeleteOutlined, ExportOutlined, BuildOutlined, ApartmentOutlined, CloudDownloadOutlined, CaretDownOutlined, CaretRightOutlined, TableOutlined, RobotOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, ProfileOutlined, DeploymentUnitOutlined, ExportOutlined, BuildOutlined, ApartmentOutlined, CloudDownloadOutlined, CaretDownOutlined, CaretRightOutlined, TableOutlined, RobotOutlined } from '@ant-design/icons';
 import { Splitter } from 'antd';
 import { getSchemas, putSchemasId, postSchemas, deleteSchemasId } from '@/services/BDC/api/schemaManagement';
 import { getEnums } from '@/services/BDC/api/enumManagement';
@@ -1716,23 +1716,37 @@ const SchemaManagement: React.FC = () => {
           <div className="f-header">
             <label className="fw-bold">所有模型</label>
             <Space>
-              <Button
-                type={isSyncMode ? "primary" : "link"}
-                // ghost={!isSyncMode}
-                icon={<ExportOutlined />}
-                onClick={handleSyncModeToggle}
-              >
-                {isSyncMode ? "取消导出模型" : "导出模型"}
-              </Button>
-              <Button
-                type="link"
-                icon={<ApartmentOutlined />}
-                onClick={() => {
-                  navigate('/schema-graph');
-                }}
-              >
-                图谱
-              </Button>
+              <Tooltip title="导出模型">
+                <Button
+                  type={isSyncMode ? "primary" : "link"}
+                  className='px-1'
+                  icon={<ExportOutlined />}
+                  onClick={handleSyncModeToggle}
+                >
+                  {isSyncMode ? "取消导出" : "导出"}
+                </Button>
+              </Tooltip>
+              <Tooltip title="模型图谱">
+                <Button
+                  type="link"
+                  className='px-1'
+                  icon={<DeploymentUnitOutlined />}
+                  onClick={() => {
+                    navigate('/schema-graph');
+                  }}
+                >
+                  图谱
+                </Button>
+              </Tooltip>
+              <Tooltip title="枚举管理">
+                <Button
+                  type="link"
+                  className='px-1'
+                  icon={<ProfileOutlined />}
+                >
+                  枚举
+                </Button>
+              </Tooltip>
               <AIButton
                 type="primary"
                 onClick={() => {
