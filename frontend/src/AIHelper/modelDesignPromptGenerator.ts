@@ -6,7 +6,7 @@ export interface ModelDesignContext {
   existingEnums?: Array<{
     code: string;
     name: string;
-    options?: Array<{ value: string; label: string }>;
+    options?: Array<{ value: string; label: string; description?: string; order?: number }>;
   }>;
   // 当前模型（用于修复和优化）
   currentModel?: {
@@ -151,20 +151,22 @@ function generateCreatePrompt(
   
   const enumList = existingEnums.length > 0 
     ? `\n## 现有枚举列表\n${existingEnums.map(enumItem => 
-        `- ${enumItem.code}: ${enumItem.name} (${enumItem.options?.map(opt => `${opt.value}:${opt.label}`).join(', ')})`
+        `- ${enumItem.code}: ${enumItem.name} (${enumItem.options?.map(opt => `${opt.value}:${opt.label}${opt.description ? '（' + opt.description + '）' : ''}${typeof opt.order === 'number' ? ' [排序:' + opt.order + ']' : ''}`).join(', ')})`
       ).join('\n')}`
     : '';
 
   const newEnumsSection = includeNewEnums 
     ? `\n  "newEnums": [
     {
-      "code": "新枚举代码(如: system:gender)", // 必须以字母开头, 只能包含小写字母、数字和下划线和冒号,冒号表示多级
+      "code": "新枚举代码(如: system:gender)", // 只能包含小写字母、数字和下划线和冒号,冒号表示多级
       "name": "new_enum_name", // 必须以字母开头，只能包含小写字母、数字和下划线
       "description": "新枚举描述",
       "options": [
         {
-          "value": "枚举值", // 枚举值必须唯一, 不能重复,必须以字母开头，只能包含小写字母、数字和下划线
-          "label": "显示标签"
+          "value": "枚举值", // 只能包含小写字母、数字和下划线
+          "label": "显示标签",
+          "description": "选项描述（可选）",
+          "order": 1 // 排序号（可选，数字，越小越靠前）
         }
       ]
     }
@@ -253,7 +255,7 @@ function generateOptimizePrompt(
   
   const enumList = existingEnums.length > 0 
     ? `\n## 现有枚举列表\n${existingEnums.map(enumItem => 
-        `- ${enumItem.code}: ${enumItem.name} (${enumItem.options?.map(opt => `${opt.value}:${opt.label}`).join(', ')})`
+        `- ${enumItem.code}: ${enumItem.name} (${enumItem.options?.map(opt => `${opt.value}:${opt.label}${opt.description ? '（' + opt.description + '）' : ''}${typeof opt.order === 'number' ? ' [排序:' + opt.order + ']' : ''}`).join(', ')})`
       ).join('\n')}`
     : '';
 
@@ -269,8 +271,10 @@ function generateOptimizePrompt(
       "description": "新枚举描述",
       "options": [
         {
-          "value": "枚举值",
-          "label": "显示标签"
+          "value": "枚举值", // 只能包含小写字母、数字和下划线
+          "label": "显示标签",
+          "description": "选项描述（可选）",
+          "order": 1
         }
       ]
     }
@@ -351,7 +355,7 @@ function generateFixPrompt(
   
   const enumList = existingEnums.length > 0 
     ? `\n## 现有枚举列表\n${existingEnums.map(enumItem => 
-        `- ${enumItem.code}: ${enumItem.name} (${enumItem.options?.map(opt => `${opt.value}:${opt.label}`).join(', ')})`
+        `- ${enumItem.code}: ${enumItem.name} (${enumItem.options?.map(opt => `${opt.value}:${opt.label}${opt.description ? '（' + opt.description + '）' : ''}${typeof opt.order === 'number' ? ' [排序:' + opt.order + ']' : ''}`).join(', ')})`
       ).join('\n')}`
     : '';
 
@@ -363,8 +367,10 @@ function generateFixPrompt(
       "description": "新枚举描述",
       "options": [
         {
-          "value": "枚举值",
-          "label": "显示标签"
+          "value": "枚举值", // 只能包含小写字母、数字和下划线
+          "label": "显示标签",
+          "description": "选项描述（可选）",
+          "order": 1
         }
       ]
     }
@@ -416,7 +422,7 @@ function generateModifyPrompt(
   
   const enumList = existingEnums.length > 0 
     ? `\n## 现有枚举列表\n${existingEnums.map(enumItem => 
-        `- ${enumItem.code}: ${enumItem.name} (${enumItem.options?.map(opt => `${opt.value}:${opt.label}`).join(', ')})`
+        `- ${enumItem.code}: ${enumItem.name} (${enumItem.options?.map(opt => `${opt.value}:${opt.label}${opt.description ? '（' + opt.description + '）' : ''}${typeof opt.order === 'number' ? ' [排序:' + opt.order + ']' : ''}`).join(', ')})`
       ).join('\n')}`
     : '';
 
@@ -428,8 +434,10 @@ function generateModifyPrompt(
       "description": "新枚举描述",
       "options": [
         {
-          "value": "枚举值",
-          "label": "显示标签"
+          "value": "枚举值", // 只能包含小写字母、数字和下划线
+          "label": "显示标签",
+          "description": "选项描述（可选）",
+          "order": 1
         }
       ]
     }

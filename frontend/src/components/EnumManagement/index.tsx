@@ -9,7 +9,9 @@ import {
   message,
   Tag,
   Tooltip,
-  Segmented
+  Segmented,
+  Popover,
+  List
 } from 'antd';
 import {
   PlusOutlined,
@@ -172,9 +174,56 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
       title: '选项数量',
       key: 'optionsCount',
       width: 80,
-      render: (record: any) => (
-        <Tag color="green">{record.options?.length || 0}</Tag>
-      )
+      render: (record: any) => {
+        const options = record.options || [];
+        const optionsContent = (
+          <div style={{ maxWidth: 300, maxHeight: 280, overflow: 'auto' }}>
+            {options.length > 0 ? (
+              <List
+                size="small"
+                dataSource={options}
+                renderItem={(option: any, index: number) => (
+                  <List.Item
+                    key={index}
+                    style={{ 
+                      padding: '8px 12px', 
+                      borderRadius: 4,
+                      marginBottom: 4
+                    }}
+                  >
+                                          <div style={{ width: '100%' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                          <div style={{ fontWeight: 'bold', color: '#1890ff' }}>{option.value}</div>
+                          {option.order !== undefined && (
+                            <div style={{ color: '#999', fontSize: '12px' }}>排序: {option.order}</div>
+                          )}
+                        </div>
+                        <div style={{ color: '#666', marginBottom: 2 }}>{option.label}</div>
+                        {option.description && (
+                          <div style={{ color: '#999', fontSize: '12px' }}>{option.description}</div>
+                        )}
+                      </div>
+                  </List.Item>
+                )}
+              />
+            ) : (
+              <div style={{ color: '#999' }}>暂无选项</div>
+            )}
+          </div>
+        );
+
+        return (
+          <Popover
+            content={optionsContent}
+            title="枚举选项详情"
+            trigger="hover"
+            placement="right"
+            overlayStyle={{ maxWidth: 400 }}
+          >
+            <Tag color="green" style={{ cursor: 'pointer' }}>{options.length}</Tag>
+          </Popover>
+        );
+      }
     },
     {
       title: '创建时间',
@@ -275,7 +324,59 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
         if (record.children && record.children.length > 0) {
           return null;
         }
-        return <Tag color="green">{record.options?.length || 0}</Tag>;
+        
+        const options = record.options || [];
+        const optionsContent = (
+          <div style={{ maxWidth: 300 }}>
+            {options.length > 0 ? (
+              <div>
+                <div style={{ marginBottom: 8, fontWeight: 'bold' }}>枚举选项：</div>
+                <List
+                  size="small"
+                  dataSource={options}
+                  renderItem={(option: any, index: number) => (
+                    <List.Item
+                      key={index}
+                      style={{ 
+                        padding: '8px 12px', 
+                        backgroundColor: '#f5f5f5', 
+                        borderRadius: 4,
+                        marginBottom: 4
+                      }}
+                    >
+                      <div style={{ width: '100%' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                          <div style={{ fontWeight: 'bold', color: '#1890ff' }}>{option.value}</div>
+                          {option.order !== undefined && (
+                            <div style={{ color: '#999', fontSize: '12px' }}>排序: {option.order}</div>
+                          )}
+                        </div>
+                        <div style={{ color: '#666', marginBottom: 2 }}>{option.label}</div>
+                        {option.description && (
+                          <div style={{ color: '#999', fontSize: '12px' }}>{option.description}</div>
+                        )}
+                      </div>
+                    </List.Item>
+                  )}
+                />
+              </div>
+            ) : (
+              <div style={{ color: '#999' }}>暂无选项</div>
+            )}
+          </div>
+        );
+
+        return (
+          <Popover
+            content={optionsContent}
+            title="枚举选项详情"
+            trigger="hover"
+            placement="right"
+            overlayStyle={{ maxWidth: 400 }}
+          >
+            <Tag color="green" style={{ cursor: 'pointer' }}>{options.length}</Tag>
+          </Popover>
+        );
       }
     },
     {

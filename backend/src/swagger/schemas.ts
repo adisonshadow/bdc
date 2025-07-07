@@ -353,13 +353,13 @@
  *             properties:
  *               value:
  *                 type: string
- *                 description: 枚举值（存储值）
+ *                 description: 枚举值（存储值），只能包含小写字母、数字和下划线
  *               label:
  *                 type: string
- *                 description: 显示标签
+ *                 description: 显示用的标签
  *               description:
  *                 type: string
- *                 description: 选项描述
+ *                 description: 选项描述（可选）
  *               order:
  *                 type: integer
  *                 description: 排序号（可选）

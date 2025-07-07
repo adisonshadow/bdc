@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Table, Button, Space, Tag, Tooltip, Switch, message, Modal, Form, Input, Select, List, Flex, InputNumber, Cascader, TreeSelect, Badge, Popconfirm, Checkbox, notification } from 'antd';
 import type { CascaderProps } from 'antd';
 import type { DefaultOptionType } from 'antd/es/cascader';
-import { PlusOutlined, EditOutlined, DeleteOutlined, ProfileOutlined, DeploymentUnitOutlined, ExportOutlined, BuildOutlined, ApartmentOutlined, CloudDownloadOutlined, CaretDownOutlined, CaretRightOutlined, TableOutlined, RobotOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, ProfileOutlined, DeploymentUnitOutlined, ExportOutlined, BuildOutlined, ApartmentOutlined, CloudDownloadOutlined, CaretDownOutlined, CaretRightOutlined, TableOutlined, RobotOutlined, HolderOutlined } from '@ant-design/icons';
 import { Splitter } from 'antd';
 import { getSchemas, putSchemasId, postSchemas, deleteSchemasId } from '@/services/BDC/api/schemaManagement';
 import { getEnums } from '@/services/BDC/api/enumManagement';
@@ -16,6 +16,7 @@ import AIButton from '@/components/AIButton';
 import AIAssistModal from './AIAssistModal';
 import EnumManagement from '@/components/EnumManagement';
 import { ConfigProvider } from 'antd';
+import FieldList from './FieldList';
 
 const { Option } = Select;
 
@@ -760,6 +761,28 @@ const SchemaManagement: React.FC = () => {
     }
   };
 
+  // 处理字段重排序
+  const handleFieldsReorder = async (reorderedFields: Field[]) => {
+    if (!selectedSchema?.id) return;
+    
+    try {
+      await putSchemasId(
+        { id: selectedSchema.id },
+        {
+          fields: reorderedFields as any
+        }
+      );
+      message.success('字段顺序更新成功');
+      fetchSchemas();
+      setSelectedSchema({
+        ...selectedSchema,
+        fields: reorderedFields,
+      });
+    } catch (error) {
+      message.error('字段顺序更新失败');
+    }
+  };
+
   // 字段名验证规则
   const validateFieldName = (_: unknown, value: string) => {
     if (!value) {
@@ -1425,161 +1448,17 @@ const SchemaManagement: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: '16px' }}>
-          <List
-            dataSource={selectedSchema.fields}
-            size="small"
-            renderItem={(field: Field, index: number) => (
-              <List.Item
-                key={field.id || index}
-                className="px-0"
-                actions={[
-                  <Select
-                    key="normal"
-                    size="small"
-                    style={{ width: 100 }}
-                    placeholder="索引类型"
-                    value={getFieldIndexType(field.name)}
-                    onChange={(value) => handleIndexTypeChange(field.name, value)}
-                    allowClear
-                  >
-                    <Option value="primary">主键</Option>
-                    <Option value="unique">唯一索引</Option>
-                    <Option value="normal">普通索引</Option>
-                    <Option value="fulltext">全文索引</Option>
-                    <Option value="spatial">空间索引</Option>
-                  </Select>,
-                  <Button
-                    key="edit"
-                    type="link"
-                    icon={<EditOutlined />}
-                    shape='circle'
-                    onClick={() => {
-                      handleEditField(field);
-                    }}
-                  />,
-                  <Popconfirm
-                    key="delete"
-                    title="删除字段"
-                    description={`确定要删除字段 "${field.name}" 吗？此操作不可恢复。`}
-                    onConfirm={() => handleFieldDelete(index)}
-                    okText="确定"
-                    cancelText="取消"
-                  >
-                    <Button
-                      type="link"
-                      shape='circle'
-                      danger
-                      icon={<DeleteOutlined />}
-                    />
-                  </Popconfirm>,
-                ]}
-              >
-                <List.Item.Meta
-                  title={
-                    <Space>
-                      <span>{field.name}</span>
-                      {field.description && <span>({field.description})</span>}
-                      <Tag color="blue">{field.type}</Tag>
-                      {/* 主键标识 - 暂时注释，等待前端更新 */}
-                      {/* {(field.type === 'uuid' || field.type === 'auto_increment') && field.isPrimaryKey && (
-                        <Tag color="red">PK</Tag>
-                      )} */}
-                    </Space>
-                  }
-                  description={
-                    <div style={{ marginTop: '4px' }}>
-                      {/* 必填 */}
-                      {field.required && <Tag color="cyan" bordered={false}>必填</Tag>}
-                      {/* 索引状态 */}
-                      {getFieldIndexType(field.name) === 'primary' && (
-                        <Tag color="red" bordered={false}>主键</Tag>
-                      )}
-                      {getFieldIndexType(field.name) === 'unique' && (
-                        <Tag color="orange" bordered={false}>唯一索引</Tag>
-                      )}
-                      {getFieldIndexType(field.name) === 'normal' && (
-                        <Tag color="green" bordered={false}>普通索引</Tag>
-                      )}
-                      {getFieldIndexType(field.name) === 'fulltext' && (
-                        <Tag color="purple" bordered={false}>全文索引</Tag>
-                      )}
-                      {getFieldIndexType(field.name) === 'spatial' && (
-                        <Tag color="blue" bordered={false}>空间索引</Tag>
-                      )}
-                      {/* 长度 */}
-                      {field.type === 'string' && (field as API.StringField).length && (
-                        <Tag color="cyan" bordered={false}>
-                          VARCHAR({(field as API.StringField).length})
-                        </Tag>
-                      )}
-                      {/* 长文本 */}
-                      {field.type === 'text' && (
-                        <Tag color="cyan" bordered={false}>
-                          TEXT
-                        </Tag>
-                      )}
-                      {/* 日期 */}
-                      {field.type === 'date' && (field as API.DateField).dateConfig && (
-                        <Tag color="cyan" bordered={false}>
-                          {(field as API.DateField).dateConfig?.dateType === 'year' ? '年' :
-                           (field as API.DateField).dateConfig?.dateType === 'year-month' ? '年月' :
-                           (field as API.DateField).dateConfig?.dateType === 'date' ? '年月日' :
-                           (field as API.DateField).dateConfig?.dateType === 'datetime' ? '年月日时间' : '日期'}
-                        </Tag>
-                      )}
-                      {/* 枚举 */}
-                      {field.type === 'enum' && (field as API.EnumField).enumConfig && (
-                        <>
-                          <Tag color="cyan" bordered={false}>
-                            枚举: {getEnumDescription((field as API.EnumField).enumConfig?.targetEnumCode)}
-                          </Tag>
-                          {(field as API.EnumField).enumConfig?.multiple && (
-                            <Tag color="purple" bordered={false}>允许多选</Tag>
-                          )}
-                        </>
-                      )}
-                      {/* 关联 */}
-                      {field.type === 'relation' && (field as API.RelationField).relationConfig && (
-                        <>
-                          <Tag color="cyan" bordered={false}>
-                            {getRelationTypeText(field as ExtendedRelationField)}
-                          </Tag>
-                          <Tag color="cyan" bordered={false}>
-                            关联: {getTargetSchemaDescription((field as API.RelationField).relationConfig?.targetSchemaCode)}
-                          </Tag>
-                        </>
-                      )}
-                      {/* 媒体 */}
-                      {field.type === 'media' && (field as API.MediaField).mediaConfig && (
-                        <Tag color="cyan" bordered={false}>媒体类型: {(field as API.MediaField).mediaConfig?.mediaType}</Tag>
-                      )}
-                      {/* API */}
-                      {field.type === 'api' && (field as API.ApiField).apiConfig && (
-                        <Tag color="cyan" bordered={false}>API: {(field as API.ApiField).apiConfig?.endpoint}</Tag>
-                      )}
-                      {/* 数字类型 */}
-                      {field.type === 'number' && (field as API.NumberField).numberConfig && (
-                        <>
-                          <Tag color="cyan" bordered={false}>
-                            {(field as API.NumberField).numberConfig?.numberType === 'integer' ? '整数' :
-                             (field as API.NumberField).numberConfig?.numberType === 'float' ? '浮点数' :
-                             (field as API.NumberField).numberConfig?.numberType === 'decimal' ? '精确小数' : '数字'}
-                          </Tag>
-                          {(field as API.NumberField).numberConfig?.precision && (field as API.NumberField).numberConfig?.scale && (
-                            <Tag color="cyan" bordered={false}>
-                              精度: {(field as API.NumberField).numberConfig?.precision},{(field as API.NumberField).numberConfig?.scale}
-                            </Tag>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  }
-                />
-              </List.Item>
-            )}
-          />
-        </div>
+      <FieldList
+        fields={selectedSchema.fields}
+        onFieldEdit={handleEditField}
+        onFieldDelete={handleFieldDelete}
+        onFieldsReorder={handleFieldsReorder}
+        onIndexTypeChange={handleIndexTypeChange}
+        getFieldIndexType={getFieldIndexType}
+        getRelationTypeText={getRelationTypeText}
+        getTargetSchemaDescription={getTargetSchemaDescription}
+        getEnumDescription={getEnumDescription}
+      />
     );
   };
 

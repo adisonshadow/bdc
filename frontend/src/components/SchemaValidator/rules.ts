@@ -1,4 +1,4 @@
-import type { Field } from './types';
+import type { Field } from '@/components/SchemaValidator/types';
 
 export interface ValidationRule {
   id: string;
@@ -441,6 +441,77 @@ export const validationRules: ValidationRule[] = [
           }
         }
       });
+      
+      return issues;
+    }
+  },
+  
+  // 枚举选项验证规则
+  {
+    id: 'enum-options-validation',
+    type: 'error',
+    name: '枚举选项格式不正确',
+    description: '枚举选项必须符合格式要求',
+    validator: (fields: Field[], schemas?: any[], keyIndexes?: any, enums?: any[]) => {
+      const issues: ValidationIssue[] = [];
+      
+      // 检查所有枚举的选项格式
+      if (enums) {
+        enums.forEach((enumItem: any) => {
+          if (enumItem.options && Array.isArray(enumItem.options)) {
+            const valuePattern = /^[a-z0-9_]+$/;
+            const seenValues = new Set<string>();
+            
+            enumItem.options.forEach((option: any, index: number) => {
+              // 检查 value 字段
+              if (!option.value) {
+                issues.push({
+                  ruleId: 'enum-options-validation',
+                  type: 'error',
+                  message: `枚举 "${enumItem.code}" 的第 ${index + 1} 个选项缺少 value 字段`,
+                  details: '枚举选项的 value 字段是必填的'
+                });
+              } else if (!valuePattern.test(option.value)) {
+                issues.push({
+                  ruleId: 'enum-options-validation',
+                  type: 'error',
+                  message: `枚举 "${enumItem.code}" 的选项值 "${option.value}" 格式不正确`,
+                  details: '枚举值只能包含小写字母、数字和下划线'
+                });
+              } else if (seenValues.has(option.value)) {
+                issues.push({
+                  ruleId: 'enum-options-validation',
+                  type: 'error',
+                  message: `枚举 "${enumItem.code}" 的选项值 "${option.value}" 重复`,
+                  details: '枚举值必须唯一，不能重复'
+                });
+              } else {
+                seenValues.add(option.value);
+              }
+              
+              // 检查 label 字段
+              if (!option.label) {
+                issues.push({
+                  ruleId: 'enum-options-validation',
+                  type: 'error',
+                  message: `枚举 "${enumItem.code}" 的选项值 "${option.value}" 缺少 label 字段`,
+                  details: '枚举选项的 label 字段是必填的'
+                });
+              }
+              
+              // 检查 order 字段（如果存在）
+              if (option.order !== undefined && typeof option.order !== 'number') {
+                issues.push({
+                  ruleId: 'enum-options-validation',
+                  type: 'error',
+                  message: `枚举 "${enumItem.code}" 的选项值 "${option.value}" 的 order 字段必须是数字`,
+                  details: 'order 字段必须是数字类型，用于排序'
+                });
+              }
+            });
+          }
+        });
+      }
       
       return issues;
     }

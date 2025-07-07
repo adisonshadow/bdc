@@ -36,8 +36,9 @@ export const createEnum = async (req: Request, res: Response) => {
     if (!enumEntity.validateName()) {
       throw new ValidationError('枚举名称不能为空');
     }
-    if (!enumEntity.validateOptions()) {
-      throw new ValidationError('枚举选项格式不正确');
+    const optionsValidation = enumEntity.validateOptions();
+    if (!optionsValidation.isValid) {
+      throw new ValidationError(`枚举选项格式不正确：${optionsValidation.errors.join('；')}`);
     }
 
     // 验证代码唯一性
@@ -166,8 +167,9 @@ export const updateEnum = async (req: Request, res: Response) => {
     if (!enumEntity.validateName()) {
       throw new ValidationError('枚举名称不能为空');
     }
-    if (!enumEntity.validateOptions()) {
-      throw new ValidationError('枚举选项格式不正确');
+    const optionsValidation2 = enumEntity.validateOptions();
+    if (!optionsValidation2.isValid) {
+      throw new ValidationError(`枚举选项格式不正确：${optionsValidation2.errors.join('；')}`);
     }
 
     // 验证代码唯一性
