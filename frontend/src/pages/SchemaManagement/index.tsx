@@ -15,7 +15,7 @@ import { handleDownloadORM } from './ormGenerator';
 import AIButton from '@/components/AIButton';
 import AIAssistModal from './AIAssistModal';
 import EnumManagement from '@/components/EnumManagement';
-import { ConfigProvider } from 'antd';
+// import { ConfigProvider } from 'antd';
 import FieldList from './FieldList';
 
 const { Option } = Select;
@@ -190,8 +190,7 @@ const SchemaManagement: React.FC = () => {
             description: fieldData.description,
             required: fieldData.required,
             // isPrimaryKey: fieldData.isPrimaryKey, // 暂时注释，等待前端更新
-            length: fieldData.length,
-            dateType: fieldData.dateType
+            length: fieldData.length
           };
 
           switch (fieldData.type) {
@@ -212,7 +211,8 @@ const SchemaManagement: React.FC = () => {
             case 'string': {
               const typedField: API.StringField = {
                 ...baseField,
-                type: 'string'
+                type: 'string',
+                length: fieldData.length
               };
               return typedField;
             }
@@ -226,7 +226,12 @@ const SchemaManagement: React.FC = () => {
             case 'number': {
               const typedField: API.NumberField = {
                 ...baseField,
-                type: 'number'
+                type: 'number',
+                numberConfig: fieldData.numberConfig || {
+                  numberType: fieldData.numberType,
+                  precision: fieldData.precision,
+                  scale: fieldData.scale
+                }
               };
               return typedField;
             }
@@ -240,7 +245,10 @@ const SchemaManagement: React.FC = () => {
             case 'date': {
               const typedField: API.DateField = {
                 ...baseField,
-                type: 'date'
+                type: 'date',
+                dateConfig: fieldData.dateConfig || {
+                  dateType: fieldData.dateType
+                }
               };
               return typedField;
             }
@@ -420,8 +428,7 @@ const SchemaManagement: React.FC = () => {
         description: values.description,
         required: values.required,
         // isPrimaryKey: values.isPrimaryKey, // 暂时注释，等待前端更新
-        length: values.length,
-        dateType: values.dateType
+        length: values.length
       };
 
       console.log('基础字段数据:', baseFieldData);
@@ -588,8 +595,7 @@ const SchemaManagement: React.FC = () => {
         description: values.description,
         required: values.required,
         // isPrimaryKey: values.isPrimaryKey, // 暂时注释，等待前端更新
-        length: values.length,
-        dateType: values.dateType
+        length: values.length
       };
 
       console.log('基础字段数据:', baseFieldData);
@@ -838,8 +844,11 @@ const SchemaManagement: React.FC = () => {
       // 更新本地状态
       setSelectedSchema(updatedSchema);
       
-      // 重新获取数据模型列表
-      await fetchSchemas();
+      // 重新获取数据模型列表和枚举列表
+      await Promise.all([
+        fetchSchemas(),
+        fetchEnums()
+      ]);
       
       message.success('自动修复完成！');
     } catch (error) {
@@ -875,8 +884,11 @@ const SchemaManagement: React.FC = () => {
       // 更新本地状态
       setSelectedSchema(updatedSchema);
       
-      // 重新获取数据模型列表
-      await fetchSchemas();
+      // 重新获取数据模型列表和枚举列表
+      await Promise.all([
+        fetchSchemas(),
+        fetchEnums()
+      ]);
       
       message.success('字段优化完成！');
     } catch (error) {
@@ -916,8 +928,11 @@ const SchemaManagement: React.FC = () => {
         keyIndexes: schemaData.keyIndexes
       });
 
-      // 重新获取数据模型列表
-      await fetchSchemas();
+      // 重新获取数据模型列表和枚举列表
+      await Promise.all([
+        fetchSchemas(),
+        fetchEnums()
+      ]);
       
       message.success('AI 创建数据模型成功！');
     } catch (error: any) {
@@ -1781,28 +1796,30 @@ const SchemaManagement: React.FC = () => {
                     onAutoFix={handleAutoFix}
                   />
                 </Space>
-                <AIButton
-                  type="default"
-                  icon={<RobotOutlined />}
-                  // size="small"
-                  onClick={() => setIsAIAssistModalVisible(true)}
-                >
-                  AI 优化
-                </AIButton>
-                <Tooltip title="新建字段">
-                  <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    shape="circle"
-                    // ghost
+                <Space>
+                  <AIButton
+                    type="default"
+                    icon={<RobotOutlined />}
                     // size="small"
-                    onClick={() => {
-                      setEditingField(null);
-                      fieldForm.resetFields();
-                      setIsFieldModalVisible(true);
-                    }}
-                  />
-                </Tooltip>
+                    onClick={() => setIsAIAssistModalVisible(true)}
+                  >
+                    AI 优化
+                  </AIButton>
+                  <Tooltip title="新建字段">
+                    <Button
+                      type="primary"
+                      icon={<PlusOutlined />}
+                      shape="circle"
+                      // ghost
+                      // size="small"
+                      onClick={() => {
+                        setEditingField(null);
+                        fieldForm.resetFields();
+                        setIsFieldModalVisible(true);
+                      }}
+                    />
+                  </Tooltip>
+                </Space>
               </div>
             )
           }

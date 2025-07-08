@@ -15,4 +15,6 @@ export {
   getBusinessAnalysis
 } from './aiService';
 export { generateModelDesignPrompt } from './modelDesignPromptGenerator';
-export type { ModelDesignContext, ModelDesignPromptOptions } from './modelDesignPromptGenerator'; 
+export type { ModelDesignContext, ModelDesignPromptOptions } from './modelDesignPromptGenerator';
+export { generateEnumFixPrompt } from './enumFixPromptGenerator';
+export type { EnumFixContext, EnumFixPromptOptions } from './enumFixPromptGenerator'; 

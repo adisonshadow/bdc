@@ -267,7 +267,7 @@ function generateOptimizePrompt(
     ? `\n  "newEnums": [
     {
       "code": "新枚举代码（如：system:gender）",
-      "name": "新枚举名称",
+      "name": "新枚举名称（如：gender，必须以小写字母开头，只能包含小写字母、数字和下划线）",
       "description": "新枚举描述",
       "options": [
         {
@@ -363,7 +363,7 @@ function generateFixPrompt(
     ? `\n  "newEnums": [
     {
       "code": "新枚举代码（如：system:gender）",
-      "name": "新枚举名称",
+      "name": "新枚举名称（如：gender，必须以小写字母开头，只能包含小写字母、数字和下划线）",
       "description": "新枚举描述",
       "options": [
         {
@@ -430,7 +430,7 @@ function generateModifyPrompt(
     ? `\n  "newEnums": [
     {
       "code": "新枚举代码（如：system:gender）",
-      "name": "新枚举名称",
+      "name": "新枚举名称（如：gender，必须以小写字母开头，只能包含小写字母、数字和下划线）",
       "description": "新枚举描述",
       "options": [
         {

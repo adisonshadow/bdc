@@ -301,24 +301,21 @@
  *     EnumOption:
  *       type: object
  *       required:
- *         - key
+ *         - label
  *         - value
  *       properties:
- *         key:
+ *         label:
  *           type: string
- *           description: 选项键
+ *           description: 显示用的标签
  *         value:
  *           type: string
- *           description: 选项值
+ *           description: 枚举值（存储值），只能包含小写字母、数字和下划线
  *         description:
  *           type: string
- *           description: 选项描述
- *         sortOrder:
+ *           description: 选项描述（可选）
+ *         order:
  *           type: integer
- *           description: 排序号
- *         isActive:
- *           type: boolean
- *           description: 是否启用
+ *           description: 排序号（可选）
  *
  *     Enum:
  *       type: object

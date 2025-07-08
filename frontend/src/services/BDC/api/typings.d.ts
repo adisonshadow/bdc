@@ -404,16 +404,14 @@ declare namespace API {
     };
 
   type EnumOption = {
-    /** 选项键 */
-    key: string;
-    /** 选项值 */
+    /** 显示用的标签 */
+    label: string;
+    /** 枚举值（存储值），只能包含小写字母、数字和下划线 */
     value: string;
-    /** 选项描述 */
+    /** 选项描述（可选） */
     description?: string;
-    /** 排序号 */
-    sortOrder?: number;
-    /** 是否启用 */
-    isActive?: boolean;
+    /** 排序号（可选） */
+    order?: number;
   };
 
   type getDatabaseConnectionsIdParams = {

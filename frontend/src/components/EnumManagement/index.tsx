@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Modal,
   Table,
@@ -18,11 +18,19 @@ import {
   EditOutlined,
   DeleteOutlined,
   SearchOutlined,
-  ReloadOutlined
+  ReloadOutlined,
+  RobotOutlined
 } from '@ant-design/icons';
-import { getEnums, deleteEnumsId } from '@/services/BDC/api/enumManagement';
+import { getEnums, deleteEnumsId, putEnumsId } from '@/services/BDC/api/enumManagement';
 import EnumForm from './EnumForm';
 import { buildTree, enumTreeConfig } from '@/utils/treeBuilder';
+import { validateEnum, getValidationDisplayText, getValidationColor } from './validator';
+import { generateEnumFixPrompt } from '@/AIHelper';
+import { getSchemaHelp } from '@/AIHelper';
+import AIButton from '@/components/AIButton';
+import AILoading from '@/components/AILoading';
+import { useSimpleAILoading } from '@/components/AILoading/useAILoading';
+import ValidationPopover, { ValidationIssue } from '@/components/ValidationPopover';
 
 interface EnumManagementProps {
   visible: boolean;
@@ -41,6 +49,14 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
     width: window.innerWidth,
     height: window.innerHeight
   });
+  const { isVisible: isAutoFixing, text: aiLoadingText, showLoading, hideLoading } = useSimpleAILoading();
+  
+  // 调试日志：监听isAutoFixing状态变化
+  useEffect(() => {
+    console.log('isAutoFixing状态变化:', isAutoFixing);
+  }, [isAutoFixing]);
+
+
 
   // 监听窗口大小变化
   useEffect(() => {
@@ -74,17 +90,17 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
   };
 
   // 过滤枚举列表
-  const filteredEnums = enums.filter(enumItem =>
+  const filteredEnums = useMemo(() => enums.filter(enumItem =>
     enumItem.name.toLowerCase().includes(searchText.toLowerCase()) ||
     enumItem.code.toLowerCase().includes(searchText.toLowerCase()) ||
     enumItem.description?.toLowerCase().includes(searchText.toLowerCase())
-  );
+  ), [enums, searchText]);
 
   // 构建树形数据
-  const treeData = buildTree(filteredEnums, enumTreeConfig);
+  const treeData = useMemo(() => buildTree(filteredEnums, enumTreeConfig), [filteredEnums]);
 
   // 收集所有树节点的key
-  const collectAllKeys = (nodes: any[]): string[] => {
+  const collectAllKeys = useCallback((nodes: any[]): string[] => {
     const keys: string[] = [];
     const collect = (nodeList: any[]) => {
       nodeList.forEach(node => {
@@ -96,17 +112,18 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
     };
     collect(nodes);
     return keys;
-  };
+  }, []);
 
   // 当切换到树形视图时，展开所有节点
   useEffect(() => {
     if (viewMode === 'tree' && treeData.length > 0) {
-      setExpandedRowKeys(collectAllKeys(treeData));
+      const keys = collectAllKeys(treeData);
+      setExpandedRowKeys(keys);
     }
-  }, [viewMode, treeData]);
+  }, [viewMode, filteredEnums.length]);
 
   // 处理删除枚举
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     try {
       await deleteEnumsId({ id });
       message.success('枚举删除成功');
@@ -116,65 +133,216 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
       const errorMessage = error.response?.data?.message || '删除枚举失败';
       message.error(errorMessage);
     }
-  };
+  }, [fetchEnums]);
 
   // 处理编辑枚举
-  const handleEdit = (record: API.Enum) => {
+  const handleEdit = useCallback((record: API.Enum) => {
     setEditingEnum(record);
     setFormVisible(true);
-  };
+  }, []);
 
   // 处理添加枚举
-  const handleAdd = () => {
+  const handleAdd = useCallback(() => {
     setEditingEnum(null);
     setFormVisible(true);
-  };
+  }, []);
 
   // 处理表单成功
-  const handleFormSuccess = () => {
+  const handleFormSuccess = useCallback(() => {
     fetchEnums();
-  };
+  }, [fetchEnums]);
 
   // 处理表单关闭
-  const handleFormClose = () => {
+  const handleFormClose = useCallback(() => {
     setFormVisible(false);
     setEditingEnum(null);
-  };
+  }, []);
 
-  // 列表视图的列定义
-  const listColumns = [
+  // 自动修复处理函数
+  const handleAutoFix = useCallback(async (record: API.Enum) => {
+    console.log('开始AI自动修复，记录:', record);
+    showLoading('AI 正在分析并修复验证错误...');
+    console.log('showLoading已调用，isAutoFixing状态:', isAutoFixing);
+    try {
+      // 获取当前验证结果
+      const validationResult = validateEnum(record);
+      console.log('验证结果:', validationResult);
+
+      // 构建 AI 提示词
+      const prompt = generateEnumFixPrompt(
+        {
+          currentEnum: record,
+          validationIssues: validationResult.issues
+        },
+        {
+          operationType: 'fix'
+        }
+      );
+      console.log('生成的AI提示词:', prompt);
+
+      // 调用 AI 服务
+      console.log('开始调用AI服务...');
+      const aiResponse = await getSchemaHelp(prompt);
+      console.log('AI服务响应:', aiResponse);
+      
+      // 尝试解析 AI 返回的 JSON
+      let fixedEnum;
+      try {
+        // 提取 JSON 部分
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          fixedEnum = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error('未找到有效的 JSON 数据');
+        }
+      } catch (parseError) {
+        console.error('解析 AI 响应失败:', parseError);
+        message.error('AI 返回的数据格式不正确，请手动修复');
+        return;
+      }
+
+      // 验证修复后的枚举
+      if (fixedEnum.code && fixedEnum.name && Array.isArray(fixedEnum.options)) {
+        try {
+          // 调用API保存修复后的枚举
+          await putEnumsId(
+            { id: record.id! },
+            {
+              name: fixedEnum.name,
+              code: fixedEnum.code,
+              description: fixedEnum.description,
+              isActive: fixedEnum.isActive,
+              options: fixedEnum.options
+            }
+          );
+          
+          // 更新本地状态
+          const updatedEnums = enums.map(e => 
+            e.id === record.id ? { ...e, ...fixedEnum } : e
+          );
+          setEnums(updatedEnums);
+          message.success('AI 自动修复完成并已保存！');
+        } catch (error: any) {
+          console.error('保存修复后的枚举失败:', error);
+          const errorMessage = error.response?.data?.message || '保存修复后的枚举失败';
+          message.error(`AI修复成功但保存失败: ${errorMessage}`);
+        }
+      } else {
+        message.error('AI 返回的枚举格式不正确');
+      }
+    } catch (error) {
+      console.error('自动修复失败:', error);
+      message.error('自动修复失败，请检查网络连接或手动修复');
+    } finally {
+      hideLoading();
+    }
+  }, [enums, fetchEnums]);
+
+  // 统一的列定义
+  const columns = useMemo(() => [
     {
       title: '代码',
-      dataIndex: 'code',
+      dataIndex: viewMode === 'tree' ? 'value' : 'code',
       key: 'code',
-      // width: 150,
-      render: (text: string) => (
-        <Tag color="blue">{text}</Tag>
-      )
+      width: viewMode === 'tree' ? 300 : undefined,
+      render: (text: string, record: any) => {
+        // 树形视图：虚拟节点显示节点名称，叶子节点显示代码标签
+        if (viewMode === 'tree') {
+          if (record.children && record.children.length > 0) {
+            return <span style={{ fontWeight: 'bold' }}>{record.label}</span>;
+          }
+          return <Tag color="blue">{text}</Tag>;
+        }
+        // 列表视图：显示代码标签
+        return <Tag color="blue">{text}</Tag>;
+      }
     },
     {
       title: '描述',
       dataIndex: 'description',
       key: 'description',
-      // width: 120,
-      ellipsis: true
+      width: viewMode === 'tree' ? 200 : undefined,
+      ellipsis: true,
+      render: (text: any, record: any) => {
+        // 树形视图：只有叶子节点才显示描述
+        if (viewMode === 'tree' && record.children && record.children.length > 0) {
+          return null;
+        }
+        
+        // 树形视图时，从 rawEnum 中获取描述
+        const description = viewMode === 'tree' ? (record.rawEnum?.description || text) : text;
+        return description;
+      }
+    },
+    {
+      title: '校验',
+      key: 'validation',
+      width: 100,
+      render: (record: any) => {
+        // 树形视图：只有叶子节点才显示校验
+        if (viewMode === 'tree' && record.children && record.children.length > 0) {
+          return null;
+        }
+        
+        const enumData = viewMode === 'tree' ? (record.rawEnum || record) : record;
+        const result = validateEnum(enumData);
+        
+        // 将校验结果转换为ValidationIssue格式
+        const validationIssues: ValidationIssue[] = result.issues.map(issue => ({
+          type: issue.type,
+          message: issue.message
+        }));
+        
+        return (
+          <ValidationPopover
+            title="校验详情"
+            issues={validationIssues}
+            aiButtonText="AI 自动修复"
+            onAIFix={async () => {
+              await handleAutoFix(enumData);
+            }}
+            trigger="click"
+            placement="top"
+            maxWidth={320}
+            showAIFix={true}
+          >
+            <Tag color={getValidationColor(result)} style={{ cursor: 'pointer' }}>
+              {getValidationDisplayText(result)}
+            </Tag>
+          </ValidationPopover>
+        );
+      }
     },
     {
       title: '状态',
       dataIndex: 'isActive',
       key: 'isActive',
       width: 80,
-      render: (isActive: any) => (
-        <Tag color={isActive ? 'success' : 'default'}>
-          {isActive ? '启用' : '禁用'}
-        </Tag>
-      )
+      render: (isActive: any, record: any) => {
+        // 树形视图：只有叶子节点才显示状态
+        if (viewMode === 'tree' && record.children && record.children.length > 0) {
+          return null;
+        }
+        
+        // 树形视图时，从 rawEnum 中获取状态
+        const activeStatus = viewMode === 'tree' ? (record.rawEnum?.isActive ?? isActive) : isActive;
+        return (
+          <Tag color={activeStatus ? 'success' : 'default'}>
+            {activeStatus ? '启用' : '禁用'}
+          </Tag>
+        );
+      }
     },
     {
       title: '选项数量',
       key: 'optionsCount',
       width: 80,
       render: (record: any) => {
+        // 树形视图：只有叶子节点才显示选项数量
+        if (viewMode === 'tree' && record.children && record.children.length > 0) {
+          return null;
+        }
+        
         const options = record.options || [];
         const optionsContent = (
           <div style={{ maxWidth: 300, maxHeight: 280, overflow: 'auto' }}>
@@ -191,18 +359,18 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
                       marginBottom: 4
                     }}
                   >
-                                          <div style={{ width: '100%' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                          <div style={{ fontWeight: 'bold', color: '#1890ff' }}>{option.value}</div>
-                          {option.order !== undefined && (
-                            <div style={{ color: '#999', fontSize: '12px' }}>排序: {option.order}</div>
-                          )}
-                        </div>
-                        <div style={{ color: '#666', marginBottom: 2 }}>{option.label}</div>
-                        {option.description && (
-                          <div style={{ color: '#999', fontSize: '12px' }}>{option.description}</div>
+                    <div style={{ width: '100%' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <div style={{ fontWeight: 'bold', color: '#1890ff' }}>{option.value}</div>
+                        {option.order !== undefined && (
+                          <div style={{ color: '#999', fontSize: '12px' }}>排序: {option.order}</div>
                         )}
                       </div>
+                      <div style={{ color: '#666', marginBottom: 2 }}>{option.label}</div>
+                      {option.description && (
+                        <div style={{ color: '#999', fontSize: '12px' }}>{option.description}</div>
+                      )}
+                    </div>
                   </List.Item>
                 )}
               />
@@ -230,153 +398,15 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 120,
-      render: (text: any) => text ? new Date(text).toLocaleString() : '-'
-    },
-    {
-      title: '操作',
-      key: 'action',
-      width: 100,
-      fixed: 'right' as const,
-      render: (record: any) => (
-        <Space size="small">
-          <Tooltip title="编辑">
-            <Button
-              type="link"
-              size="small"
-              icon={<EditOutlined />}
-              onClick={() => handleEdit(record)}
-            />
-          </Tooltip>
-          <Popconfirm
-            title="确定要删除这个枚举吗？"
-            description="删除后无法恢复，请谨慎操作"
-            onConfirm={() => handleDelete(record.id!)}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Tooltip title="删除">
-              <Button
-                type="link"
-                size="small"
-                danger
-                icon={<DeleteOutlined />}
-              />
-            </Tooltip>
-          </Popconfirm>
-        </Space>
-      )
-    }
-  ];
-
-  // 树形视图的列定义
-  const treeColumns = [
-    {
-      title: '代码',
-      dataIndex: 'value',
-      key: 'value',
-      width: 300,
-      render: (text: string, record: any) => {
-        // 如果是虚拟节点（有子节点），只显示节点名称
-        if (record.children && record.children.length > 0) {
-          return <span style={{ fontWeight: 'bold' }}>{record.label}</span>;
-        }
-        // 如果是叶子节点，显示代码标签
-        return <Tag color="blue">{text}</Tag>;
-      }
-    },
-    {
-      title: '描述',
-      dataIndex: 'description',
-      key: 'description',
-      width: 200,
-      ellipsis: true,
       render: (text: any, record: any) => {
-        // 只有叶子节点才显示描述
-        if (record.children && record.children.length > 0) {
-          return null;
-        }
-        return text;
-      }
-    },
-    {
-      title: '状态',
-      dataIndex: 'isActive',
-      key: 'isActive',
-      width: 80,
-      render: (isActive: any, record: any) => {
-        // 只有叶子节点才显示状态
-        if (record.children && record.children.length > 0) {
-          return null;
-        }
-        return (
-          <Tag color={isActive ? 'success' : 'default'}>
-            {isActive ? '启用' : '禁用'}
-          </Tag>
-        );
-      }
-    },
-    {
-      title: '选项数量',
-      key: 'optionsCount',
-      width: 80,
-      render: (record: any) => {
-        // 只有叶子节点才显示选项数量
-        if (record.children && record.children.length > 0) {
+        // 树形视图：只有叶子节点才显示创建时间
+        if (viewMode === 'tree' && record.children && record.children.length > 0) {
           return null;
         }
         
-        const options = record.options || [];
-        const optionsContent = (
-          <div style={{ maxWidth: 300 }}>
-            {options.length > 0 ? (
-              <div>
-                <div style={{ marginBottom: 8, fontWeight: 'bold' }}>枚举选项：</div>
-                <List
-                  size="small"
-                  dataSource={options}
-                  renderItem={(option: any, index: number) => (
-                    <List.Item
-                      key={index}
-                      style={{ 
-                        padding: '8px 12px', 
-                        backgroundColor: '#f5f5f5', 
-                        borderRadius: 4,
-                        marginBottom: 4
-                      }}
-                    >
-                      <div style={{ width: '100%' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                          <div style={{ fontWeight: 'bold', color: '#1890ff' }}>{option.value}</div>
-                          {option.order !== undefined && (
-                            <div style={{ color: '#999', fontSize: '12px' }}>排序: {option.order}</div>
-                          )}
-                        </div>
-                        <div style={{ color: '#666', marginBottom: 2 }}>{option.label}</div>
-                        {option.description && (
-                          <div style={{ color: '#999', fontSize: '12px' }}>{option.description}</div>
-                        )}
-                      </div>
-                    </List.Item>
-                  )}
-                />
-              </div>
-            ) : (
-              <div style={{ color: '#999' }}>暂无选项</div>
-            )}
-          </div>
-        );
-
-        return (
-          <Popover
-            content={optionsContent}
-            title="枚举选项详情"
-            trigger="hover"
-            placement="right"
-            overlayStyle={{ maxWidth: 400 }}
-          >
-            <Tag color="green" style={{ cursor: 'pointer' }}>{options.length}</Tag>
-          </Popover>
-        );
+        // 树形视图时，从 rawEnum 中获取创建时间
+        const createdAt = viewMode === 'tree' ? (record.rawEnum?.createdAt || text) : text;
+        return createdAt ? new Date(createdAt).toLocaleString() : '-';
       }
     },
     {
@@ -385,10 +415,12 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
       width: 100,
       fixed: 'right' as const,
       render: (record: any) => {
-        // 只有叶子节点才显示操作按钮
-        if (record.children && record.children.length > 0) {
+        // 树形视图：只有叶子节点才显示操作按钮
+        if (viewMode === 'tree' && record.children && record.children.length > 0) {
           return null;
         }
+        
+        const enumData = viewMode === 'tree' ? (record.rawEnum || record) : record;
         return (
           <Space size="small">
             <Tooltip title="编辑">
@@ -396,13 +428,13 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
                 type="link"
                 size="small"
                 icon={<EditOutlined />}
-                onClick={() => record.rawEnum && handleEdit(record.rawEnum)}
+                onClick={() => handleEdit(enumData)}
               />
             </Tooltip>
             <Popconfirm
               title="确定要删除这个枚举吗？"
               description="删除后无法恢复，请谨慎操作"
-              onConfirm={() => record.rawEnum && handleDelete(record.rawEnum.id!)}
+              onConfirm={() => handleDelete(enumData.id!)}
               okText="确定"
               cancelText="取消"
             >
@@ -419,7 +451,7 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
         );
       }
     }
-  ];
+  ], [viewMode, handleEdit, handleDelete]);
 
   useEffect(() => {
     if (visible) {
@@ -492,7 +524,7 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
           height: modalHeight - 180
         }}>
           <Table
-            columns={viewMode === 'list' ? listColumns : treeColumns}
+            columns={columns}
             dataSource={viewMode === 'list' ? filteredEnums : treeData as any}
             loading={loading}
             pagination={false}
@@ -509,6 +541,10 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
             } : undefined}
           />
         </div>
+        <AILoading 
+          visible={isAutoFixing} 
+          text={aiLoadingText} 
+        />
       </Modal>
 
       {/* 枚举表单模态框 */}

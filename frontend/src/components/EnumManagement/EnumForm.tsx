@@ -8,9 +8,18 @@ import {
   message,
   Switch,
   InputNumber,
-  Divider
+  Divider,
+  Tag,
+  Popover
 } from 'antd';
-import { PlusOutlined, DeleteOutlined, MinusCircleOutlined, HolderOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, MinusCircleOutlined, HolderOutlined, RobotOutlined } from '@ant-design/icons';
+import { validateEnum, getValidationDisplayText, getValidationColor } from './validator';
+import { generateEnumFixPrompt } from '@/AIHelper';
+import { getSchemaHelp } from '@/AIHelper';
+import AIButton from '@/components/AIButton';
+import AILoading from '@/components/AILoading';
+import { useSimpleAILoading } from '@/components/AILoading/useAILoading';
+import ValidationPopover, { ValidationIssue } from '@/components/ValidationPopover';
 import {
   DndContext,
   closestCenter,
@@ -137,6 +146,8 @@ const EnumForm: React.FC<EnumFormProps> = ({
 }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<any>({});
+  const { isVisible: isAutoFixing, text: aiLoadingText, showLoading, hideLoading } = useSimpleAILoading();
 
 
   // 拖拽传感器
@@ -167,20 +178,24 @@ const EnumForm: React.FC<EnumFormProps> = ({
     if (visible) {
       if (editingEnum) {
         // 编辑模式：设置现有数据
-        form.setFieldsValue({
+        const initialData = {
           code: editingEnum.code,
           name: editingEnum.name,
           description: editingEnum.description,
           isActive: editingEnum.isActive,
           options: editingEnum.options || []
-        });
+        };
+        form.setFieldsValue(initialData);
+        setFormData(initialData);
       } else {
         // 新增模式：重置表单
-        form.resetFields();
-        form.setFieldsValue({
+        const initialData = {
           isActive: true,
           options: []
-        });
+        };
+        form.resetFields();
+        form.setFieldsValue(initialData);
+        setFormData(initialData);
       }
     }
   }, [visible, editingEnum, form]);
@@ -225,6 +240,72 @@ const EnumForm: React.FC<EnumFormProps> = ({
     onClose();
   };
 
+  // 自动修复处理函数
+  const handleAutoFix = async () => {
+    showLoading('AI 正在分析并修复验证错误...');
+    try {
+      // 获取当前验证结果
+      const validationResult = validateEnum({
+        code: formData.code || '',
+        name: formData.name || '',
+        description: formData.description || '',
+        options: formData.options || [],
+        isActive: formData.isActive !== false
+      });
+
+      // 构建 AI 提示词
+      const prompt = generateEnumFixPrompt(
+        {
+          currentEnum: {
+            code: formData.code || '',
+            name: formData.name || '',
+            description: formData.description || '',
+            options: formData.options || [],
+            isActive: formData.isActive !== false
+          },
+          validationIssues: validationResult.issues
+        },
+        {
+          operationType: 'fix'
+        }
+      );
+
+      // 调用 AI 服务
+      const aiResponse = await getSchemaHelp(prompt);
+      
+      // 尝试解析 AI 返回的 JSON
+      let fixedEnum;
+      try {
+        // 提取 JSON 部分
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          fixedEnum = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error('未找到有效的 JSON 数据');
+        }
+      } catch (parseError) {
+        console.error('解析 AI 响应失败:', parseError);
+        message.error('AI 返回的数据格式不正确，请手动修复');
+        return;
+      }
+
+      // 验证修复后的枚举
+      if (fixedEnum.code && fixedEnum.name && Array.isArray(fixedEnum.options)) {
+        // 更新表单数据
+        form.setFieldsValue(fixedEnum);
+        setFormData(fixedEnum);
+        message.success('AI 自动修复完成！');
+      } else {
+        message.error('AI 返回的枚举格式不正确');
+      }
+    } catch (error) {
+      console.error('自动修复失败:', error);
+      message.error('自动修复失败，请检查网络连接或手动修复');
+    } finally {
+      hideLoading();
+    }
+  };
+
   return (
     <Modal
       title={editingEnum ? '编辑枚举' : '添加枚举'}
@@ -235,11 +316,14 @@ const EnumForm: React.FC<EnumFormProps> = ({
       destroyOnClose
       confirmLoading={loading}
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-      >
+              <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+          onValuesChange={(_, allValues) => {
+            setFormData(allValues);
+          }}
+        >
         <Form.Item
           name="code"
           label="枚举代码"
@@ -278,19 +362,52 @@ const EnumForm: React.FC<EnumFormProps> = ({
         </Form.Item>
 
         <Form.List name="options">
-          {(fields, { add, remove }) => (
-            <>
-              <Divider>枚举选项</Divider>
-              <div>
-                <Button
-                  type="dashed"
-                  onClick={() => add()}
-                  icon={<PlusOutlined />}
-                  style={{ marginBottom: 16 }}
-                >
-                  添加选项
-                </Button>
-              </div>
+          {(fields, { add, remove }) => {
+            // 使用状态中的表单数据进行校验
+            const validationResult = validateEnum({
+              code: formData.code || '',
+              name: formData.name || '',
+              description: formData.description || '',
+              options: formData.options || [],
+              isActive: formData.isActive !== false
+            });
+            
+            return (
+              <>
+                <Divider>
+                  枚举选项
+                  <ValidationPopover
+                    title="校验详情"
+                    issues={validationResult.issues.map(issue => ({
+                      type: issue.type,
+                      message: issue.message
+                    }))}
+                    aiButtonText="AI 自动修复"
+                    onAIFix={handleAutoFix}
+                    trigger="hover"
+                    placement="top"
+                    maxWidth={320}
+                    maxHeight={280}
+                    showAIFix={true}
+                  >
+                    <Tag 
+                      color={getValidationColor(validationResult)} 
+                      style={{ marginLeft: 8, cursor: 'pointer' }}
+                    >
+                      {getValidationDisplayText(validationResult)}
+                    </Tag>
+                  </ValidationPopover>
+                </Divider>
+                <div>
+                  <Button
+                    type="dashed"
+                    onClick={() => add()}
+                    icon={<PlusOutlined />}
+                    style={{ marginBottom: 16 }}
+                  >
+                    添加选项
+                  </Button>
+                </div>
               
               <DndContext
                 sensors={sensors}
@@ -312,11 +429,16 @@ const EnumForm: React.FC<EnumFormProps> = ({
                     />
                   ))}
                 </SortableContext>
-              </DndContext>
-            </>
-          )}
-        </Form.List>
+                                </DndContext>
+                </>
+              );
+            }}
+          </Form.List>
       </Form>
+      <AILoading 
+        visible={isAutoFixing} 
+        text={aiLoadingText} 
+      />
     </Modal>
   );
 };

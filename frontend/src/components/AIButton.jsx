@@ -27,6 +27,26 @@ const AIButton = styled(Button)`
       transform: translateY(0);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     }
+
+    /* 确保loading状态正确显示 */
+    &.ant-btn-loading {
+      background: ${DEFAULT_BACKGROUND};
+      color: #FFF;
+      border: none;
+      pointer-events: none;
+      
+      .ant-btn-loading-icon {
+        color: #FFF;
+      }
+      
+      &:hover {
+        background: ${DEFAULT_BACKGROUND};
+        color: #FFF;
+        border: none;
+        transform: none;
+        box-shadow: none;
+      }
+    }
   }
 `;
 
