@@ -911,36 +911,74 @@ const SchemaManagement: React.FC = () => {
         type?: "unique" | "normal" | "fulltext" | "spatial";
       }[];
     };
+  } | {
+    schemas: Array<{
+      name: string;
+      code: string;
+      description: string;
+      fields: Field[];
+      keyIndexes?: {
+        primaryKey?: string[];
+        indexes?: {
+          name?: string;
+          fields?: string[];
+          type?: "unique" | "normal" | "fulltext" | "spatial";
+        }[];
+      };
+    }>;
   }) => {
     try {
-      // 修正数据格式：
-      // name: 代码的最后一部分（如：user_profile）
-      // code: 完整的代码（如：enterprise:user_profile）
-      // description: 原来的 name（如：企业用户信息表）
-      const modelName = schemaData.code.split(':').pop() || schemaData.code;
-      
-      // 调用 API 创建数据模型
-      await postSchemas({
-        name: modelName,
-        code: schemaData.code,
-        description: schemaData.name,
-        fields: schemaData.fields as any,
-        keyIndexes: schemaData.keyIndexes
-      });
+      // 判断是单个模型还是多个模型
+      if ('schemas' in schemaData) {
+        // 多个模型 - 使用批量创建API
+        const schemasToCreate = schemaData.schemas.map(schema => {
+          const modelName = schema.code.split(':').pop() || schema.code;
+          return {
+            name: modelName,
+            code: schema.code,
+            description: schema.name,
+            fields: schema.fields as any,
+            keyIndexes: schema.keyIndexes
+          };
+        });
 
-      // 重新获取数据模型列表和枚举列表
-      await Promise.all([
-        fetchSchemas(),
-        fetchEnums()
-      ]);
-      
-      message.success('AI 创建数据模型成功！');
+        // 调用批量创建API
+        await postSchemas(schemasToCreate);
+
+        // 重新获取数据模型列表和枚举列表
+        await Promise.all([
+          fetchSchemas(),
+          fetchEnums()
+        ]);
+        
+        message.success(`AI 创建 ${schemasToCreate.length} 个数据模型成功！`);
+      } else {
+        // 单个模型 - 使用原有的创建方式
+        const modelName = schemaData.code.split(':').pop() || schemaData.code;
+        
+        // 调用 API 创建数据模型
+        await postSchemas({
+          name: modelName,
+          code: schemaData.code,
+          description: schemaData.name,
+          fields: schemaData.fields as any,
+          keyIndexes: schemaData.keyIndexes
+        });
+
+        // 重新获取数据模型列表和枚举列表
+        await Promise.all([
+          fetchSchemas(),
+          fetchEnums()
+        ]);
+        
+        message.success('AI 创建数据模型成功！');
+      }
     } catch (error: any) {
       console.error('AI 创建数据模型失败:', error);
       // 获取详细的错误信息
       const errorMessage = error?.response?.data?.message || error?.message || 'AI 创建数据模型失败，请检查网络连接或重试';
       message.error(`创建失败：${errorMessage}`);
-      throw new Error(errorMessage); // 抛出包含详细错误信息的异常
+      // 不再抛出异常，避免未处理的 Promise 拒绝
     }
   };
 

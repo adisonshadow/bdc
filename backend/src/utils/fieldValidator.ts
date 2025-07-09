@@ -42,6 +42,33 @@ export class FieldValidator {
   }
 
   /**
+   * 验证数字类型字段
+   * @param field 字段定义
+   */
+  static validateNumberField(field: Field): void {
+    if (!field.numberConfig) {
+      throw new ValidationError('数字类型字段必须提供 numberConfig');
+    }
+    if (!field.numberConfig.numberType) {
+      throw new ValidationError('数字类型字段必须设置 numberType');
+    }
+    if (!['integer', 'float', 'decimal'].includes(field.numberConfig.numberType)) {
+      throw new ValidationError('无效的数字类型');
+    }
+    if (field.numberConfig.numberType === 'decimal') {
+      if (field.numberConfig.precision === undefined || field.numberConfig.scale === undefined) {
+        throw new ValidationError('decimal 类型必须设置 precision 和 scale');
+      }
+      if (field.numberConfig.precision < 1 || field.numberConfig.scale < 0) {
+        throw new ValidationError('precision 必须大于 0，scale 必须大于等于 0');
+      }
+      if (field.numberConfig.scale > field.numberConfig.precision) {
+        throw new ValidationError('scale 不能大于 precision');
+      }
+    }
+  }
+
+  /**
    * 验证日期类型字段
    * @param field 字段定义
    */
@@ -154,6 +181,9 @@ export class FieldValidator {
       case FieldType.STRING:
       case FieldType.TEXT:
         this.validateStringField(field);
+        break;
+      case FieldType.NUMBER:
+        this.validateNumberField(field);
         break;
       case FieldType.DATE:
         this.validateDateField(field);

@@ -178,6 +178,13 @@ export const errorConfig = {
         return;
       }
       
+      // 处理401未授权错误，跳转到SSO登录页面
+      if (status === 401) {
+        console.log('错误处理器 - 401 未授权，跳转到SSO登录页面');
+        logout();
+        return;
+      }
+      
       message.error(`请求错误 ${status}: ${error.response.statusText}`);
     } else if (error.request) {
       // 请求已发出但没有收到响应

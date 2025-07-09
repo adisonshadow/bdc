@@ -28,6 +28,11 @@ export interface Field {
   description?: string;
   required: boolean;
   length?: number;
+  numberConfig?: {
+    numberType: 'integer' | 'float' | 'decimal';
+    precision?: number;
+    scale?: number;
+  };
   dateConfig?: {
     dateType: DateType;
   };

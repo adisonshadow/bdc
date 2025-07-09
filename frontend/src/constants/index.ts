@@ -19,4 +19,5 @@ export const AUTH_PAGES = [
   '/sso-success',
   '/login',
   '/auth',
+  '/',
 ] as const;

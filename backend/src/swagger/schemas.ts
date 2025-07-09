@@ -343,23 +343,8 @@
  *         options:
  *           type: array
  *           items:
- *             type: object
- *             required:
- *               - value
- *               - label
- *             properties:
- *               value:
- *                 type: string
- *                 description: 枚举值（存储值），只能包含小写字母、数字和下划线
- *               label:
- *                 type: string
- *                 description: 显示用的标签
- *               description:
- *                 type: string
- *                 description: 选项描述（可选）
- *               order:
- *                 type: integer
- *                 description: 排序号（可选）
+ *             $ref: '#/components/schemas/EnumOption'
+ *           description: 枚举选项列表
  *         isActive:
  *           type: boolean
  *           description: 是否启用

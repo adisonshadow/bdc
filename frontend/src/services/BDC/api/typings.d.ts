@@ -377,12 +377,8 @@ declare namespace API {
     name: string;
     /** 枚举描述 */
     description?: string;
-    options: {
-      value: string;
-      label: string;
-      description?: string;
-      order?: number;
-    }[];
+    /** 枚举选项列表 */
+    options: EnumOption[];
     /** 是否启用 */
     isActive?: boolean;
     /** 创建时间 */
