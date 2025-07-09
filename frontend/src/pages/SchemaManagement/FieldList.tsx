@@ -24,6 +24,7 @@ interface ExtendedRelationField extends API.RelationField {
 
 interface FieldListProps {
   fields: Field[];
+  isLocked?: boolean;
   onFieldEdit: (field: Field) => void;
   onFieldDelete: (index: number) => void;
   onFieldsReorder: (fields: Field[]) => void;
@@ -39,6 +40,7 @@ const SortableFieldItem: React.FC<{
   id: string;
   field: Field;
   index: number;
+  isLocked?: boolean;
   onEdit: (field: Field) => void;
   onDelete: (index: number) => void;
   onIndexTypeChange: (fieldName: string, indexType: string) => void;
@@ -50,6 +52,7 @@ const SortableFieldItem: React.FC<{
   id, 
   field, 
   index, 
+  isLocked = false,
   onEdit, 
   onDelete, 
   onIndexTypeChange, 
@@ -183,6 +186,7 @@ const SortableFieldItem: React.FC<{
               placeholder="索引类型"
               value={getFieldIndexType(field.name)}
               onChange={(value) => onIndexTypeChange(field.name, value)}
+              disabled={isLocked}
               allowClear
             >
               <Option value="primary">主键</Option>
@@ -195,6 +199,7 @@ const SortableFieldItem: React.FC<{
               type="link"
               icon={<EditOutlined />}
               shape='circle'
+              disabled={isLocked}
               onClick={() => onEdit(field)}
             />
             <Popconfirm
@@ -203,22 +208,23 @@ const SortableFieldItem: React.FC<{
               onConfirm={() => onDelete(index)}
               okText="确定"
               cancelText="取消"
+              disabled={isLocked}
             >
               <Button
                 type="link"
                 shape='circle'
                 danger
                 icon={<DeleteOutlined />}
+                disabled={isLocked}
               />
             </Popconfirm>
-            <Button
-              type="text"
-              size="small"
-              icon={<HolderOutlined />}
-              style={{ cursor: 'move', padding: 0, height: 'auto' }}
+            <div
               {...attributes}
               {...listeners}
-            />
+              style={{ cursor: isLocked ? 'not-allowed' : 'grab' }}
+            >
+              <HolderOutlined style={{ color: isLocked ? '#ccc' : '#666' }} />
+            </div>
           </div>
         </div>
       </List.Item>
@@ -228,6 +234,7 @@ const SortableFieldItem: React.FC<{
 
 const FieldList: React.FC<FieldListProps> = ({
   fields,
+  isLocked = false,
   onFieldEdit,
   onFieldDelete,
   onFieldsReorder,
@@ -240,15 +247,13 @@ const FieldList: React.FC<FieldListProps> = ({
   // 处理拖拽结束
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-
+    
     if (active.id !== over?.id) {
-      const oldIndex = fields.findIndex((_, index) => `field-${index}` === active.id);
-      const newIndex = fields.findIndex((_, index) => `field-${index}` === over?.id);
-
-      if (oldIndex !== -1 && newIndex !== -1) {
-        const newFields = arrayMove(fields, oldIndex, newIndex);
-        onFieldsReorder(newFields);
-      }
+      const oldIndex = fields.findIndex(field => field.id === active.id);
+      const newIndex = fields.findIndex(field => field.id === over?.id);
+      
+      const newFields = arrayMove(fields, oldIndex, newIndex);
+      onFieldsReorder(newFields);
     }
   };
 
@@ -260,18 +265,19 @@ const FieldList: React.FC<FieldListProps> = ({
         modifiers={[restrictToVerticalAxis]}
       >
         <SortableContext
-          items={fields.map((_, index) => `field-${index}`)}
+          items={fields.map(field => field.id)}
           strategy={verticalListSortingStrategy}
         >
           <List
             dataSource={fields}
             size="small"
-            renderItem={(field: Field, index: number) => (
+            renderItem={(field, index) => (
               <SortableFieldItem
-                key={field.id || index}
-                id={`field-${index}`}
+                key={field.id}
+                id={field.id}
                 field={field}
                 index={index}
+                isLocked={isLocked}
                 onEdit={onFieldEdit}
                 onDelete={onFieldDelete}
                 onIndexTypeChange={onIndexTypeChange}

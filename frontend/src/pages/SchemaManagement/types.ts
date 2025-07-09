@@ -15,6 +15,7 @@ export interface SchemaListItem {
   description: string;
   version: string;
   status: boolean;
+  isLocked: boolean;
   createTime: string;
   updateTime: string;
 }
@@ -52,4 +53,5 @@ export interface UpdateSchemaParams {
     fields: SchemaField[];
   };
   isActive?: boolean;
+  isLocked?: boolean;
 } 

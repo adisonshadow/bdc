@@ -426,8 +426,7 @@ ${baseRules}
 
 请返回修复后的完整模型 JSON，格式如下：
 {
-  "fields": [...],
-  "keyIndexes": {...},
+  ${SINGLE_MODEL_JSON_TEMPLATE},
   ${newEnumsSection}
 }
 

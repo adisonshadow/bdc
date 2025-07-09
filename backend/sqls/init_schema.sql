@@ -87,6 +87,7 @@ CREATE TABLE IF NOT EXISTS bdc.data_structures (
     validation_errors JSONB,
     description VARCHAR(100),
     is_active BOOLEAN NOT NULL DEFAULT true,
+    is_locked BOOLEAN NOT NULL DEFAULT false,
     version INTEGER NOT NULL DEFAULT 1,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -166,6 +167,7 @@ COMMENT ON COLUMN bdc.data_structures.physical_storage IS '物理存储信息（
 COMMENT ON COLUMN bdc.data_structures.validation_errors IS '验证错误信息（JSON格式）';
 COMMENT ON COLUMN bdc.data_structures.description IS '数据结构描述';
 COMMENT ON COLUMN bdc.data_structures.is_active IS '是否激活';
+COMMENT ON COLUMN bdc.data_structures.is_locked IS '是否锁定（锁定状态下不可修改）';
 COMMENT ON COLUMN bdc.data_structures.version IS '版本号';
 COMMENT ON COLUMN bdc.data_structures.created_at IS '创建时间';
 COMMENT ON COLUMN bdc.data_structures.updated_at IS '更新时间';

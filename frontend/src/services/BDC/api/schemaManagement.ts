@@ -16,6 +16,7 @@ export async function getSchemas(
       description?: string;
       createdAt?: string;
       updatedAt?: string;
+      isLocked?: boolean;
       fields?: (
         | API.StringField
         | API.TextField
@@ -187,6 +188,33 @@ export async function deleteSchemasId(
   return request<any>(`/api/schemas/${param0}`, {
     method: "DELETE",
     params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
+/** 锁定/解锁数据结构 PUT /api/schemas/${param0}/lock */
+export async function putSchemasIdLock(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.putSchemasIdLockParams,
+  body: {
+    /** 是否锁定（true为锁定，false为解锁） */
+    isLocked: boolean;
+  },
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<{
+    id?: string;
+    name?: string;
+    code?: string;
+    isLocked?: boolean;
+  }>(`/api/schemas/${param0}/lock`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    params: { ...queryParams },
+    data: body,
     ...(options || {}),
   });
 }

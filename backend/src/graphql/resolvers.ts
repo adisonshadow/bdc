@@ -28,6 +28,7 @@ export interface DataStructureInput {
   }>;
   description?: string;
   isActive?: boolean;
+  isLocked?: boolean;
 }
 
 export const resolvers = {
@@ -51,7 +52,8 @@ export const resolvers = {
       const dataStructureRepository = getDataSource().getRepository(DataStructure);
       const dataStructure = dataStructureRepository.create({
         ...input,
-        isActive: input.isActive ?? true
+        isActive: input.isActive ?? true,
+        isLocked: input.isLocked ?? false
       } as DeepPartial<DataStructure>);
       return await dataStructureRepository.save(dataStructure);
     },
@@ -64,7 +66,8 @@ export const resolvers = {
 
       const updateData: DeepPartial<DataStructure> = {
         ...input,
-        isActive: input.isActive ?? existing.isActive
+        isActive: input.isActive ?? existing.isActive,
+        isLocked: input.isLocked ?? existing.isLocked
       };
 
       // 如果有字段更新，增加版本号

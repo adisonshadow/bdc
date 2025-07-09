@@ -463,6 +463,10 @@
  *           type: boolean
  *           description: 是否启用
  *           default: true
+ *         isLocked:
+ *           type: boolean
+ *           description: 是否锁定（锁定状态下不可修改）
+ *           default: false
  *         version:
  *           type: integer
  *           description: 版本号

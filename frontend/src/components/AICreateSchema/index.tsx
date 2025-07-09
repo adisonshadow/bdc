@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, Button, message, Space, Typography, Tabs, Card, List, Tooltip } from 'antd';
 import { RobotOutlined, LoadingOutlined, ExclamationCircleOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { getSchemaHelp } from '@/AIHelper/aiService';
+import { AIError, AIErrorType } from '@/AIHelper/config';
 import { generateModelDesignPrompt, generateBatchCreatePrompt } from '@/AIHelper/modelDesignPromptGenerator';
 import type { Field } from '@/components/SchemaValidator/types';
 import AILoading from '@/components/AILoading';
@@ -129,6 +130,30 @@ const AICreateSchema: React.FC<AICreateSchemaProps> = ({
     code: string;
     description?: string;
   }>>([]);
+
+  // 处理AI错误
+  const handleAIError = (error: any) => {
+    if (error instanceof AIError) {
+      switch (error.type) {
+        case AIErrorType.RATE_LIMIT_ERROR:
+          message.error('AIError: 请求频率过高，请稍后重试');
+          break;
+        case AIErrorType.NETWORK_ERROR:
+          message.error('AIError: 网络连接失败，请检查网络连接');
+          break;
+        case AIErrorType.AUTH_ERROR:
+          message.error('AIError: 认证失败，请检查API配置');
+          break;
+        case AIErrorType.MODEL_ERROR:
+          message.error('AIError: AI服务暂时不可用，请稍后重试');
+          break;
+        default:
+          message.error(`AIError: ${error.message}`);
+      }
+    } else {
+      message.error('AIError: 未知错误，请稍后重试');
+    }
+  };
 
   // 获取现有枚举列表
   const fetchExistingEnums = async () => {
@@ -449,7 +474,7 @@ const AICreateSchema: React.FC<AICreateSchemaProps> = ({
       }
     } catch (error) {
       console.error('生成模型失败:', error);
-      message.error('生成模型失败，请检查网络连接或重试');
+      handleAIError(error);
     } finally {
       setIsGenerating(false);
       setIsAILoading(false);
@@ -1376,7 +1401,7 @@ const AICreateSchema: React.FC<AICreateSchemaProps> = ({
       setShowModifyDialog(false);
     } catch (error) {
       console.error('修改模型失败:', error);
-      message.error('修改模型失败，请检查网络连接或重试');
+      handleAIError(error);
     } finally {
       setIsModifying(false);
       setIsAILoading(false);

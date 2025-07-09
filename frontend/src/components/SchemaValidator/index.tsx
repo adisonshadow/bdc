@@ -4,6 +4,7 @@ import { ExclamationCircleOutlined, WarningOutlined, RobotOutlined } from '@ant-
 import { validateSchema, groupIssuesByType, type ValidationIssue } from './rules';
 import type { Field, SchemaListItem } from './types';
 import { getSchemaHelp, generateModelDesignPrompt } from '@/AIHelper';
+import { AIError, AIErrorType } from '@/AIHelper/config';
 import AIButton from '@/components/AIButton';
 import AILoading from '@/components/AILoading';
 import { useSimpleAILoading } from '@/components/AILoading/useAILoading';
@@ -20,6 +21,7 @@ interface SchemaValidatorProps {
     }[];
   };
   enums?: any[];
+  isLocked?: boolean;
   onValidationChange?: (issues: ValidationIssue[]) => void;
   onAutoFix?: (fixedFields: Field[], fixedKeyIndexes: any) => void;
 }
@@ -29,12 +31,37 @@ const SchemaValidator: React.FC<SchemaValidatorProps> = ({
   schemas, 
   keyIndexes,
   enums,
+  isLocked,
   onValidationChange,
   onAutoFix
 }) => {
   const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([]);
   const [isValidating, setIsValidating] = useState(false);
   const { isVisible: isAutoFixing, text: aiLoadingText, showLoading, hideLoading } = useSimpleAILoading();
+
+  // 处理AI错误
+  const handleAIError = (error: any) => {
+    if (error instanceof AIError) {
+      switch (error.type) {
+        case AIErrorType.RATE_LIMIT_ERROR:
+          message.error('AIError: 请求频率过高，请稍后重试');
+          break;
+        case AIErrorType.NETWORK_ERROR:
+          message.error('AIError: 网络连接失败，请检查网络连接');
+          break;
+        case AIErrorType.AUTH_ERROR:
+          message.error('AIError: 认证失败，请检查API配置');
+          break;
+        case AIErrorType.MODEL_ERROR:
+          message.error('AIError: AI服务暂时不可用，请稍后重试');
+          break;
+        default:
+          message.error(`AIError: ${error.message}`);
+      }
+    } else {
+      message.error('AIError: 未知错误，请稍后重试');
+    }
+  };
 
   // 执行验证
   const performValidation = () => {
@@ -155,7 +182,7 @@ const SchemaValidator: React.FC<SchemaValidatorProps> = ({
       }
     } catch (error) {
       console.error('自动修复失败:', error);
-      message.error('自动修复失败，请检查网络连接或手动修复');
+      handleAIError(error);
     } finally {
       hideLoading();
     }
@@ -244,7 +271,7 @@ const SchemaValidator: React.FC<SchemaValidatorProps> = ({
         )}
         
         {/* 自动修复按钮 */}
-        {onAutoFix && (errors.length > 0 || warnings.length > 0) && (
+        {onAutoFix && (errors.length > 0 || warnings.length > 0) && !isLocked && (
           <div style={{ 
             marginTop: '12px', 
             paddingTop: '12px', 

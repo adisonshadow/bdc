@@ -258,7 +258,7 @@ export const getAllSchemas = async (req: Request, res: Response) => {
     console.log('开始查询数据库...');
     const schemas = await dataStructureRepository.find({
       where,
-      select: ['id', 'code', 'name', 'fields', 'description', 'isActive', 'version', 'createdAt', 'updatedAt', 'keyIndexes'],
+      select: ['id', 'code', 'name', 'fields', 'description', 'isActive', 'isLocked', 'version', 'createdAt', 'updatedAt', 'keyIndexes'],
       order: { createdAt: 'DESC' }
     });
     console.log('查询结果数量:', schemas.length);
@@ -303,6 +303,7 @@ export const updateSchema = async (req: Request, res: Response) => {
       fields, 
       description, 
       isActive,
+      isLocked,
       keyIndexes,
       physicalStorage,
       validationErrors 
@@ -312,6 +313,11 @@ export const updateSchema = async (req: Request, res: Response) => {
     const schema = await dataStructureRepository.findOne({ where: { id } });
     if (!schema) {
       throw new NotFoundError(`ID为 ${id} 的数据结构不存在`);
+    }
+
+    // 检查是否被锁定
+    if (schema.isLocked) {
+      throw new ValidationError('该数据结构已被锁定，无法修改');
     }
 
     // 验证格式
@@ -367,6 +373,7 @@ export const updateSchema = async (req: Request, res: Response) => {
     if (fields !== undefined) updateData.fields = fields;
     if (description !== undefined) updateData.description = description;
     if (isActive !== undefined) updateData.isActive = isActive;
+    if (isLocked !== undefined) updateData.isLocked = isLocked;
     if (updatedKeyIndexes !== undefined) updateData.keyIndexes = updatedKeyIndexes;
     if (physicalStorage !== undefined) updateData.physicalStorage = physicalStorage;
     if (validationErrors !== undefined) updateData.validationErrors = validationErrors;
@@ -412,6 +419,12 @@ export const deleteSchema = async (req: Request, res: Response) => {
     if (!schema) {
       throw new NotFoundError(`ID为 ${id} 的数据结构不存在`);
     }
+
+    // 检查是否被锁定
+    if (schema.isLocked) {
+      throw new ValidationError('该数据结构已被锁定，无法删除');
+    }
+
     await dataStructureRepository.remove(schema);
     Logger.info({ message: '删除数据结构', name: schema.name });
     res.status(204).send();
@@ -421,6 +434,40 @@ export const deleteSchema = async (req: Request, res: Response) => {
     } else {
       Logger.error({ message: '删除数据结构失败', error });
       res.status(500).json({ message: '服务器内部错误', code: 'INTERNAL_SERVER_ERROR' });
+    }
+  }
+};
+
+// 锁定/解锁数据结构
+export const toggleSchemaLock = async (req: Request, res: Response) => {
+  const dataStructureRepository = getDataSource().getRepository(DataStructure);
+  try {
+    const { id } = req.params;
+    const { isLocked } = req.body;
+
+    // 查找现有数据结构
+    const schema = await dataStructureRepository.findOne({ where: { id } });
+    if (!schema) {
+      throw new NotFoundError(`ID为 ${id} 的数据结构不存在`);
+    }
+
+    // 更新锁定状态
+    await dataStructureRepository.update(id, { isLocked });
+    const updatedSchema = await dataStructureRepository.findOne({ where: { id } });
+
+    Logger.info({ 
+      message: isLocked ? '锁定数据结构' : '解锁数据结构', 
+      name: schema.name,
+      isLocked 
+    });
+
+    res.json(updatedSchema);
+  } catch (error) {
+    Logger.error(`锁定/解锁数据结构失败: ${error.message}`);
+    if (error instanceof NotFoundError) {
+      res.status(404).json({ success: false, message: error.message });
+    } else {
+      res.status(500).json({ success: false, message: '锁定/解锁数据结构失败' });
     }
   }
 };

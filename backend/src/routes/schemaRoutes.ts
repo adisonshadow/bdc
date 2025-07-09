@@ -5,7 +5,8 @@ import {
   getSchemaById,
   updateSchema,
   deleteSchema,
-  validateSchema
+  validateSchema,
+  toggleSchemaLock
 } from '../controllers/schemaController';
 import { authenticateToken } from '../middlewares/auth';
 
@@ -354,6 +355,9 @@ router.use(authenticateToken);
  *                   updatedAt:
  *                     type: string
  *                     format: date-time
+ *                   isLocked:
+ *                     type: boolean
+ *                     description: 是否锁定（锁定状态下不可修改）
  *                   fields:
  *                     type: array
  *                     items:
@@ -536,7 +540,7 @@ router.use(authenticateToken);
  *       200:
  *         description: 更新成功
  *       400:
- *         description: 请求参数错误
+ *         description: 请求参数错误或数据结构已被锁定
  *       404:
  *         description: 数据结构定义不存在
  *   delete:
@@ -554,6 +558,8 @@ router.use(authenticateToken);
  *     responses:
  *       200:
  *         description: 删除成功
+ *       400:
+ *         description: 数据结构已被锁定，无法删除
  *       404:
  *         description: 数据结构定义不存在
  *       409:
@@ -605,6 +611,56 @@ router.use(authenticateToken);
  *         description: 请求参数错误
  *       404:
  *         description: 数据结构定义不存在
+ * 
+ * /api/schemas/{id}/lock:
+ *   put:
+ *     tags: [Schema Management]
+ *     operationId: putSchemasIdLock
+ *     summary: 锁定/解锁数据结构
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: 数据结构定义ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - isLocked
+ *             properties:
+ *               isLocked:
+ *                 type: boolean
+ *                 description: 是否锁定（true为锁定，false为解锁）
+ *           example:
+ *             isLocked: true
+ *     responses:
+ *       200:
+ *         description: 锁定/解锁成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   format: uuid
+ *                 name:
+ *                   type: string
+ *                 code:
+ *                   type: string
+ *                 isLocked:
+ *                   type: boolean
+ *                   description: 锁定状态
+ *       400:
+ *         description: 请求参数错误
+ *       404:
+ *         description: 数据结构定义不存在
  */
 
 router.post('/', createSchema);
@@ -612,6 +668,7 @@ router.get('/', getAllSchemas);
 router.get('/:id', getSchemaById);
 router.put('/:id', updateSchema);
 router.delete('/:id', deleteSchema);
+router.put('/:id/lock', toggleSchemaLock);
 router.post('/:id/validate', validateSchema);
 
 export default router; 

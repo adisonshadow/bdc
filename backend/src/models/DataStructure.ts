@@ -164,6 +164,9 @@ export class DataStructure {
   @Column({ name: 'is_active', type: 'boolean', nullable: false, default: true })
   isActive: boolean;
 
+  @Column({ name: 'is_locked', type: 'boolean', nullable: false, default: false, comment: '是否锁定（锁定状态下不可修改）' })
+  isLocked: boolean;
+
   @Column({ name: 'version', type: 'integer', nullable: false, default: 1 })
   version: number;
 

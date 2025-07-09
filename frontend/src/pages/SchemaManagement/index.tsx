@@ -2,9 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Table, Button, Space, Tag, Tooltip, Switch, message, Modal, Form, Input, Select, List, Flex, InputNumber, Cascader, TreeSelect, Badge, Popconfirm, Checkbox, notification } from 'antd';
 import type { CascaderProps } from 'antd';
 import type { DefaultOptionType } from 'antd/es/cascader';
-import { PlusOutlined, EditOutlined, DeleteOutlined, ProfileOutlined, DeploymentUnitOutlined, ExportOutlined, BuildOutlined, ApartmentOutlined, CloudDownloadOutlined, CaretDownOutlined, CaretRightOutlined, TableOutlined, RobotOutlined, HolderOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, ProfileOutlined, DeploymentUnitOutlined, ExportOutlined, BuildOutlined, ApartmentOutlined, CloudDownloadOutlined, CaretDownOutlined, CaretRightOutlined, TableOutlined, RobotOutlined, HolderOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import { Splitter } from 'antd';
-import { getSchemas, putSchemasId, postSchemas, deleteSchemasId } from '@/services/BDC/api/schemaManagement';
+import { getSchemas, putSchemasId, postSchemas, deleteSchemasId, putSchemasIdLock } from '@/services/BDC/api/schemaManagement';
 import { getEnums } from '@/services/BDC/api/enumManagement';
 import { buildTree, enumTreeConfig } from '@/utils/treeBuilder';
 import { EnumTreeNode } from '@/types/enum';
@@ -47,6 +47,7 @@ interface SchemaListItem {
   code: string;
   description?: string;
   isActive?: boolean;
+  isLocked?: boolean;
   version?: number;
   createdAt?: string;
   updatedAt?: string;
@@ -318,6 +319,7 @@ const SchemaManagement: React.FC = () => {
           code: itemData.code || '',
           description: itemData.description,
           isActive: itemData.isActive,
+          isLocked: itemData.isLocked,
           version: itemData.version,
           createdAt: itemData.createdAt,
           updatedAt: itemData.updatedAt,
@@ -400,17 +402,44 @@ const SchemaManagement: React.FC = () => {
     }
   };
 
+  // 处理模型删除
   const handleSchemaDelete = async (id: string) => {
-    if (!id) return;
     try {
       await deleteSchemasId({ id });
-      message.success('删除成功');
+      message.success("删除成功");
+      fetchSchemas();
       if (selectedSchema?.id === id) {
         setSelectedSchema(null);
       }
+    } catch (error) {
+      message.error("删除失败");
+    }
+  };
+
+  // 处理模型锁定/解锁
+  const handleSchemaLockToggle = async (schema: SchemaListItem) => {
+    const newLockedState = !schema.isLocked;
+    try {
+      await putSchemasIdLock(
+        { id: schema.id! },
+        {
+          isLocked: newLockedState
+        }
+      );
+      message.success(newLockedState ? "模型已锁定" : "模型已解锁");
+      
+      // 立即更新当前选中的模型状态
+      if (selectedSchema && selectedSchema.id === schema.id) {
+        setSelectedSchema({
+          ...selectedSchema,
+          isLocked: newLockedState
+        });
+      }
+      
+      // 重新获取所有模型数据
       fetchSchemas();
     } catch (error) {
-      message.error('删除失败');
+      message.error(newLockedState ? "锁定失败" : "解锁失败");
     }
   };
 
@@ -834,11 +863,14 @@ const SchemaManagement: React.FC = () => {
       };
 
       // 调用 API 更新数据模型
+      const apiPayload = {
+        fields: updatedSchema.fields as any,
+        keyIndexes: updatedSchema.keyIndexes
+      };
+      
       await putSchemasId(
         { id: selectedSchema.id! },
-        {
-          fields: updatedSchema.fields as any
-        }
+        apiPayload
       );
 
       // 更新本地状态
@@ -865,6 +897,12 @@ const SchemaManagement: React.FC = () => {
     }
 
     try {
+      // 添加调试日志
+      console.log('=== AI 优化调试信息 ===');
+      console.log('原始 selectedSchema:', selectedSchema);
+      console.log('优化后的字段:', optimizedFields);
+      console.log('优化后的 keyIndexes:', optimizedKeyIndexes);
+      
       // 更新选中的数据模型
       const updatedSchema = {
         ...selectedSchema,
@@ -872,13 +910,19 @@ const SchemaManagement: React.FC = () => {
         keyIndexes: optimizedKeyIndexes
       };
 
+      console.log('更新后的 schema:', updatedSchema);
+
       // 调用 API 更新数据模型
+      const apiPayload = {
+        fields: updatedSchema.fields as any,
+        keyIndexes: updatedSchema.keyIndexes
+      };
+      
+      console.log('发送到 API 的数据:', apiPayload);
+      
       await putSchemasId(
         { id: selectedSchema.id! },
-        {
-          fields: updatedSchema.fields as any,
-          keyIndexes: updatedSchema.keyIndexes
-        }
+        apiPayload
       );
 
       // 更新本地状态
@@ -1184,15 +1228,26 @@ const SchemaManagement: React.FC = () => {
       title: '操作',
       key: 'action',
       fixed: 'right' as const,
-      width: 80,
+      width: 120,
       render: (_: unknown, record: SchemaTreeItem) => {
         // 只有叶子节点显示操作按钮
         if (record.children?.length) return null;
         return (
           <Flex justify='end'>
+            <Tooltip title={record.isLocked ? "解锁模型" : "锁定模型"}>
+              <Button
+                type="link"
+                icon={record.isLocked ? <LockOutlined /> : <UnlockOutlined />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSchemaLockToggle(record as SchemaListItem);
+                }}
+              />
+            </Tooltip>
             <Button
               type="link"
               icon={<EditOutlined />}
+              disabled={record.isLocked}
               onClick={(e) => {
                 e.stopPropagation();
                 schemaForm.setFieldsValue(record);
@@ -1214,6 +1269,7 @@ const SchemaManagement: React.FC = () => {
                 type="link"
                 danger
                 icon={<DeleteOutlined />}
+                disabled={record.isLocked}
                 onClick={(e) => e.stopPropagation()}
               />
             </Popconfirm>
@@ -1228,11 +1284,11 @@ const SchemaManagement: React.FC = () => {
     if (!selectedSchema?.keyIndexes) return '';
     
     // 调试日志
-    console.log(`Checking index type for field: ${fieldName}`, {
-      keyIndexes: selectedSchema.keyIndexes,
-      primaryKey: selectedSchema.keyIndexes.primaryKey,
-      indexes: selectedSchema.keyIndexes.indexes
-    });
+    // console.log(`Checking index type for field: ${fieldName}`, {
+    //   keyIndexes: selectedSchema.keyIndexes,
+    //   primaryKey: selectedSchema.keyIndexes.primaryKey,
+    //   indexes: selectedSchema.keyIndexes.indexes
+    // });
     
     // 检查是否为主键
     if (selectedSchema.keyIndexes.primaryKey?.includes(fieldName)) {
@@ -1245,7 +1301,7 @@ const SchemaManagement: React.FC = () => {
     );
     
     const result = index?.type || '';
-    console.log(`Index type result for ${fieldName}:`, result);
+    // console.log(`Index type result for ${fieldName}:`, result);
     return result;
   };
 
@@ -1503,6 +1559,7 @@ const SchemaManagement: React.FC = () => {
     return (
       <FieldList
         fields={selectedSchema.fields}
+        isLocked={selectedSchema.isLocked}
         onFieldEdit={handleEditField}
         onFieldDelete={handleFieldDelete}
         onFieldsReorder={handleFieldsReorder}
@@ -1827,6 +1884,7 @@ const SchemaManagement: React.FC = () => {
                     schemas={schemas}
                     keyIndexes={selectedSchema?.keyIndexes}
                     enums={enums}
+                    isLocked={selectedSchema?.isLocked}
                     onValidationChange={(issues) => {
                       // 可以在这里处理验证结果变化
                       console.log('Schema validation issues:', issues);
@@ -1839,6 +1897,7 @@ const SchemaManagement: React.FC = () => {
                     type="default"
                     icon={<RobotOutlined />}
                     // size="small"
+                    disabled={selectedSchema.isLocked}
                     onClick={() => setIsAIAssistModalVisible(true)}
                   >
                     AI 优化
@@ -1848,6 +1907,7 @@ const SchemaManagement: React.FC = () => {
                       type="primary"
                       icon={<PlusOutlined />}
                       shape="circle"
+                      disabled={selectedSchema.isLocked}
                       // ghost
                       // size="small"
                       onClick={() => {
@@ -2379,12 +2439,13 @@ const SchemaManagement: React.FC = () => {
       />
 
       {/* AI 协助模态框 */}
-      <AIAssistModal
-        open={isAIAssistModalVisible}
-        onCancel={() => setIsAIAssistModalVisible(false)}
-        selectedSchema={selectedSchema}
-        onFieldOptimize={handleFieldOptimize}
-      />
+              <AIAssistModal
+          open={isAIAssistModalVisible}
+          onCancel={() => setIsAIAssistModalVisible(false)}
+          selectedSchema={selectedSchema}
+          onFieldOptimize={handleFieldOptimize}
+          isLocked={selectedSchema?.isLocked}
+        />
 
       {/* 枚举管理模态框 */}
       <EnumManagement

@@ -337,6 +337,8 @@ declare namespace API {
     description?: string;
     /** 是否启用 */
     isActive?: boolean;
+    /** 是否锁定（锁定状态下不可修改） */
+    isLocked?: boolean;
     /** 版本号 */
     version?: number;
     /** 创建时间 */
@@ -525,6 +527,11 @@ declare namespace API {
 
   type putEnumsIdParams = {
     /** 枚举ID */
+    id: string;
+  };
+
+  type putSchemasIdLockParams = {
+    /** 数据结构定义ID */
     id: string;
   };
 

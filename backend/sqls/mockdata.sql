@@ -148,7 +148,7 @@ INSERT INTO bdc.enums (code, name, options, description, is_active, is_multiple)
 ]'::jsonb, '供应商等级', true, false);
 
 -- 插入生产管理相关数据结构
-INSERT INTO bdc.data_structures (code, name, fields, description, is_active, version) VALUES
+INSERT INTO bdc.data_structures (code, name, fields, description, is_active, is_locked, version) VALUES
 -- 1. 生产计划数据结构
 ('production:plan', 'production_plan', '[
     {
@@ -233,7 +233,7 @@ INSERT INTO bdc.data_structures (code, name, fields, description, is_active, ver
         "required": false,
         "description": "备注"
     }
-]'::jsonb, '生产计划主数据结构', true, 1),
+]'::jsonb, '生产计划主数据结构', true, false, 1),
 
 -- 2. 产品数据结构
 ('production:product', 'production_product', '[
@@ -288,7 +288,7 @@ INSERT INTO bdc.data_structures (code, name, fields, description, is_active, ver
             "multiple": false
         }
     }
-]'::jsonb, '产品数据结构', true, 1),
+]'::jsonb, '产品数据结构', true, false, 1),
 
 -- 3. 生产线数据结构
 ('production:line', 'production_line', '[
@@ -351,7 +351,7 @@ INSERT INTO bdc.data_structures (code, name, fields, description, is_active, ver
         "description": "最后维护日期",
         "dateType": "date"
     }
-]'::jsonb, '生产线数据结构', true, 1),
+]'::jsonb, '生产线数据结构', true, false, 1),
 
 -- 4. 生产工单数据结构
 ('production:workorder', 'production_workorder', '[
@@ -441,7 +441,7 @@ INSERT INTO bdc.data_structures (code, name, fields, description, is_active, ver
         "description": "结束时间",
         "dateType": "datetime"
     }
-]'::jsonb, '生产工单数据结构', true, 1),
+]'::jsonb, '生产工单数据结构', true, false, 1),
 
 -- 5. 设备数据结构
 ('equipment:device', 'equipment_device', '[
@@ -523,7 +523,7 @@ INSERT INTO bdc.data_structures (code, name, fields, description, is_active, ver
         "description": "最后维护日期",
         "dateType": "date"
     }
-]'::jsonb, '设备管理数据结构', true, 1),
+]'::jsonb, '设备管理数据结构', true, false, 1),
 
 -- 6. 物料数据结构
 ('material:item', 'material_item', '[
@@ -603,7 +603,7 @@ INSERT INTO bdc.data_structures (code, name, fields, description, is_active, ver
             "targetField": "supplier_code"
         }
     }
-]'::jsonb, '物料管理数据结构', true, 1),
+]'::jsonb, '物料管理数据结构', true, false, 1),
 
 -- 7. 供应商数据结构
 ('supplier:info', 'supplier_info', '[
@@ -676,7 +676,7 @@ INSERT INTO bdc.data_structures (code, name, fields, description, is_active, ver
             "multiple": false
         }
     }
-]'::jsonb, '供应商管理数据结构', true, 1),
+]'::jsonb, '供应商管理数据结构', true, false, 1),
 
 -- 8. 质量检验数据结构
 ('quality:inspection', 'quality_inspection', '[
@@ -754,7 +754,7 @@ INSERT INTO bdc.data_structures (code, name, fields, description, is_active, ver
         "required": false,
         "description": "检验备注"
     }
-]'::jsonb, '质量检验数据结构', true, 1),
+]'::jsonb, '质量检验数据结构', true, false, 1),
 
 -- 9. 库存记录数据结构
 ('inventory:record', 'inventory_record', '[
@@ -827,7 +827,7 @@ INSERT INTO bdc.data_structures (code, name, fields, description, is_active, ver
         "required": false,
         "description": "操作备注"
     }
-]'::jsonb, '库存记录数据结构', true, 1),
+]'::jsonb, '库存记录数据结构', true, false, 1),
 
 -- 10. 维护记录数据结构
 ('equipment:maintenance', 'equipment_maintenance', '[
@@ -901,4 +901,4 @@ INSERT INTO bdc.data_structures (code, name, fields, description, is_active, ver
         "required": false,
         "description": "维护备注"
     }
-]'::jsonb, '设备维护记录数据结构', true, 1);
+]'::jsonb, '设备维护记录数据结构', true, false, 1);

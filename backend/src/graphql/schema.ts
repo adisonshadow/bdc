@@ -11,6 +11,7 @@ export const typeDefs = gql`
     validationErrors: [JSON!]
     description: String
     isActive: Boolean!
+    isLocked: Boolean!
     version: Int!
     createdAt: String!
     updatedAt: String!
@@ -25,6 +26,7 @@ export const typeDefs = gql`
     validationErrors: [JSON!]
     description: String
     isActive: Boolean
+    isLocked: Boolean
   }
 
   type Query {
