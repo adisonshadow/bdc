@@ -986,6 +986,52 @@
  *         deleteRule:
  *           type: string
  *           description: 删除规则
+ *
+ *     AiConfig:
+ *       type: object
+ *       required:
+ *         - id
+ *         - provider
+ *         - apiUrl
+ *         - apiKey
+ *         - model
+ *         - createdAt
+ *         - updatedAt
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *           description: AI配置ID
+ *         provider:
+ *           type: string
+ *           description: AI服务提供商
+ *           example: "openai"
+ *         apiUrl:
+ *           type: string
+ *           description: API地址
+ *           example: "https://api.openai.com/v1"
+ *         apiKey:
+ *           type: string
+ *           description: API密钥
+ *           example: "sk-xxxxxxxxxxxxxxxxxxxxxxxx"
+ *         model:
+ *           type: string
+ *           description: AI模型名称
+ *           example: "gpt-4"
+ *         config:
+ *           type: object
+ *           description: 额外配置参数
+ *           example:
+ *             temperature: 0.7
+ *             max_tokens: 1000
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: 创建时间
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: 更新时间
  */
 
 export {}; 

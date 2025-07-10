@@ -337,7 +337,7 @@ const EnumForm: React.FC<EnumFormProps> = ({
       onCancel={handleClose}
       onOk={() => form.submit()}
       width={800}
-      destroyOnClose
+      destroyOnHidden
       confirmLoading={loading}
     >
               <Form

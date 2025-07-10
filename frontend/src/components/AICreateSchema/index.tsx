@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, Button, message, Space, Typography, Tabs, Card, List, Tooltip } from 'antd';
 import { RobotOutlined, LoadingOutlined, ExclamationCircleOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { getSchemaHelp } from '@/AIHelper/aiService';
+import { getSchemaHelp, useAiConfig, parseAIResponse, validateParsedData } from '@/AIHelper';
 import { AIError, AIErrorType } from '@/AIHelper/config';
 import { generateModelDesignPrompt, generateBatchCreatePrompt } from '@/AIHelper/modelDesignPromptGenerator';
 import type { Field } from '@/components/SchemaValidator/types';
@@ -60,6 +60,7 @@ interface GeneratedSchema {
       type?: "unique" | "normal" | "fulltext" | "spatial";
     }[];
   };
+  newEnums?: any[];
 }
 
 interface GeneratedSchemas {
@@ -94,10 +95,10 @@ const AICreateSchema: React.FC<AICreateSchemaProps> = ({
 }) => {
   const [form] = Form.useForm();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isAILoading, setIsAILoading] = useState(false);
   const [generatedSchema, setGeneratedSchema] = useState<GeneratedSchema | null>(null);
   const [generatedSchemas, setGeneratedSchemas] = useState<GeneratedSchemas | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
-  const [isAILoading, setIsAILoading] = useState(false);
   const [isModifying, setIsModifying] = useState(false);
   const [modifyInput, setModifyInput] = useState('');
   const [showModifyDialog, setShowModifyDialog] = useState(false);
@@ -131,6 +132,18 @@ const AICreateSchema: React.FC<AICreateSchemaProps> = ({
     description?: string;
   }>>([]);
 
+  // AI配置检查
+  const { hasConfig, showConfigReminder } = useAiConfig();
+
+  // 检查AI配置
+  const checkAIConfig = () => {
+    if (!hasConfig) {
+      showConfigReminder();
+      return false;
+    }
+    return true;
+  };
+
   // 处理AI错误
   const handleAIError = (error: any) => {
     if (error instanceof AIError) {
@@ -153,6 +166,33 @@ const AICreateSchema: React.FC<AICreateSchemaProps> = ({
     } else {
       message.error('AIError: 未知错误，请稍后重试');
     }
+  };
+
+  // 处理AI响应解析
+  const handleAIResponse = (aiResponse: string) => {
+    console.log('=== AI 响应解析调试信息 ===');
+    console.log('AI 原始响应:', aiResponse);
+    
+    // 使用新的AI响应解析工具
+    const parseResult = parseAIResponse(aiResponse);
+    
+    if (!parseResult.success) {
+      console.error('AI响应解析失败:', parseResult.error);
+      message.error(`AI响应解析失败: ${parseResult.error}`);
+      return null;
+    }
+    
+    console.log('解析出的数据:', parseResult.data);
+    
+    // 验证解析出的数据
+    const validationResult = validateParsedData(parseResult.data);
+    if (!validationResult.valid) {
+      console.error('数据验证失败:', validationResult.error);
+      message.error(`数据验证失败: ${validationResult.error}`);
+      return null;
+    }
+    
+    return parseResult.data;
   };
 
   // 获取现有枚举列表
@@ -231,6 +271,11 @@ const AICreateSchema: React.FC<AICreateSchemaProps> = ({
   const handleGenerate = async () => {
     const values = await form.validateFields();
     
+    // 检查AI配置
+    if (!checkAIConfig()) {
+      return;
+    }
+    
     setIsGenerating(true);
     setIsAILoading(true);
     
@@ -249,76 +294,9 @@ const AICreateSchema: React.FC<AICreateSchemaProps> = ({
 
       const aiResponse = await getSchemaHelp(prompt);
       
-      // 尝试解析 AI 返回的 JSON
-      let parsedData;
-      try {
-        // 首先尝试找到完整的JSON对象
-        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const jsonStr = jsonMatch[0];
-          
-          // 检查JSON是否完整（尝试解析）
-          try {
-            parsedData = JSON.parse(jsonStr);
-          } catch (parseError: any) {
-            // 如果JSON不完整，尝试修复常见的截断问题
-            console.warn('JSON可能被截断，尝试修复:', parseError);
-            
-            // 尝试找到最后一个完整的对象或数组
-            let fixedJson = jsonStr;
-            
-            // 如果以逗号结尾，移除它
-            if (fixedJson.endsWith(',')) {
-              fixedJson = fixedJson.slice(0, -1);
-            }
-            
-            // 如果以不完整的字符串结尾，尝试移除
-            if (fixedJson.includes('"') && !fixedJson.endsWith('"')) {
-              const lastQuoteIndex = fixedJson.lastIndexOf('"');
-              if (lastQuoteIndex > 0) {
-                const beforeLastQuote = fixedJson.substring(0, lastQuoteIndex);
-                const afterLastQuote = fixedJson.substring(lastQuoteIndex + 1);
-                
-                // 如果最后一个引号后面还有内容，尝试移除不完整的部分
-                if (afterLastQuote.includes('"')) {
-                  const nextQuoteIndex = afterLastQuote.indexOf('"');
-                  if (nextQuoteIndex > 0) {
-                    fixedJson = beforeLastQuote + afterLastQuote.substring(nextQuoteIndex);
-                  }
-                } else {
-                  // 移除不完整的字符串
-                  fixedJson = beforeLastQuote;
-                }
-              }
-            }
-            
-            // 尝试添加缺失的闭合括号
-            const openBraces = (fixedJson.match(/\{/g) || []).length;
-            const closeBraces = (fixedJson.match(/\}/g) || []).length;
-            const openBrackets = (fixedJson.match(/\[/g) || []).length;
-            const closeBrackets = (fixedJson.match(/\]/g) || []).length;
-            
-            if (openBraces > closeBraces) {
-              fixedJson += '}'.repeat(openBraces - closeBraces);
-            }
-            if (openBrackets > closeBrackets) {
-              fixedJson += ']'.repeat(openBrackets - closeBrackets);
-            }
-            
-            try {
-              parsedData = JSON.parse(fixedJson);
-              console.log('JSON修复成功');
-            } catch (secondParseError: any) {
-              console.error('JSON修复失败:', secondParseError);
-              throw new Error(`AI返回的JSON格式不完整，可能是由于响应长度限制。请尝试简化您的需求描述，或者分多次创建模型。\n\n原始错误: ${parseError.message}`);
-            }
-          }
-        } else {
-          throw new Error('未找到有效的 JSON 数据');
-        }
-      } catch (parseError: any) {
-        console.error('解析 AI 响应失败:', parseError);
-        message.error(parseError.message || 'AI 返回的数据格式不正确，请重试');
+      // 使用新的AI响应解析工具
+      const parsedData = handleAIResponse(aiResponse);
+      if (!parsedData) {
         return;
       }
 
@@ -1269,76 +1247,9 @@ const AICreateSchema: React.FC<AICreateSchemaProps> = ({
 
       const aiResponse = await getSchemaHelp(prompt);
       
-      // 尝试解析 AI 返回的 JSON
-      let parsedData;
-      try {
-        // 首先尝试找到完整的JSON对象
-        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const jsonStr = jsonMatch[0];
-          
-          // 检查JSON是否完整（尝试解析）
-          try {
-            parsedData = JSON.parse(jsonStr);
-          } catch (parseError: any) {
-            // 如果JSON不完整，尝试修复常见的截断问题
-            console.warn('JSON可能被截断，尝试修复:', parseError);
-            
-            // 尝试找到最后一个完整的对象或数组
-            let fixedJson = jsonStr;
-            
-            // 如果以逗号结尾，移除它
-            if (fixedJson.endsWith(',')) {
-              fixedJson = fixedJson.slice(0, -1);
-            }
-            
-            // 如果以不完整的字符串结尾，尝试移除
-            if (fixedJson.includes('"') && !fixedJson.endsWith('"')) {
-              const lastQuoteIndex = fixedJson.lastIndexOf('"');
-              if (lastQuoteIndex > 0) {
-                const beforeLastQuote = fixedJson.substring(0, lastQuoteIndex);
-                const afterLastQuote = fixedJson.substring(lastQuoteIndex + 1);
-                
-                // 如果最后一个引号后面还有内容，尝试移除不完整的部分
-                if (afterLastQuote.includes('"')) {
-                  const nextQuoteIndex = afterLastQuote.indexOf('"');
-                  if (nextQuoteIndex > 0) {
-                    fixedJson = beforeLastQuote + afterLastQuote.substring(nextQuoteIndex);
-                  }
-                } else {
-                  // 移除不完整的字符串
-                  fixedJson = beforeLastQuote;
-                }
-              }
-            }
-            
-            // 尝试添加缺失的闭合括号
-            const openBraces = (fixedJson.match(/\{/g) || []).length;
-            const closeBraces = (fixedJson.match(/\}/g) || []).length;
-            const openBrackets = (fixedJson.match(/\[/g) || []).length;
-            const closeBrackets = (fixedJson.match(/\]/g) || []).length;
-            
-            if (openBraces > closeBraces) {
-              fixedJson += '}'.repeat(openBraces - closeBraces);
-            }
-            if (openBrackets > closeBrackets) {
-              fixedJson += ']'.repeat(openBrackets - closeBrackets);
-            }
-            
-            try {
-              parsedData = JSON.parse(fixedJson);
-              console.log('JSON修复成功');
-            } catch (secondParseError: any) {
-              console.error('JSON修复失败:', secondParseError);
-              throw new Error(`AI返回的JSON格式不完整，可能是由于响应长度限制。请尝试简化您的需求描述，或者分多次创建模型。\n\n原始错误: ${parseError.message}`);
-            }
-          }
-        } else {
-          throw new Error('未找到有效的 JSON 数据');
-        }
-      } catch (parseError: any) {
-        console.error('解析 AI 响应失败:', parseError);
-        message.error(parseError.message || 'AI 返回的数据格式不正确，请重试');
+      // 使用新的AI响应解析工具
+      const parsedData = handleAIResponse(aiResponse);
+      if (!parsedData) {
         return;
       }
 
@@ -1689,7 +1600,7 @@ const AICreateSchema: React.FC<AICreateSchemaProps> = ({
         onCancel={handleCancel}
         footer={null}
         width={800}
-        destroyOnClose
+        destroyOnHidden
       >
       <div style={{ padding: '20px 0' }}>
         {!generatedSchema && !generatedSchemas && batchCreationState.status === 'analyzing' ? (
@@ -1783,10 +1694,10 @@ const AICreateSchema: React.FC<AICreateSchemaProps> = ({
 
       {/* AI Loading 遮罩 */}
       {isAILoading && (
-        <AILoading
-          visible={isAILoading}
-          text="AI 正在思考中...正在分析您的需求并生成模型结构..."
-        />
+                  <AILoading
+            visible={isAILoading}
+            text="AI 正在思考中...正在分析您的需求并生成模型结构..."
+          />
       )}
     </Modal>
   );

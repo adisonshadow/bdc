@@ -214,6 +214,12 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ]
         },
@@ -313,7 +319,13 @@
             10,
             13,
             13,
-            12
+            12,
+            17,
+            45,
+            13,
+            46,
+            18,
+            29
           ]
         },
         "register": 13
@@ -330,6 +342,12 @@
       "time": {
         "hooks": {
           "addEntryCode": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -792,6 +810,75 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
             0,
             0,
             0,
@@ -1403,6 +1490,141 @@
             0,
             0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -2742,7 +2964,24 @@
             0,
             0,
             1,
-            0
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1
           ]
         },
         "register": 0
@@ -2838,6 +3077,12 @@
             0,
             0,
             0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1,
             1
           ],
           "addRuntimePlugin": [
@@ -2917,6 +3162,12 @@
             0,
             0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -3073,7 +3324,13 @@
             2,
             3,
             2,
-            2
+            2,
+            3,
+            2,
+            2,
+            3,
+            1,
+            5
           ],
           "addEntryImports": [
             0,
@@ -3143,6 +3400,18 @@
             0,
             0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -3347,12 +3616,30 @@
             23,
             19,
             30,
-            23
+            23,
+            11,
+            38,
+            45,
+            30,
+            15,
+            84
           ],
           "addPolyfillImports": [
             0,
             0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -3684,6 +3971,18 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ]
         },
@@ -3702,6 +4001,12 @@
         "hooks": {
           "onGenerateFiles": [
             189,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -3889,6 +4194,12 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
             0
           ],
           "addBeforeMiddlewares": [
@@ -4068,7 +4379,19 @@
             4,
             4,
             3,
-            3
+            3,
+            4,
+            3,
+            25,
+            8,
+            24,
+            23,
+            8,
+            5,
+            15,
+            5,
+            21,
+            5
           ]
         },
         "register": 2
@@ -4202,7 +4525,13 @@
             10,
             6,
             20,
-            8
+            8,
+            6,
+            17,
+            21,
+            20,
+            9,
+            46
           ]
         },
         "register": 1
@@ -4366,7 +4695,13 @@
             0,
             0,
             1,
-            0
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            2
           ]
         },
         "register": 1
@@ -4926,6 +5261,12 @@
             0,
             0,
             0,
+            0,
+            0,
+            1,
+            1,
+            0,
+            0,
             0
           ],
           "onGenerateFiles": [
@@ -5007,6 +5348,12 @@
             1,
             1,
             1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            4,
             0,
             0
           ],
@@ -5207,6 +5554,18 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ],
           "addRuntimePlugin": [
@@ -5289,6 +5648,12 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ],
           "addRuntimePluginKey": [
@@ -5309,6 +5674,12 @@
             0,
             0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -5453,7 +5824,13 @@
             1,
             0,
             0,
-            0
+            0,
+            0,
+            0,
+            1,
+            5,
+            2,
+            7
           ],
           "addExtraBabelPlugins": [
             0
@@ -5567,6 +5944,12 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ],
           "addRuntimePluginKey": [
@@ -5649,7 +6032,13 @@
             0,
             0,
             0,
-            1
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
           ],
           "onGenerateFiles": [
             1,
@@ -5731,7 +6120,13 @@
             0,
             1,
             0,
-            0
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            2
           ],
           "addExtraModels": [
             0,
@@ -5810,6 +6205,12 @@
             0,
             0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -5914,6 +6315,12 @@
             0,
             0,
             0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
             0
           ],
           "modifyAppData": [
@@ -5999,9 +6406,21 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ],
           "addRuntimePluginKey": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -6163,7 +6582,13 @@
             3,
             1,
             1,
-            2
+            2,
+            1,
+            3,
+            3,
+            6,
+            3,
+            7
           ]
         },
         "register": 2
@@ -6240,6 +6665,12 @@
             0,
             0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -6367,7 +6798,13 @@
             16,
             7,
             13,
-            6
+            6,
+            7,
+            9,
+            139,
+            14,
+            9,
+            33
           ],
           "addTmpGenerateWatcherPaths": [
             0
@@ -6400,6 +6837,12 @@
       "time": {
         "hooks": {
           "addRuntimePluginKey": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -6612,6 +7055,12 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ],
           "onGenerateFiles": [
@@ -6694,7 +7143,13 @@
             0,
             0,
             0,
-            0
+            0,
+            0,
+            1,
+            1,
+            0,
+            1,
+            1
           ]
         },
         "register": 1
@@ -9259,8 +9714,101 @@
             ],
             "format": "esm"
           },
+          "src/services/BDC/api/aiConfigManagement.ts": {
+            "bytes": 4680,
+            "imports": [
+              {
+                "path": "src/.umi/exports.ts",
+                "kind": "import-statement",
+                "original": "@umijs/max"
+              }
+            ],
+            "format": "esm"
+          },
+          "src/utils/aiConfigStorage.ts": {
+            "bytes": 678,
+            "imports": [],
+            "format": "esm"
+          },
+          "src/components/AiConfigManager/AiConfigModal.tsx": {
+            "bytes": 10601,
+            "imports": [
+              {
+                "path": "react",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "antd",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "@ant-design/icons",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "src/services/BDC/api/aiConfigManagement.ts",
+                "kind": "import-statement",
+                "original": "@/services/BDC/api/aiConfigManagement"
+              },
+              {
+                "path": "react/jsx-runtime",
+                "kind": "import-statement",
+                "external": true
+              }
+            ],
+            "format": "esm"
+          },
+          "src/components/AiConfigManager/index.tsx": {
+            "bytes": 6785,
+            "imports": [
+              {
+                "path": "react",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "antd",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "@ant-design/icons",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "src/services/BDC/api/aiConfigManagement.ts",
+                "kind": "import-statement",
+                "original": "@/services/BDC/api/aiConfigManagement"
+              },
+              {
+                "path": "src/utils/aiConfigStorage.ts",
+                "kind": "import-statement",
+                "original": "@/utils/aiConfigStorage"
+              },
+              {
+                "path": "src/components/AiConfigManager/AiConfigModal.tsx",
+                "kind": "import-statement",
+                "original": "./AiConfigModal"
+              },
+              {
+                "path": "./index.less",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "react/jsx-runtime",
+                "kind": "import-statement",
+                "external": true
+              }
+            ],
+            "format": "esm"
+          },
           "src/app.tsx": {
-            "bytes": 3742,
+            "bytes": 3905,
             "imports": [
               {
                 "path": "src/auth/index.ts",
@@ -9273,9 +9821,19 @@
                 "external": true
               },
               {
+                "path": "react",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
                 "path": "src/utils/requestInterceptors.ts",
                 "kind": "import-statement",
                 "original": "./utils/requestInterceptors"
+              },
+              {
+                "path": "src/components/AiConfigManager/index.tsx",
+                "kind": "import-statement",
+                "original": "./components/AiConfigManager"
               },
               {
                 "path": "react/jsx-runtime",
@@ -9887,15 +10445,62 @@
             "imports": [],
             "format": "esm"
           },
+          "src/AIHelper/aiConfigService.ts": {
+            "bytes": 2975,
+            "imports": [
+              {
+                "path": "src/services/BDC/api/aiConfigManagement.ts",
+                "kind": "import-statement",
+                "original": "@/services/BDC/api/aiConfigManagement"
+              },
+              {
+                "path": "src/utils/aiConfigStorage.ts",
+                "kind": "import-statement",
+                "original": "@/utils/aiConfigStorage"
+              }
+            ],
+            "format": "esm"
+          },
           "src/AIHelper/aiService.ts": {
-            "bytes": 5107,
+            "bytes": 7261,
             "imports": [
               {
                 "path": "src/AIHelper/config.ts",
                 "kind": "import-statement",
                 "original": "./config"
+              },
+              {
+                "path": "src/AIHelper/aiConfigService.ts",
+                "kind": "import-statement",
+                "original": "./aiConfigService"
               }
             ],
+            "format": "esm"
+          },
+          "src/AIHelper/useAiConfig.ts": {
+            "bytes": 1354,
+            "imports": [
+              {
+                "path": "react",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "antd",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "src/AIHelper/aiConfigService.ts",
+                "kind": "import-statement",
+                "original": "./aiConfigService"
+              }
+            ],
+            "format": "esm"
+          },
+          "src/AIHelper/aiResponseParser.ts": {
+            "bytes": 6264,
+            "imports": [],
             "format": "esm"
           },
           "src/AIHelper/modelDesignPromptGenerator.ts": {
@@ -9909,7 +10514,7 @@
             "format": "esm"
           },
           "src/AIHelper/index.ts": {
-            "bytes": 603,
+            "bytes": 972,
             "imports": [
               {
                 "path": "src/AIHelper/config.ts",
@@ -9922,9 +10527,39 @@
                 "original": "./aiService"
               },
               {
+                "path": "src/AIHelper/aiConfigService.ts",
+                "kind": "import-statement",
+                "original": "./aiConfigService"
+              },
+              {
+                "path": "src/AIHelper/useAiConfig.ts",
+                "kind": "import-statement",
+                "original": "./useAiConfig"
+              },
+              {
+                "path": "src/AIHelper/aiResponseParser.ts",
+                "kind": "import-statement",
+                "original": "./aiResponseParser"
+              },
+              {
                 "path": "src/AIHelper/aiService.ts",
                 "kind": "import-statement",
                 "original": "./aiService"
+              },
+              {
+                "path": "src/AIHelper/aiConfigService.ts",
+                "kind": "import-statement",
+                "original": "./aiConfigService"
+              },
+              {
+                "path": "src/AIHelper/useAiConfig.ts",
+                "kind": "import-statement",
+                "original": "./useAiConfig"
+              },
+              {
+                "path": "src/AIHelper/aiResponseParser.ts",
+                "kind": "import-statement",
+                "original": "./aiResponseParser"
               },
               {
                 "path": "src/AIHelper/modelDesignPromptGenerator.ts",
@@ -10003,7 +10638,7 @@
             "format": "esm"
           },
           "src/components/SchemaValidator/index.tsx": {
-            "bytes": 10165,
+            "bytes": 11298,
             "imports": [
               {
                 "path": "react",
@@ -10029,6 +10664,11 @@
                 "path": "src/AIHelper/index.ts",
                 "kind": "import-statement",
                 "original": "@/AIHelper"
+              },
+              {
+                "path": "src/AIHelper/config.ts",
+                "kind": "import-statement",
+                "original": "@/AIHelper/config"
               },
               {
                 "path": "src/components/AIButton.jsx",
@@ -10090,7 +10730,7 @@
             "format": "esm"
           },
           "src/components/AICreateSchema/index.tsx": {
-            "bytes": 68206,
+            "bytes": 69322,
             "imports": [
               {
                 "path": "react",
@@ -10108,9 +10748,14 @@
                 "external": true
               },
               {
-                "path": "src/AIHelper/aiService.ts",
+                "path": "src/AIHelper/index.ts",
                 "kind": "import-statement",
-                "original": "@/AIHelper/aiService"
+                "original": "@/AIHelper"
+              },
+              {
+                "path": "src/AIHelper/config.ts",
+                "kind": "import-statement",
+                "original": "@/AIHelper/config"
               },
               {
                 "path": "src/AIHelper/modelDesignPromptGenerator.ts",
@@ -10157,7 +10802,7 @@
             "format": "esm"
           },
           "src/pages/SchemaManagement/AIAssistModal.tsx": {
-            "bytes": 16172,
+            "bytes": 16082,
             "imports": [
               {
                 "path": "react",
@@ -10259,7 +10904,7 @@
             "format": "esm"
           },
           "src/components/EnumManagement/EnumForm.tsx": {
-            "bytes": 13024,
+            "bytes": 13852,
             "imports": [
               {
                 "path": "react",
@@ -10290,6 +10935,11 @@
                 "path": "src/AIHelper/index.ts",
                 "kind": "import-statement",
                 "original": "@/AIHelper"
+              },
+              {
+                "path": "src/AIHelper/config.ts",
+                "kind": "import-statement",
+                "original": "@/AIHelper/config"
               },
               {
                 "path": "@/components/AIButton",
@@ -10350,7 +11000,7 @@
             "format": "esm"
           },
           "src/components/EnumManagement/index.tsx": {
-            "bytes": 17821,
+            "bytes": 18733,
             "imports": [
               {
                 "path": "react",
@@ -10396,6 +11046,11 @@
                 "path": "src/AIHelper/index.ts",
                 "kind": "import-statement",
                 "original": "@/AIHelper"
+              },
+              {
+                "path": "src/AIHelper/config.ts",
+                "kind": "import-statement",
+                "original": "@/AIHelper/config"
               },
               {
                 "path": "@/components/AIButton",
@@ -10993,6 +11648,51 @@
                 "external": true
               },
               {
+                "path": "react",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "antd",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "@ant-design/icons",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "react/jsx-runtime",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "react",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "antd",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "@ant-design/icons",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "./index.less",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "react/jsx-runtime",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
                 "path": "./auth/sso.json",
                 "kind": "import-statement",
                 "external": true
@@ -11199,6 +11899,16 @@
               },
               {
                 "path": "react/jsx-runtime",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "react",
+                "kind": "import-statement",
+                "external": true
+              },
+              {
+                "path": "antd",
                 "kind": "import-statement",
                 "external": true
               },
@@ -12738,8 +13448,20 @@
               "src/utils/requestInterceptors.ts": {
                 "bytesInOutput": 5231
               },
+              "src/services/BDC/api/aiConfigManagement.ts": {
+                "bytesInOutput": 1297
+              },
+              "src/utils/aiConfigStorage.ts": {
+                "bytesInOutput": 557
+              },
+              "src/components/AiConfigManager/AiConfigModal.tsx": {
+                "bytesInOutput": 12358
+              },
+              "src/components/AiConfigManager/index.tsx": {
+                "bytesInOutput": 6882
+              },
               "src/app.tsx": {
-                "bytesInOutput": 3622
+                "bytesInOutput": 3870
               },
               "src/.umi/core/helmetContext.ts": {
                 "bytesInOutput": 129
@@ -12754,10 +13476,10 @@
                 "bytesInOutput": 710
               },
               "src/.umi/plugin-antd/runtime.tsx": {
-                "bytesInOutput": 2474
+                "bytesInOutput": 2476
               },
               "src/.umi/plugin-initialState/Provider.tsx": {
-                "bytesInOutput": 667
+                "bytesInOutput": 670
               },
               "src/.umi/plugin-initialState/runtime.tsx": {
                 "bytesInOutput": 395
@@ -12778,13 +13500,13 @@
                 "bytesInOutput": 307
               },
               "src/.umi/plugin-model/runtime.tsx": {
-                "bytesInOutput": 778
+                "bytesInOutput": 781
               },
               "src/.umi/core/plugin.ts": {
                 "bytesInOutput": 1944
               },
               "src/.umi/plugin-request/request.ts": {
-                "bytesInOutput": 5234
+                "bytesInOutput": 5230
               },
               "src/.umi/plugin-request/index.ts": {
                 "bytesInOutput": 121
@@ -12796,25 +13518,25 @@
                 "bytesInOutput": 1533
               },
               "src/.umi/testBrowser.tsx": {
-                "bytesInOutput": 2385
+                "bytesInOutput": 2389
               },
               "src/.umi/exports.ts": {
-                "bytesInOutput": 3688
+                "bytesInOutput": 3687
               },
               "src/.umi/core/EmptyRoute.tsx": {
                 "bytesInOutput": 383
               },
               "src/pages/SSOSuccess/index.tsx": {
-                "bytesInOutput": 9481
+                "bytesInOutput": 9576
               },
               "src/pages/test-auth.tsx": {
-                "bytesInOutput": 6990
+                "bytesInOutput": 6983
               },
               "src/services/BDC/api/schemaManagement.ts": {
-                "bytesInOutput": 1356
+                "bytesInOutput": 1351
               },
               "src/services/BDC/api/enumManagement.ts": {
-                "bytesInOutput": 1744
+                "bytesInOutput": 1738
               },
               "src/utils/treeBuilder.ts": {
                 "bytesInOutput": 2392
@@ -12823,10 +13545,19 @@
                 "bytesInOutput": 18543
               },
               "src/AIHelper/config.ts": {
-                "bytesInOutput": 2345
+                "bytesInOutput": 1546
+              },
+              "src/AIHelper/aiConfigService.ts": {
+                "bytesInOutput": 2643
               },
               "src/AIHelper/aiService.ts": {
-                "bytesInOutput": 4809
+                "bytesInOutput": 6950
+              },
+              "src/AIHelper/useAiConfig.ts": {
+                "bytesInOutput": 1539
+              },
+              "src/AIHelper/aiResponseParser.ts": {
+                "bytesInOutput": 4927
               },
               "src/AIHelper/modelDesignPromptGenerator.ts": {
                 "bytesInOutput": 25902
@@ -12835,7 +13566,7 @@
                 "bytesInOutput": 11067
               },
               "src/AIHelper/index.ts": {
-                "bytesInOutput": 221
+                "bytesInOutput": 383
               },
               "src/components/AIButton.jsx": {
                 "bytesInOutput": 1610
@@ -12844,22 +13575,22 @@
                 "bytesInOutput": 1090
               },
               "src/components/AILoading/useAILoading.ts": {
-                "bytesInOutput": 740
+                "bytesInOutput": 743
               },
               "src/components/SchemaValidator/index.tsx": {
-                "bytesInOutput": 10660
+                "bytesInOutput": 11984
               },
               "src/components/SchemaConfirmation/index.tsx": {
-                "bytesInOutput": 8973
+                "bytesInOutput": 9002
               },
               "src/components/AICreateSchema/index.tsx": {
-                "bytesInOutput": 66155
+                "bytesInOutput": 67420
               },
               "src/pages/SchemaManagement/ormGenerator.ts": {
                 "bytesInOutput": 12714
               },
               "src/pages/SchemaManagement/AIAssistModal.tsx": {
-                "bytesInOutput": 18832
+                "bytesInOutput": 18215
               },
               "src/components/EnumManagement/validator.ts": {
                 "bytesInOutput": 5016
@@ -12868,22 +13599,22 @@
                 "bytesInOutput": 2900
               },
               "src/components/EnumManagement/EnumForm.tsx": {
-                "bytesInOutput": 15843
+                "bytesInOutput": 16894
               },
               "src/components/EnumManagement/index.tsx": {
-                "bytesInOutput": 19618
+                "bytesInOutput": 20467
               },
               "src/pages/SchemaManagement/FieldList.tsx": {
-                "bytesInOutput": 11028
+                "bytesInOutput": 11043
               },
               "src/pages/SchemaManagement/index.tsx": {
-                "bytesInOutput": 94303
+                "bytesInOutput": 94332
               },
               "src/services/BDC/api/databaseConnections.ts": {
-                "bytesInOutput": 1870
+                "bytesInOutput": 1864
               },
               "src/services/BDC/api/materializeTables.ts": {
-                "bytesInOutput": 362
+                "bytesInOutput": 361
               },
               "src/components/DatabaseTables/index.tsx": {
                 "bytesInOutput": 10704
@@ -12916,7 +13647,7 @@
                 "bytesInOutput": 2017
               }
             },
-            "bytes": 538493
+            "bytes": 574756
           }
         }
       }
@@ -16651,17 +17382,43 @@
           "type": "ImportDeclaration"
         }
       ],
+      "/Users/yanfang/MOM/BDC/frontend/src/AIHelper/aiConfigService.ts": [
+        {
+          "end": 70,
+          "importKind": "value",
+          "source": "@/services/BDC/api/aiConfigManagement",
+          "specifiers": [
+            {
+              "imported": "getAiConfigs",
+              "local": "getAiConfigs",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 1,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 135,
+          "importKind": "value",
+          "source": "@/utils/aiConfigStorage",
+          "specifiers": [
+            {
+              "imported": "getSelectedAiConfigId",
+              "local": "getSelectedAiConfigId",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 71,
+          "type": "ImportDeclaration"
+        }
+      ],
+      "/Users/yanfang/MOM/BDC/frontend/src/AIHelper/aiResponseParser.ts": [],
       "/Users/yanfang/MOM/BDC/frontend/src/AIHelper/aiService.ts": [
         {
-          "end": 196,
+          "end": 160,
           "importKind": "value",
           "source": "./config",
           "specifiers": [
-            {
-              "imported": "AI_CONFIG",
-              "local": "AI_CONFIG",
-              "type": "ImportSpecifier"
-            },
             {
               "imported": "AIMessage",
               "local": "AIMessage",
@@ -16688,11 +17445,6 @@
               "type": "ImportSpecifier"
             },
             {
-              "imported": "buildRequestPayload",
-              "local": "buildRequestPayload",
-              "type": "ImportSpecifier"
-            },
-            {
               "imported": "isValidAIResponse",
               "local": "isValidAIResponse",
               "type": "ImportSpecifier"
@@ -16709,6 +17461,25 @@
             }
           ],
           "start": 1,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 230,
+          "importKind": "value",
+          "source": "./aiConfigService",
+          "specifiers": [
+            {
+              "imported": "aiConfigService",
+              "local": "aiConfigService",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "DynamicAIConfig",
+              "local": "DynamicAIConfig",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 161,
           "type": "ImportDeclaration"
         }
       ],
@@ -16728,7 +17499,25 @@
           "type": "ExportAllDeclaration"
         },
         {
-          "end": 279,
+          "end": 175,
+          "source": "./aiConfigService",
+          "start": 141,
+          "type": "ExportAllDeclaration"
+        },
+        {
+          "end": 222,
+          "source": "./useAiConfig",
+          "start": 192,
+          "type": "ExportAllDeclaration"
+        },
+        {
+          "end": 283,
+          "source": "./aiResponseParser",
+          "start": 248,
+          "type": "ExportAllDeclaration"
+        },
+        {
+          "end": 441,
           "exportKind": "value",
           "source": "./aiService",
           "specifiers": [
@@ -16758,11 +17547,68 @@
               "type": "ExportSpecifier"
             }
           ],
-          "start": 166,
+          "start": 328,
           "type": "ExportNamedDeclaration"
         },
         {
-          "end": 353,
+          "end": 494,
+          "exportKind": "value",
+          "source": "./aiConfigService",
+          "specifiers": [
+            {
+              "exported": "aiConfigService",
+              "local": "aiConfigService",
+              "type": "ExportSpecifier"
+            }
+          ],
+          "start": 442,
+          "type": "ExportNamedDeclaration"
+        },
+        {
+          "end": 539,
+          "exportKind": "value",
+          "source": "./useAiConfig",
+          "specifiers": [
+            {
+              "exported": "useAiConfig",
+              "local": "useAiConfig",
+              "type": "ExportSpecifier"
+            }
+          ],
+          "start": 495,
+          "type": "ExportNamedDeclaration"
+        },
+        {
+          "end": 648,
+          "exportKind": "value",
+          "source": "./aiResponseParser",
+          "specifiers": [
+            {
+              "exported": "parseAIResponse",
+              "local": "parseAIResponse",
+              "type": "ExportSpecifier"
+            },
+            {
+              "exported": "cleanAIResponse",
+              "local": "cleanAIResponse",
+              "type": "ExportSpecifier"
+            },
+            {
+              "exported": "fixTruncatedJSON",
+              "local": "fixTruncatedJSON",
+              "type": "ExportSpecifier"
+            },
+            {
+              "exported": "validateParsedData",
+              "local": "validateParsedData",
+              "type": "ExportSpecifier"
+            }
+          ],
+          "start": 540,
+          "type": "ExportNamedDeclaration"
+        },
+        {
+          "end": 722,
           "exportKind": "value",
           "source": "./modelDesignPromptGenerator",
           "specifiers": [
@@ -16772,11 +17618,11 @@
               "type": "ExportSpecifier"
             }
           ],
-          "start": 280,
+          "start": 649,
           "type": "ExportNamedDeclaration"
         },
         {
-          "end": 451,
+          "end": 820,
           "exportKind": "type",
           "source": "./modelDesignPromptGenerator",
           "specifiers": [
@@ -16791,11 +17637,11 @@
               "type": "ExportSpecifier"
             }
           ],
-          "start": 354,
+          "start": 723,
           "type": "ExportNamedDeclaration"
         },
         {
-          "end": 517,
+          "end": 886,
           "exportKind": "value",
           "source": "./enumFixPromptGenerator",
           "specifiers": [
@@ -16805,11 +17651,11 @@
               "type": "ExportSpecifier"
             }
           ],
-          "start": 452,
+          "start": 821,
           "type": "ExportNamedDeclaration"
         },
         {
-          "end": 603,
+          "end": 972,
           "exportKind": "type",
           "source": "./enumFixPromptGenerator",
           "specifiers": [
@@ -16824,11 +17670,60 @@
               "type": "ExportSpecifier"
             }
           ],
-          "start": 518,
+          "start": 887,
           "type": "ExportNamedDeclaration"
         }
       ],
       "/Users/yanfang/MOM/BDC/frontend/src/AIHelper/modelDesignPromptGenerator.ts": [],
+      "/Users/yanfang/MOM/BDC/frontend/src/AIHelper/useAiConfig.ts": [
+        {
+          "end": 45,
+          "importKind": "value",
+          "source": "react",
+          "specifiers": [
+            {
+              "imported": "useState",
+              "local": "useState",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "useEffect",
+              "local": "useEffect",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 1,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 77,
+          "importKind": "value",
+          "source": "antd",
+          "specifiers": [
+            {
+              "imported": "message",
+              "local": "message",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 46,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 130,
+          "importKind": "value",
+          "source": "./aiConfigService",
+          "specifiers": [
+            {
+              "imported": "aiConfigService",
+              "local": "aiConfigService",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 78,
+          "type": "ImportDeclaration"
+        }
+      ],
       "/Users/yanfang/MOM/BDC/frontend/src/access.ts": [],
       "/Users/yanfang/MOM/BDC/frontend/src/app.tsx": [
         {
@@ -16874,7 +17769,20 @@
           "type": "ImportDeclaration"
         },
         {
-          "end": 265,
+          "end": 160,
+          "importKind": "value",
+          "source": "react",
+          "specifiers": [
+            {
+              "local": "React",
+              "type": "ImportDefaultSpecifier"
+            }
+          ],
+          "start": 134,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 262,
           "importKind": "value",
           "source": "./utils/requestInterceptors",
           "specifiers": [
@@ -16894,7 +17802,20 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 164,
+          "start": 161,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 322,
+          "importKind": "value",
+          "source": "./components/AiConfigManager",
+          "specifiers": [
+            {
+              "local": "AiConfigManager",
+              "type": "ImportDefaultSpecifier"
+            }
+          ],
+          "start": 263,
           "type": "ImportDeclaration"
         }
       ],
@@ -17087,13 +18008,18 @@
           "type": "ImportDeclaration"
         },
         {
-          "end": 327,
+          "end": 330,
           "importKind": "value",
-          "source": "@/AIHelper/aiService",
+          "source": "@/AIHelper",
           "specifiers": [
             {
               "imported": "getSchemaHelp",
               "local": "getSchemaHelp",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "useAiConfig",
+              "local": "useAiConfig",
               "type": "ImportSpecifier"
             }
           ],
@@ -17101,7 +18027,26 @@
           "type": "ImportDeclaration"
         },
         {
-          "end": 437,
+          "end": 388,
+          "importKind": "value",
+          "source": "@/AIHelper/config",
+          "specifiers": [
+            {
+              "imported": "AIError",
+              "local": "AIError",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "AIErrorType",
+              "local": "AIErrorType",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 331,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 498,
           "importKind": "value",
           "source": "@/AIHelper/modelDesignPromptGenerator",
           "specifiers": [
@@ -17116,11 +18061,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 328,
+          "start": 389,
           "type": "ImportDeclaration"
         },
         {
-          "end": 502,
+          "end": 563,
           "importKind": "type",
           "source": "@/components/SchemaValidator/types",
           "specifiers": [
@@ -17130,11 +18075,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 438,
+          "start": 499,
           "type": "ImportDeclaration"
         },
         {
-          "end": 550,
+          "end": 611,
           "importKind": "value",
           "source": "@/components/AILoading",
           "specifiers": [
@@ -17143,11 +18088,11 @@
               "type": "ImportDefaultSpecifier"
             }
           ],
-          "start": 503,
+          "start": 564,
           "type": "ImportDeclaration"
         },
         {
-          "end": 616,
+          "end": 677,
           "importKind": "value",
           "source": "@/components/SchemaConfirmation",
           "specifiers": [
@@ -17156,11 +18101,11 @@
               "type": "ImportDefaultSpecifier"
             }
           ],
-          "start": 551,
+          "start": 612,
           "type": "ImportDeclaration"
         },
         {
-          "end": 689,
+          "end": 750,
           "importKind": "value",
           "source": "@/services/BDC/api/enumManagement",
           "specifiers": [
@@ -17175,11 +18120,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 617,
+          "start": 678,
           "type": "ImportDeclaration"
         },
         {
-          "end": 768,
+          "end": 829,
           "importKind": "value",
           "source": "@/services/BDC/api/schemaManagement",
           "specifiers": [
@@ -17194,7 +18139,7 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 690,
+          "start": 751,
           "type": "ImportDeclaration"
         }
       ],
@@ -17265,6 +18210,320 @@
             }
           ],
           "start": 1,
+          "type": "ImportDeclaration"
+        }
+      ],
+      "/Users/yanfang/MOM/BDC/frontend/src/components/AiConfigManager/AiConfigModal.tsx": [
+        {
+          "end": 52,
+          "importKind": "value",
+          "source": "react",
+          "specifiers": [
+            {
+              "local": "React",
+              "type": "ImportDefaultSpecifier"
+            },
+            {
+              "imported": "useState",
+              "local": "useState",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "useEffect",
+              "local": "useEffect",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 1,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 152,
+          "importKind": "value",
+          "source": "antd",
+          "specifiers": [
+            {
+              "imported": "Modal",
+              "local": "Modal",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "Form",
+              "local": "Form",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "Input",
+              "local": "Input",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "Button",
+              "local": "Button",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "Space",
+              "local": "Space",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "List",
+              "local": "List",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "Card",
+              "local": "Card",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "message",
+              "local": "message",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "Divider",
+              "local": "Divider",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "Typography",
+              "local": "Typography",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 53,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 247,
+          "importKind": "value",
+          "source": "@ant-design/icons",
+          "specifiers": [
+            {
+              "imported": "PlusOutlined",
+              "local": "PlusOutlined",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "EditOutlined",
+              "local": "EditOutlined",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "DeleteOutlined",
+              "local": "DeleteOutlined",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "RobotOutlined",
+              "local": "RobotOutlined",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 153,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 388,
+          "importKind": "value",
+          "source": "@/services/BDC/api/aiConfigManagement",
+          "specifiers": [
+            {
+              "imported": "getAiConfigs",
+              "local": "getAiConfigs",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "postAiConfigs",
+              "local": "postAiConfigs",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "putAiConfigsId",
+              "local": "putAiConfigsId",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "deleteAiConfigsId",
+              "local": "deleteAiConfigsId",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "postAiConfigsIdTest",
+              "local": "postAiConfigsIdTest",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 248,
+          "type": "ImportDeclaration"
+        }
+      ],
+      "/Users/yanfang/MOM/BDC/frontend/src/components/AiConfigManager/index.tsx": [
+        {
+          "end": 52,
+          "importKind": "value",
+          "source": "react",
+          "specifiers": [
+            {
+              "local": "React",
+              "type": "ImportDefaultSpecifier"
+            },
+            {
+              "imported": "useState",
+              "local": "useState",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "useEffect",
+              "local": "useEffect",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 1,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 120,
+          "importKind": "value",
+          "source": "antd",
+          "specifiers": [
+            {
+              "imported": "Button",
+              "local": "Button",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "Modal",
+              "local": "Modal",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "Select",
+              "local": "Select",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "Space",
+              "local": "Space",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "message",
+              "local": "message",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "Spin",
+              "local": "Spin",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 53,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 202,
+          "importKind": "value",
+          "source": "@ant-design/icons",
+          "specifiers": [
+            {
+              "imported": "RobotOutlined",
+              "local": "RobotOutlined",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "SettingOutlined",
+              "local": "SettingOutlined",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "PlusOutlined",
+              "local": "PlusOutlined",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 121,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 343,
+          "importKind": "value",
+          "source": "@/services/BDC/api/aiConfigManagement",
+          "specifiers": [
+            {
+              "imported": "getAiConfigs",
+              "local": "getAiConfigs",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "postAiConfigs",
+              "local": "postAiConfigs",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "deleteAiConfigsId",
+              "local": "deleteAiConfigsId",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "putAiConfigsId",
+              "local": "putAiConfigsId",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "postAiConfigsIdTest",
+              "local": "postAiConfigsIdTest",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 203,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 453,
+          "importKind": "value",
+          "source": "@/utils/aiConfigStorage",
+          "specifiers": [
+            {
+              "imported": "saveSelectedAiConfig",
+              "local": "saveSelectedAiConfig",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "getSelectedAiConfigId",
+              "local": "getSelectedAiConfigId",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "clearSelectedAiConfig",
+              "local": "clearSelectedAiConfig",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 344,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 498,
+          "importKind": "value",
+          "source": "./AiConfigModal",
+          "specifiers": [
+            {
+              "local": "AiConfigModal",
+              "type": "ImportDefaultSpecifier"
+            }
+          ],
+          "start": 454,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 521,
+          "importKind": "value",
+          "source": "./index.less",
+          "specifiers": [],
+          "start": 499,
           "type": "ImportDeclaration"
         }
       ],
@@ -17535,7 +18794,26 @@
           "type": "ImportDeclaration"
         },
         {
-          "end": 535,
+          "end": 547,
+          "importKind": "value",
+          "source": "@/AIHelper/config",
+          "specifiers": [
+            {
+              "imported": "AIError",
+              "local": "AIError",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "AIErrorType",
+              "local": "AIErrorType",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 490,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 593,
           "importKind": "value",
           "source": "@/components/AIButton",
           "specifiers": [
@@ -17544,11 +18822,11 @@
               "type": "ImportDefaultSpecifier"
             }
           ],
-          "start": 490,
+          "start": 548,
           "type": "ImportDeclaration"
         },
         {
-          "end": 583,
+          "end": 641,
           "importKind": "value",
           "source": "@/components/AILoading",
           "specifiers": [
@@ -17557,11 +18835,11 @@
               "type": "ImportDefaultSpecifier"
             }
           ],
-          "start": 536,
+          "start": 594,
           "type": "ImportDeclaration"
         },
         {
-          "end": 657,
+          "end": 715,
           "importKind": "value",
           "source": "@/components/AILoading/useAILoading",
           "specifiers": [
@@ -17571,11 +18849,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 584,
+          "start": 642,
           "type": "ImportDeclaration"
         },
         {
-          "end": 742,
+          "end": 800,
           "importKind": "value",
           "source": "@/components/ValidationPopover",
           "specifiers": [
@@ -17589,11 +18867,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 658,
+          "start": 716,
           "type": "ImportDeclaration"
         },
         {
-          "end": 884,
+          "end": 942,
           "importKind": "value",
           "source": "@dnd-kit/core",
           "specifiers": [
@@ -17633,11 +18911,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 743,
+          "start": 801,
           "type": "ImportDeclaration"
         },
         {
-          "end": 945,
+          "end": 1003,
           "importKind": "value",
           "source": "@dnd-kit/modifiers",
           "specifiers": [
@@ -17647,11 +18925,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 885,
+          "start": 943,
           "type": "ImportDeclaration"
         },
         {
-          "end": 1076,
+          "end": 1134,
           "importKind": "value",
           "source": "@dnd-kit/sortable",
           "specifiers": [
@@ -17676,11 +18954,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 946,
+          "start": 1004,
           "type": "ImportDeclaration"
         },
         {
-          "end": 1128,
+          "end": 1186,
           "importKind": "value",
           "source": "@dnd-kit/sortable",
           "specifiers": [
@@ -17690,11 +18968,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 1077,
+          "start": 1135,
           "type": "ImportDeclaration"
         },
         {
-          "end": 1170,
+          "end": 1228,
           "importKind": "value",
           "source": "@dnd-kit/utilities",
           "specifiers": [
@@ -17704,11 +18982,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 1129,
+          "start": 1187,
           "type": "ImportDeclaration"
         },
         {
-          "end": 1245,
+          "end": 1303,
           "importKind": "value",
           "source": "@/services/BDC/api/enumManagement",
           "specifiers": [
@@ -17723,7 +19001,7 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 1171,
+          "start": 1229,
           "type": "ImportDeclaration"
         }
       ],
@@ -17762,7 +19040,7 @@
           "type": "ImportDeclaration"
         },
         {
-          "end": 218,
+          "end": 258,
           "importKind": "value",
           "source": "antd",
           "specifiers": [
@@ -17825,13 +19103,33 @@
               "imported": "List",
               "local": "List",
               "type": "ImportSpecifier"
+            },
+            {
+              "imported": "Form",
+              "local": "Form",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "Select",
+              "local": "Select",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "Card",
+              "local": "Card",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "Typography",
+              "local": "Typography",
+              "type": "ImportSpecifier"
             }
           ],
           "start": 75,
           "type": "ImportDeclaration"
         },
         {
-          "end": 357,
+          "end": 426,
           "importKind": "value",
           "source": "@ant-design/icons",
           "specifiers": [
@@ -17864,13 +19162,18 @@
               "imported": "RobotOutlined",
               "local": "RobotOutlined",
               "type": "ImportSpecifier"
+            },
+            {
+              "imported": "ExclamationCircleOutlined",
+              "local": "ExclamationCircleOutlined",
+              "type": "ImportSpecifier"
             }
           ],
-          "start": 219,
+          "start": 259,
           "type": "ImportDeclaration"
         },
         {
-          "end": 446,
+          "end": 515,
           "importKind": "value",
           "source": "@/services/BDC/api/enumManagement",
           "specifiers": [
@@ -17890,11 +19193,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 358,
+          "start": 427,
           "type": "ImportDeclaration"
         },
         {
-          "end": 481,
+          "end": 550,
           "importKind": "value",
           "source": "./EnumForm",
           "specifiers": [
@@ -17903,11 +19206,11 @@
               "type": "ImportDefaultSpecifier"
             }
           ],
-          "start": 447,
+          "start": 516,
           "type": "ImportDeclaration"
         },
         {
-          "end": 546,
+          "end": 615,
           "importKind": "value",
           "source": "@/utils/treeBuilder",
           "specifiers": [
@@ -17922,11 +19225,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 482,
+          "start": 551,
           "type": "ImportDeclaration"
         },
         {
-          "end": 636,
+          "end": 705,
           "importKind": "value",
           "source": "./validator",
           "specifiers": [
@@ -17946,11 +19249,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 547,
+          "start": 616,
           "type": "ImportDeclaration"
         },
         {
-          "end": 688,
+          "end": 757,
           "importKind": "value",
           "source": "@/AIHelper",
           "specifiers": [
@@ -17960,11 +19263,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 637,
+          "start": 706,
           "type": "ImportDeclaration"
         },
         {
-          "end": 732,
+          "end": 814,
           "importKind": "value",
           "source": "@/AIHelper",
           "specifiers": [
@@ -17972,13 +19275,37 @@
               "imported": "getSchemaHelp",
               "local": "getSchemaHelp",
               "type": "ImportSpecifier"
+            },
+            {
+              "imported": "useAiConfig",
+              "local": "useAiConfig",
+              "type": "ImportSpecifier"
             }
           ],
-          "start": 689,
+          "start": 758,
           "type": "ImportDeclaration"
         },
         {
-          "end": 778,
+          "end": 872,
+          "importKind": "value",
+          "source": "@/AIHelper/config",
+          "specifiers": [
+            {
+              "imported": "AIError",
+              "local": "AIError",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "AIErrorType",
+              "local": "AIErrorType",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 815,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 918,
           "importKind": "value",
           "source": "@/components/AIButton",
           "specifiers": [
@@ -17987,11 +19314,11 @@
               "type": "ImportDefaultSpecifier"
             }
           ],
-          "start": 733,
+          "start": 873,
           "type": "ImportDeclaration"
         },
         {
-          "end": 826,
+          "end": 966,
           "importKind": "value",
           "source": "@/components/AILoading",
           "specifiers": [
@@ -18000,11 +19327,11 @@
               "type": "ImportDefaultSpecifier"
             }
           ],
-          "start": 779,
+          "start": 919,
           "type": "ImportDeclaration"
         },
         {
-          "end": 900,
+          "end": 1040,
           "importKind": "value",
           "source": "@/components/AILoading/useAILoading",
           "specifiers": [
@@ -18014,11 +19341,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 827,
+          "start": 967,
           "type": "ImportDeclaration"
         },
         {
-          "end": 985,
+          "end": 1125,
           "importKind": "value",
           "source": "@/components/ValidationPopover",
           "specifiers": [
@@ -18032,7 +19359,7 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 901,
+          "start": 1041,
           "type": "ImportDeclaration"
         }
       ],
@@ -18140,9 +19467,9 @@
       ],
       "/Users/yanfang/MOM/BDC/frontend/src/components/SchemaValidator/index.tsx": [
         {
-          "end": 3861,
+          "end": 5060,
           "source": "@/services/BDC/api/enumManagement",
-          "start": 3826,
+          "start": 5025,
           "type": "DynamicImport"
         },
         {
@@ -18280,7 +19607,7 @@
           "type": "ImportDeclaration"
         },
         {
-          "end": 429,
+          "end": 442,
           "importKind": "value",
           "source": "@/AIHelper",
           "specifiers": [
@@ -18293,13 +19620,37 @@
               "imported": "generateModelDesignPrompt",
               "local": "generateModelDesignPrompt",
               "type": "ImportSpecifier"
+            },
+            {
+              "imported": "useAiConfig",
+              "local": "useAiConfig",
+              "type": "ImportSpecifier"
             }
           ],
           "start": 359,
           "type": "ImportDeclaration"
         },
         {
-          "end": 475,
+          "end": 500,
+          "importKind": "value",
+          "source": "@/AIHelper/config",
+          "specifiers": [
+            {
+              "imported": "AIError",
+              "local": "AIError",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "AIErrorType",
+              "local": "AIErrorType",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 443,
+          "type": "ImportDeclaration"
+        },
+        {
+          "end": 546,
           "importKind": "value",
           "source": "@/components/AIButton",
           "specifiers": [
@@ -18308,11 +19659,11 @@
               "type": "ImportDefaultSpecifier"
             }
           ],
-          "start": 430,
+          "start": 501,
           "type": "ImportDeclaration"
         },
         {
-          "end": 523,
+          "end": 594,
           "importKind": "value",
           "source": "@/components/AILoading",
           "specifiers": [
@@ -18321,11 +19672,11 @@
               "type": "ImportDefaultSpecifier"
             }
           ],
-          "start": 476,
+          "start": 547,
           "type": "ImportDeclaration"
         },
         {
-          "end": 597,
+          "end": 668,
           "importKind": "value",
           "source": "@/components/AILoading/useAILoading",
           "specifiers": [
@@ -18335,7 +19686,7 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 524,
+          "start": 595,
           "type": "ImportDeclaration"
         }
       ],
@@ -19188,7 +20539,7 @@
           "type": "ImportDeclaration"
         },
         {
-          "end": 505,
+          "end": 555,
           "importKind": "value",
           "source": "@/AIHelper",
           "specifiers": [
@@ -19201,13 +20552,28 @@
               "imported": "generateModelDesignPrompt",
               "local": "generateModelDesignPrompt",
               "type": "ImportSpecifier"
+            },
+            {
+              "imported": "useAiConfig",
+              "local": "useAiConfig",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "parseAIResponse",
+              "local": "parseAIResponse",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "validateParsedData",
+              "local": "validateParsedData",
+              "type": "ImportSpecifier"
             }
           ],
           "start": 435,
           "type": "ImportDeclaration"
         },
         {
-          "end": 563,
+          "end": 613,
           "importKind": "value",
           "source": "@/AIHelper/config",
           "specifiers": [
@@ -19222,11 +20588,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 506,
+          "start": 556,
           "type": "ImportDeclaration"
         },
         {
-          "end": 636,
+          "end": 686,
           "importKind": "value",
           "source": "@/services/BDC/api/enumManagement",
           "specifiers": [
@@ -19241,11 +20607,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 564,
+          "start": 614,
           "type": "ImportDeclaration"
         },
         {
-          "end": 701,
+          "end": 751,
           "importKind": "type",
           "source": "@/components/SchemaValidator/types",
           "specifiers": [
@@ -19255,7 +20621,7 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 637,
+          "start": 687,
           "type": "ImportDeclaration"
         }
       ],
@@ -19978,6 +21344,22 @@
           "type": "ImportDeclaration"
         }
       ],
+      "/Users/yanfang/MOM/BDC/frontend/src/services/BDC/api/aiConfigManagement.ts": [
+        {
+          "end": 73,
+          "importKind": "value",
+          "source": "@umijs/max",
+          "specifiers": [
+            {
+              "imported": "request",
+              "local": "request",
+              "type": "ImportSpecifier"
+            }
+          ],
+          "start": 36,
+          "type": "ImportDeclaration"
+        }
+      ],
       "/Users/yanfang/MOM/BDC/frontend/src/services/BDC/api/databaseConnections.ts": [
         {
           "end": 73,
@@ -20042,6 +21424,7 @@
           "type": "ImportDeclaration"
         }
       ],
+      "/Users/yanfang/MOM/BDC/frontend/src/utils/aiConfigStorage.ts": [],
       "/Users/yanfang/MOM/BDC/frontend/src/utils/requestInterceptors.ts": [
         {
           "end": 32,

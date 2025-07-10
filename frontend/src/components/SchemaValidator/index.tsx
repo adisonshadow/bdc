@@ -3,7 +3,7 @@ import { Tag, Tooltip, List, Badge, Space, Button, message } from 'antd';
 import { ExclamationCircleOutlined, WarningOutlined, RobotOutlined } from '@ant-design/icons';
 import { validateSchema, groupIssuesByType, type ValidationIssue } from './rules';
 import type { Field, SchemaListItem } from './types';
-import { getSchemaHelp, generateModelDesignPrompt } from '@/AIHelper';
+import { getSchemaHelp, generateModelDesignPrompt, useAiConfig } from '@/AIHelper';
 import { AIError, AIErrorType } from '@/AIHelper/config';
 import AIButton from '@/components/AIButton';
 import AILoading from '@/components/AILoading';
@@ -38,6 +38,18 @@ const SchemaValidator: React.FC<SchemaValidatorProps> = ({
   const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([]);
   const [isValidating, setIsValidating] = useState(false);
   const { isVisible: isAutoFixing, text: aiLoadingText, showLoading, hideLoading } = useSimpleAILoading();
+  
+  // AI配置检查
+  const { hasConfig, showConfigReminder } = useAiConfig();
+
+  // 检查AI配置
+  const checkAIConfig = () => {
+    if (!hasConfig) {
+      showConfigReminder();
+      return false;
+    }
+    return true;
+  };
 
   // 处理AI错误
   const handleAIError = (error: any) => {
@@ -85,6 +97,11 @@ const SchemaValidator: React.FC<SchemaValidatorProps> = ({
   const handleAutoFix = async () => {
     if (!onAutoFix) {
       message.error('自动修复功能未启用');
+      return;
+    }
+
+    // 检查AI配置
+    if (!checkAIConfig()) {
       return;
     }
 
@@ -181,17 +198,17 @@ const SchemaValidator: React.FC<SchemaValidatorProps> = ({
         message.error('AI 返回的模型格式不正确');
       }
     } catch (error) {
-      console.error('自动修复失败:', error);
+      console.error('AI 自动修复失败:', error);
       handleAIError(error);
     } finally {
       hideLoading();
     }
   };
 
-  // 初始化时和依赖项变化时触发验证
+  // 当字段或索引变化时重新验证
   useEffect(() => {
     performValidation();
-  }, [fields, schemas, keyIndexes, enums]);
+  }, [fields, keyIndexes, enums]);
 
   // 如果字段为空，不显示验证器
   if (!fields || fields.length === 0) {

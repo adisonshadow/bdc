@@ -264,3 +264,38 @@ COMMENT ON COLUMN bdc.api_definitions.created_at IS '创建时间';
 COMMENT ON COLUMN bdc.api_definitions.updated_at IS '更新时间';
 COMMENT ON COLUMN bdc.api_definitions.created_by IS '创建人';
 COMMENT ON COLUMN bdc.api_definitions.updated_by IS '更新人';
+
+-- 创建 AI 配置表
+CREATE TABLE IF NOT EXISTS bdc.ai_configs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    provider VARCHAR(50) NOT NULL,
+    api_url VARCHAR(500) NOT NULL,
+    api_key VARCHAR(500) NOT NULL,
+    model VARCHAR(100) NOT NULL,
+    config JSONB,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(provider, model)
+);
+
+-- 创建 AI 配置表索引
+CREATE INDEX IF NOT EXISTS idx_ai_configs_provider ON bdc.ai_configs(provider);
+CREATE INDEX IF NOT EXISTS idx_ai_configs_model ON bdc.ai_configs(model);
+
+-- 为 AI 配置表添加更新时间触发器
+DROP TRIGGER IF EXISTS update_ai_configs_updated_at ON bdc.ai_configs;
+CREATE TRIGGER update_ai_configs_updated_at
+    BEFORE UPDATE ON bdc.ai_configs
+    FOR EACH ROW
+    EXECUTE FUNCTION bdc.update_updated_at_column();
+
+-- 添加 AI 配置表注释
+COMMENT ON TABLE bdc.ai_configs IS 'AI 配置表';
+COMMENT ON COLUMN bdc.ai_configs.id IS 'AI 配置 ID（系统自动生成）';
+COMMENT ON COLUMN bdc.ai_configs.provider IS 'AI 服务提供商';
+COMMENT ON COLUMN bdc.ai_configs.api_url IS 'API 地址';
+COMMENT ON COLUMN bdc.ai_configs.api_key IS 'API 密钥（加密存储）';
+COMMENT ON COLUMN bdc.ai_configs.model IS 'AI 模型名称';
+COMMENT ON COLUMN bdc.ai_configs.config IS '额外配置参数（JSON格式）';
+COMMENT ON COLUMN bdc.ai_configs.created_at IS '创建时间';
+COMMENT ON COLUMN bdc.ai_configs.updated_at IS '更新时间';

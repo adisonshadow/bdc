@@ -1,15 +1,14 @@
 import {
-  AI_CONFIG,
   AIMessage,
   AIRequestPayload,
   AIResponse,
   AIError,
   AIErrorType,
-  buildRequestPayload,
   isValidAIResponse,
   extractAIResponse,
   SYSTEM_PROMPTS
 } from './config';
+import { aiConfigService, DynamicAIConfig } from './aiConfigService';
 
 export class AIService {
   private static instance: AIService;
@@ -22,6 +21,63 @@ export class AIService {
     }
     return AIService.instance;
   }
+
+  /**
+   * 检查AI配置是否可用
+   */
+  async checkConfigAvailability(): Promise<{ available: boolean; message?: string }> {
+    const hasConfig = await aiConfigService.hasAvailableConfig();
+    
+    if (!hasConfig) {
+      return {
+        available: false,
+        message: '您还没有配置AI服务，请先添加AI配置'
+      };
+    }
+
+    const currentConfig = await aiConfigService.getCurrentAiConfig();
+    if (!currentConfig) {
+      return {
+        available: false,
+        message: '无法获取AI配置，请检查配置是否正确'
+      };
+    }
+
+    return { available: true };
+  }
+
+  /**
+   * 获取动态AI配置
+   */
+  private async getDynamicConfig(): Promise<DynamicAIConfig> {
+    const currentConfig = await aiConfigService.getCurrentAiConfig();
+    if (!currentConfig) {
+      throw new AIError({
+        type: AIErrorType.AUTH_ERROR,
+        message: '未找到可用的AI配置，请先添加AI配置'
+      });
+    }
+
+    return aiConfigService.convertToDynamicConfig(currentConfig);
+  }
+
+  /**
+   * 构建请求载荷
+   */
+  private buildRequestPayload(
+    messages: AIMessage[],
+    dynamicConfig: DynamicAIConfig,
+    temperature?: number,
+    maxTokens?: number
+  ): AIRequestPayload {
+    return {
+      model: dynamicConfig.model,
+      messages,
+      temperature: temperature ?? dynamicConfig.temperature ?? 0.7,
+      max_tokens: maxTokens ?? dynamicConfig.maxTokens ?? 2000,
+      stream: false
+    };
+  }
   
   /**
    * 发送聊天请求到 AI 服务
@@ -33,14 +89,33 @@ export class AIService {
     maxTokens?: number
   ): Promise<string> {
     try {
-      const payload = buildRequestPayload(
+      // 检查配置可用性
+      const configCheck = await this.checkConfigAvailability();
+      if (!configCheck.available) {
+        throw new AIError({
+          type: AIErrorType.AUTH_ERROR,
+          message: configCheck.message || 'AI配置不可用'
+        });
+      }
+
+      const dynamicConfig = await this.getDynamicConfig();
+      
+      // 如果指定了模型，使用指定的模型，否则使用配置中的模型
+      const targetModel = model || dynamicConfig.model;
+      
+      const payload = this.buildRequestPayload(
         messages,
-        model,
+        dynamicConfig,
         temperature,
         maxTokens
       );
+
+      // 如果指定了模型，更新payload中的模型
+      if (model) {
+        payload.model = model;
+      }
       
-      const response = await this.makeRequest(payload);
+      const response = await this.makeRequest(payload, dynamicConfig);
       
       if (!isValidAIResponse(response)) {
         throw new AIError({
@@ -124,10 +199,10 @@ export class AIService {
   /**
    * 执行 API 请求
    */
-  private async makeRequest(payload: AIRequestPayload): Promise<AIResponse> {
-    const response = await fetch(`${AI_CONFIG.BASE_URL}/chat/completions`, {
+  private async makeRequest(payload: AIRequestPayload, dynamicConfig: DynamicAIConfig): Promise<AIResponse> {
+    const response = await fetch(dynamicConfig.baseUrl, {
       method: 'POST',
-      headers: AI_CONFIG.HEADERS,
+      headers: dynamicConfig.headers,
       body: JSON.stringify(payload)
     });
     

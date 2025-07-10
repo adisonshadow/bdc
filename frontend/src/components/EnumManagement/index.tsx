@@ -11,7 +11,11 @@ import {
   Tooltip,
   Segmented,
   Popover,
-  List
+  List,
+  Form,
+  Select,
+  Card,
+  Typography
 } from 'antd';
 import {
   PlusOutlined,
@@ -19,26 +23,33 @@ import {
   DeleteOutlined,
   SearchOutlined,
   ReloadOutlined,
-  RobotOutlined
+  RobotOutlined,
+  ExclamationCircleOutlined
 } from '@ant-design/icons';
 import { getEnums, deleteEnumsId, putEnumsId } from '@/services/BDC/api/enumManagement';
 import EnumForm from './EnumForm';
 import { buildTree, enumTreeConfig } from '@/utils/treeBuilder';
 import { validateEnum, getValidationDisplayText, getValidationColor } from './validator';
 import { generateEnumFixPrompt } from '@/AIHelper';
-import { getSchemaHelp } from '@/AIHelper';
+import { getSchemaHelp, useAiConfig } from '@/AIHelper';
 import { AIError, AIErrorType } from '@/AIHelper/config';
 import AIButton from '@/components/AIButton';
 import AILoading from '@/components/AILoading';
 import { useSimpleAILoading } from '@/components/AILoading/useAILoading';
 import ValidationPopover, { ValidationIssue } from '@/components/ValidationPopover';
 
+const { Title, Text } = Typography;
+const { TextArea } = Input;
+
 interface EnumManagementProps {
   visible: boolean;
   onClose: () => void;
+  onEnumCreated?: (enumData: any) => void;
+  onEnumUpdated?: (enumData: any) => void;
+  onEnumDeleted?: (enumId: string) => void;
 }
 
-const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => {
+const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose, onEnumCreated, onEnumUpdated, onEnumDeleted }) => {
   const [enums, setEnums] = useState<API.Enum[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -52,6 +63,18 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
   });
   const { isVisible: isAutoFixing, text: aiLoadingText, showLoading, hideLoading } = useSimpleAILoading();
   
+  // AI配置检查
+  const { hasConfig, showConfigReminder } = useAiConfig();
+  
+  // 检查AI配置
+  const checkAIConfig = () => {
+    if (!hasConfig) {
+      showConfigReminder();
+      return false;
+    }
+    return true;
+  };
+
   // 处理AI错误
   const handleAIError = (error: any) => {
     if (error instanceof AIError) {
@@ -80,8 +103,6 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
   useEffect(() => {
     console.log('isAutoFixing状态变化:', isAutoFixing);
   }, [isAutoFixing]);
-
-
 
   // 监听窗口大小变化
   useEffect(() => {
@@ -153,12 +174,13 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
       await deleteEnumsId({ id });
       message.success('枚举删除成功');
       fetchEnums();
+      onEnumDeleted?.(id);
     } catch (error: any) {
       console.error('删除枚举失败:', error);
       const errorMessage = error.response?.data?.message || '删除枚举失败';
       message.error(errorMessage);
     }
-  }, [fetchEnums]);
+  }, [fetchEnums, onEnumDeleted]);
 
   // 处理编辑枚举
   const handleEdit = useCallback((record: API.Enum) => {
@@ -175,7 +197,8 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
   // 处理表单成功
   const handleFormSuccess = useCallback(() => {
     fetchEnums();
-  }, [fetchEnums]);
+    onEnumCreated?.(editingEnum);
+  }, [fetchEnums, editingEnum, onEnumCreated]);
 
   // 处理表单关闭
   const handleFormClose = useCallback(() => {
@@ -186,6 +209,12 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
   // 自动修复处理函数
   const handleAutoFix = useCallback(async (record: API.Enum) => {
     console.log('开始AI自动修复，记录:', record);
+    
+    // 检查AI配置
+    if (!checkAIConfig()) {
+      return;
+    }
+    
     showLoading('AI 正在分析并修复验证错误...');
     console.log('showLoading已调用，isAutoFixing状态:', isAutoFixing);
     try {
@@ -227,41 +256,22 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose }) => 
       }
 
       // 验证修复后的枚举
-      if (fixedEnum.code && fixedEnum.name && Array.isArray(fixedEnum.options)) {
-        try {
-          // 调用API保存修复后的枚举
-          await putEnumsId(
-            { id: record.id! },
-            {
-              name: fixedEnum.name,
-              code: fixedEnum.code,
-              description: fixedEnum.description,
-              isActive: fixedEnum.isActive,
-              options: fixedEnum.options
-            }
-          );
-          
-          // 更新本地状态
-          const updatedEnums = enums.map(e => 
-            e.id === record.id ? { ...e, ...fixedEnum } : e
-          );
-          setEnums(updatedEnums);
-          message.success('AI 自动修复完成并已保存！');
-        } catch (error: any) {
-          console.error('保存修复后的枚举失败:', error);
-          const errorMessage = error.response?.data?.message || '保存修复后的枚举失败';
-          message.error(`AI修复成功但保存失败: ${errorMessage}`);
-        }
+      if (fixedEnum.name && fixedEnum.code && fixedEnum.values) {
+        // 更新枚举
+        await putEnumsId({ id: record.id! }, fixedEnum);
+        message.success('AI 自动修复成功！');
+        fetchEnums(); // 刷新列表
+        onEnumUpdated?.(fixedEnum);
       } else {
         message.error('AI 返回的枚举格式不正确');
       }
     } catch (error) {
-      console.error('自动修复失败:', error);
+      console.error('AI 自动修复失败:', error);
       handleAIError(error);
     } finally {
       hideLoading();
     }
-  }, [enums, fetchEnums]);
+  }, [showLoading, hideLoading, checkAIConfig, handleAIError, fetchEnums, onEnumUpdated]);
 
   // 统一的列定义
   const columns = useMemo(() => [

@@ -1,9 +1,9 @@
 // 运行时配置
 import { checkAuthStatus, User, redirectToLogin, logout } from './auth';
 import ssoConfig from './auth/sso.json';
-// import React from 'react';
+import React from 'react';
 import { requestInterceptors, responseInterceptors, errorConfig } from './utils/requestInterceptors';
-// import { Popover } from 'antd';
+import AiConfigManager from './components/AiConfigManager';
 
 // 全局初始化数据配置，用于 Layout 用户信息和权限初始化
 // 更多信息见文档：https://umijs.org/docs/api/runtime-config#getinitialstate
@@ -90,6 +90,11 @@ export const layout = () => {
 
       return (
         <div className="umi-plugin-layout-right anticon" style={{ display: 'flex', alignItems: 'center' }}>
+          {/* AI配置组件 */}
+          <div style={{ marginRight: '16px' }}>
+            <AiConfigManager />
+          </div>
+          
           <span 
             className="umi-plugin-layout-action" 
             style={{ cursor: 'pointer' }}

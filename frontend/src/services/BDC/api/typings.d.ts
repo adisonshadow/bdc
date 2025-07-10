@@ -1,4 +1,23 @@
 declare namespace API {
+  type AiConfig = {
+    /** AI配置ID */
+    id: string;
+    /** AI服务提供商 */
+    provider: string;
+    /** API地址 */
+    apiUrl: string;
+    /** API密钥 */
+    apiKey: string;
+    /** AI模型名称 */
+    model: string;
+    /** 额外配置参数 */
+    config?: Record<string, any>;
+    /** 创建时间 */
+    createdAt: string;
+    /** 更新时间 */
+    updatedAt: string;
+  };
+
   type ApiField =
     // #/components/schemas/BaseField
     BaseField & {
@@ -355,6 +374,11 @@ declare namespace API {
       dateConfig?: { dateType: "year" | "year-month" | "date" | "datetime" };
     };
 
+  type deleteAiConfigsIdParams = {
+    /** AI配置ID */
+    id: string;
+  };
+
   type deleteDatabaseConnectionsIdParams = {
     /** 数据库连接ID */
     id: string;
@@ -410,6 +434,25 @@ declare namespace API {
     description?: string;
     /** 排序号（可选） */
     order?: number;
+  };
+
+  type getAiConfigsIdParams = {
+    /** AI配置ID */
+    id: string;
+  };
+
+  type getAiConfigsParams = {
+    /** 按提供商筛选 */
+    provider?: string;
+    /** 按模型名称筛选 */
+    model?: string;
+  };
+
+  type getAiConfigsProviderProviderModelModelParams = {
+    /** AI服务提供商 */
+    provider: string;
+    /** AI模型名称 */
+    model: string;
   };
 
   type getDatabaseConnectionsIdParams = {
@@ -510,6 +553,11 @@ declare namespace API {
       };
     };
 
+  type postAiConfigsIdTestParams = {
+    /** AI配置ID */
+    id: string;
+  };
+
   type postDatabaseConnectionsIdTestParams = {
     /** 数据库连接ID */
     id: string;
@@ -517,6 +565,11 @@ declare namespace API {
 
   type postSchemasIdValidateParams = {
     /** 数据结构定义ID */
+    id: string;
+  };
+
+  type putAiConfigsIdParams = {
+    /** AI配置ID */
     id: string;
   };
 

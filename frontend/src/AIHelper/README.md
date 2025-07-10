@@ -1,16 +1,18 @@
 # AI Helper 使用指南
 
-这个模块提供了与 AI 服务的集成功能。
+这个模块提供了与 AI 服务的集成功能，支持动态配置管理。
 
 ## 文件结构
 
 ```
 AIHelper/
-├── config.ts      # 配置文件和类型定义
-├── aiService.ts   # AI 服务类
-├── example.ts     # 使用示例
-├── index.ts       # 统一导出
-└── README.md      # 使用说明
+├── config.ts           # 配置文件和类型定义
+├── aiService.ts        # AI 服务类
+├── aiConfigService.ts  # AI配置管理服务
+├── useAiConfig.ts      # React Hook for AI配置检查
+├── example.ts          # 使用示例
+├── index.ts            # 统一导出
+└── README.md           # 使用说明
 ```
 
 ## 快速开始
@@ -56,17 +58,50 @@ const response = await aiService.sendMessageWithContext(
 );
 ```
 
+### 4. AI配置检查
+
+```typescript
+import { useAiConfig } from '@/AIHelper';
+
+const MyComponent = () => {
+  const { hasConfig, showConfigReminder } = useAiConfig();
+  
+  const handleAIOperation = () => {
+    if (!hasConfig) {
+      showConfigReminder();
+      return;
+    }
+    // 执行AI操作
+  };
+  
+  return (
+    <button onClick={handleAIOperation}>
+      执行AI操作
+    </button>
+  );
+};
+```
+
 ## 配置说明
 
-### API 配置
+### 动态AI配置
 
-在 `config.ts` 中配置了以下参数：
+系统现在支持动态AI配置管理：
 
-- **BASE_URL**: `https://ark.cn-beijing.volces.com/api/v3`
-- **API_TOKEN**: `7fc0b313-69cb-420d-b7f3-04e6658242e6`
-- **DEFAULT_MODEL**: `deepseek-v3-250324`
-- **DEFAULT_TEMPERATURE**: `0.7`
-- **DEFAULT_MAX_TOKENS**: `2000`
+1. **用户配置管理**: 用户可以在界面中添加、编辑、删除AI配置
+2. **自动选择**: 如果用户没有选择配置，系统会自动选择第一个可用配置
+3. **配置检查**: 在发起AI操作前会自动检查配置是否可用
+4. **用户提示**: 如果用户没有配置AI，会提示用户添加配置
+
+### 配置参数
+
+每个AI配置包含以下参数：
+
+- **provider**: AI服务提供商（如：openai, azure, anthropic）
+- **apiUrl**: API地址
+- **apiKey**: API密钥
+- **model**: AI模型名称
+- **config**: 额外配置参数（JSON格式）
 
 ### 系统提示词
 
@@ -84,24 +119,46 @@ const response = await aiService.sendMessageWithContext(
 ```typescript
 try {
   const response = await sendAIMessage('测试消息');
-} catch (error: any) {
-  if (error.type) {
+  console.log(response);
+} catch (error) {
+  if (error instanceof AIError) {
     switch (error.type) {
-      case 'NETWORK_ERROR':
+      case AIErrorType.AUTH_ERROR:
+        console.error('认证失败，请检查API配置');
+        break;
+      case AIErrorType.NETWORK_ERROR:
         console.error('网络连接失败');
         break;
-      case 'AUTH_ERROR':
-        console.error('认证失败');
-        break;
-      case 'RATE_LIMIT_ERROR':
-        console.error('请求频率过高');
-        break;
-      default:
-        console.error('其他错误');
+      // ... 其他错误类型
     }
   }
 }
 ```
+
+## 用户体验增强
+
+### 1. 配置检查
+- 在发起AI操作前自动检查配置是否可用
+- 如果用户没有配置AI，会提示用户添加配置
+
+### 2. 自动选择
+- 如果用户添加了AI配置但没有选择，系统会自动选择第一个配置
+
+### 3. 配置管理
+- 支持多AI配置管理
+- 支持配置的增删改查
+- 支持配置测试功能
+
+### 4. 错误提示
+- 提供友好的错误提示信息
+- 区分不同类型的错误（认证、网络、模型等）
+
+## 使用建议
+
+1. **首次使用**: 用户需要先添加AI配置才能使用AI功能
+2. **配置管理**: 建议用户配置多个AI服务作为备选
+3. **错误处理**: 系统会自动处理常见的错误情况
+4. **性能优化**: 配置会进行缓存，提高响应速度
 
 ## 高级用法
 

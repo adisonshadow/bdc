@@ -5,7 +5,7 @@ import { ThunderboltOutlined, RobotOutlined } from '@ant-design/icons';
 import AILoading from '@/components/AILoading';
 import SchemaConfirmation from '@/components/SchemaConfirmation';
 import { useSimpleAILoading } from '@/components/AILoading/useAILoading';
-import { getSchemaHelp, generateModelDesignPrompt } from '@/AIHelper';
+import { getSchemaHelp, generateModelDesignPrompt, useAiConfig, parseAIResponse, validateParsedData } from '@/AIHelper';
 import { AIError, AIErrorType } from '@/AIHelper/config';
 import { getEnums, postEnums } from '@/services/BDC/api/enumManagement';
 import type { Field } from '@/components/SchemaValidator/types';
@@ -52,6 +52,9 @@ const AIAssistModal: React.FC<AIAssistModalProps> = ({
   const [existingEnums, setExistingEnums] = useState<any[]>([]);
   const [newEnums, setNewEnums] = useState<any[]>([]);
   const { isVisible: isAILoading, text: aiLoadingText, showLoading, hideLoading } = useSimpleAILoading();
+  
+  // AI配置检查
+  const { hasConfig, showConfigReminder } = useAiConfig();
 
   // 处理AI错误
   const handleAIError = (error: any) => {
@@ -75,6 +78,15 @@ const AIAssistModal: React.FC<AIAssistModalProps> = ({
     } else {
       message.error('AIError: 未知错误，请稍后重试');
     }
+  };
+
+  // 检查AI配置
+  const checkAIConfig = () => {
+    if (!hasConfig) {
+      showConfigReminder();
+      return false;
+    }
+    return true;
   };
 
   // 获取现有枚举列表
@@ -122,6 +134,33 @@ const AIAssistModal: React.FC<AIAssistModalProps> = ({
     }
   }, [open]);
 
+  // 处理AI响应解析
+  const handleAIResponse = (aiResponse: string) => {
+    console.log('=== AI 响应解析调试信息 ===');
+    console.log('AI 原始响应:', aiResponse);
+    
+    // 使用新的AI响应解析工具
+    const parseResult = parseAIResponse(aiResponse);
+    
+    if (!parseResult.success) {
+      console.error('AI响应解析失败:', parseResult.error);
+      message.error(`AI响应解析失败: ${parseResult.error}`);
+      return null;
+    }
+    
+    console.log('解析出的数据:', parseResult.data);
+    
+    // 验证解析出的数据
+    const validationResult = validateParsedData(parseResult.data);
+    if (!validationResult.valid) {
+      console.error('数据验证失败:', validationResult.error);
+      message.error(`数据验证失败: ${validationResult.error}`);
+      return null;
+    }
+    
+    return parseResult.data;
+  };
+
   // 处理用户输入提交
   const handleSubmit = async (userMessage: string) => {
     if (isLocked) {
@@ -130,6 +169,11 @@ const AIAssistModal: React.FC<AIAssistModalProps> = ({
     }
     
     if (!userMessage.trim()) {
+      return;
+    }
+
+    // 检查AI配置
+    if (!checkAIConfig()) {
       return;
     }
 
@@ -153,22 +197,9 @@ const AIAssistModal: React.FC<AIAssistModalProps> = ({
       // 调用 AI 服务
       const aiResponse = await getSchemaHelp(prompt);
       
-      // 尝试解析 AI 返回的 JSON
-      let parsedSchema;
-      try {
-        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          parsedSchema = JSON.parse(jsonMatch[0]);
-          console.log('=== AI 响应解析调试信息 (handleSubmit) ===');
-          console.log('AI 原始响应:', aiResponse);
-          console.log('解析出的 JSON:', parsedSchema);
-          console.log('解析出的 keyIndexes:', parsedSchema.keyIndexes);
-        } else {
-          throw new Error('未找到有效的 JSON 数据');
-        }
-      } catch (parseError) {
-        console.error('解析 AI 响应失败:', parseError);
-        message.error('AI 返回的数据格式不正确');
+      // 使用新的AI响应解析工具
+      const parsedSchema = handleAIResponse(aiResponse);
+      if (!parsedSchema) {
         return;
       }
 
@@ -207,6 +238,11 @@ const AIAssistModal: React.FC<AIAssistModalProps> = ({
       return;
     }
 
+    // 检查AI配置
+    if (!checkAIConfig()) {
+      return;
+    }
+
     showLoading('AI 正在自动优化数据模型...');
     try {
       // 构建自动优化提示词
@@ -225,22 +261,9 @@ const AIAssistModal: React.FC<AIAssistModalProps> = ({
       // 调用 AI 服务
       const aiResponse = await getSchemaHelp(prompt);
       
-      // 尝试解析 AI 返回的 JSON
-      let parsedSchema;
-      try {
-        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          parsedSchema = JSON.parse(jsonMatch[0]);
-          console.log('=== AI 响应解析调试信息 (handleAutoOptimize) ===');
-          console.log('AI 原始响应:', aiResponse);
-          console.log('解析出的 JSON:', parsedSchema);
-          console.log('解析出的 keyIndexes:', parsedSchema.keyIndexes);
-        } else {
-          throw new Error('未找到有效的 JSON 数据');
-        }
-      } catch (parseError) {
-        console.error('解析 AI 响应失败:', parseError);
-        message.error('AI 返回的数据格式不正确');
+      // 使用新的AI响应解析工具
+      const parsedSchema = handleAIResponse(aiResponse);
+      if (!parsedSchema) {
         return;
       }
 
@@ -254,12 +277,12 @@ const AIAssistModal: React.FC<AIAssistModalProps> = ({
         }
 
         setOptimizedSchema(parsedSchema);
-        message.success('自动优化完成！');
+        message.success('AI 自动优化完成！');
       } else {
         message.error('AI 返回的模型格式不正确');
       }
     } catch (error) {
-      console.error('自动优化失败:', error);
+      console.error('AI 自动优化失败:', error);
       handleAIError(error);
     } finally {
       hideLoading();
@@ -347,6 +370,11 @@ const AIAssistModal: React.FC<AIAssistModalProps> = ({
       return;
     }
 
+    // 检查AI配置
+    if (!checkAIConfig()) {
+      return;
+    }
+
     setIsModifying(true);
     setSenderLoading(true);
     showLoading('AI 正在根据新要求重新优化...');
@@ -366,17 +394,9 @@ const AIAssistModal: React.FC<AIAssistModalProps> = ({
 
       const aiResponse = await getSchemaHelp(prompt);
       
-      let parsedSchema;
-      try {
-        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          parsedSchema = JSON.parse(jsonMatch[0]);
-        } else {
-          throw new Error('未找到有效的 JSON 数据');
-        }
-      } catch (parseError) {
-        console.error('解析 AI 响应失败:', parseError);
-        message.error('AI 返回的数据格式不正确');
+      // 使用新的AI响应解析工具
+      const parsedSchema = handleAIResponse(aiResponse);
+      if (!parsedSchema) {
         return;
       }
 
@@ -404,8 +424,6 @@ const AIAssistModal: React.FC<AIAssistModalProps> = ({
     }
   };
 
-
-
   return (
       <Modal
         title={
@@ -418,7 +436,7 @@ const AIAssistModal: React.FC<AIAssistModalProps> = ({
         onCancel={onCancel}
         footer={null}
         width={800}
-        destroyOnClose
+        destroyOnHidden
       >
         {!optimizedSchema ? (
           // 第一步：输入优化建议
