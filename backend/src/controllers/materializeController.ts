@@ -94,52 +94,32 @@ export const materializeTables = async (req: Request, res: Response): Promise<vo
             fields: dataStructure.fields?.map(f => ({ name: f.name, type: f.type }))
           });
           
-          // 如果需要覆盖表，先删除已存在的表
+          // 检查表是否存在（如果需要覆盖）
+          let tableInfo = null;
           if (config?.overwrite) {
-                      // 检查表是否存在（检查所有模式）
-          const checkTableSQL = `SELECT 
-            table_schema,
-            table_name,
-            EXISTS (
-              SELECT FROM information_schema.tables 
-              WHERE table_schema = '${targetSchema}' 
-              AND table_name = '${tableName}'
-            ) as exists_in_target_schema,
-            EXISTS (
-              SELECT FROM information_schema.tables 
-              WHERE table_name = '${tableName}'
-            ) as exists_anywhere
-          FROM information_schema.tables 
-          WHERE table_name = '${tableName}'
-          LIMIT 1;`;
-            
+            const checkTableSQL = `SELECT 
+              table_schema,
+              table_name,
+              EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_schema = '${targetSchema}' 
+                AND table_name = '${tableName}'
+              ) as exists_in_target_schema,
+              EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_name = '${tableName}'
+              ) as exists_anywhere
+            FROM information_schema.tables 
+            WHERE table_name = '${tableName}'
+            LIMIT 1;`;
+              
             console.log('检查表是否存在SQL:', checkTableSQL);
             const checkResult = await databaseExecutor.executeSQL(checkTableSQL);
             console.log('检查表存在结果:', checkResult);
             
             if (checkResult.success && checkResult.data?.rows?.length > 0) {
-              const tableInfo = checkResult.data.rows[0];
+              tableInfo = checkResult.data.rows[0];
               console.log('表存在信息:', tableInfo);
-              
-              if (tableInfo.exists_anywhere) {
-                console.log(`表 ${tableName} 存在于模式 ${tableInfo.table_schema}，准备删除`);
-                
-                // 删除表（不指定模式，让数据库自动找到）
-                const dropTableSQL = `DROP TABLE IF EXISTS ${tableInfo.table_schema}.${tableName} CASCADE;`;
-                console.log('执行删除表SQL:', dropTableSQL);
-                const dropResult = await databaseExecutor.executeSQL(dropTableSQL);
-                console.log('删除表结果:', dropResult);
-                
-                if (!dropResult.success) {
-                  console.warn('删除表失败，但继续执行:', dropResult.error);
-                } else {
-                  console.log(`表 ${tableInfo.table_schema}.${tableName} 删除成功`);
-                }
-              } else {
-                console.log(`表 ${tableName} 不存在，跳过删除`);
-              }
-            } else {
-              console.log(`表 ${tableName} 不存在，跳过删除`);
             }
           }
           
@@ -154,9 +134,17 @@ export const materializeTables = async (req: Request, res: Response): Promise<vo
             }
           );
           
-          console.log('执行创建表SQL:', createTableSQL);
+          // 如果需要覆盖表，先删除再创建（在同一事务中）
+          let finalSQL = '';
+          if (config?.overwrite && tableInfo?.exists_anywhere) {
+            finalSQL = `DROP TABLE IF EXISTS ${tableInfo.table_schema}.${tableName} CASCADE;\n${createTableSQL}`;
+          } else {
+            finalSQL = createTableSQL;
+          }
+          
+          console.log('执行SQL:', finalSQL);
           // 执行SQL到目标数据库
-          const executeResult = await databaseExecutor.executeSQL(createTableSQL);
+          const executeResult = await databaseExecutor.executeSQL(finalSQL);
           
           if (executeResult.success) {
             results.push({

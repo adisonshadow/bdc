@@ -25,6 +25,15 @@ const options = {
         description: process.env.NODE_ENV === 'production' ? '生产服务器' : '开发服务器',
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
     tags: [
       {
         name: 'Schema Management',

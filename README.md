@@ -45,11 +45,10 @@ BDC 是一个灵活的数据结构设计与查询平台，主要用于处理和�
 - 数据关系管理
 - 数据版本控制
 
-### 4. 系统管理
-- 用户权限管理
-- 操作日志记录
-- 系统配置管理
-- 性能监控
+## 已测试的 AI
+- https://www.bigmodel.cn/dev/api/normal-model/glm-4 （glm-4-plus，其他的暂未测试）
+- https://www.volcengine.com/ （deepseek-v3-250324，其他的暂未测试）
+- https://aistudio.google.com/ （Gemini 已测，非常不好用）
 
 ## 项目结构
 ```

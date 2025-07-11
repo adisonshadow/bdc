@@ -11,6 +11,7 @@ interface AiConfig {
   provider?: string;
   apiUrl?: string;
   apiKey?: string;
+  authHeader?: string;
   model?: string;
   config?: Record<string, any>;
   createdAt?: string;

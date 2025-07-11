@@ -6,6 +6,7 @@ export interface AiConfig {
   provider?: string;
   apiUrl?: string;
   apiKey?: string;
+  authHeader?: string;
   model?: string;
   config?: Record<string, any>;
   createdAt?: string;
@@ -88,6 +89,12 @@ class AIConfigService {
   convertToDynamicConfig(aiConfig: AiConfig): DynamicAIConfig {
     const config = aiConfig.config || {};
     
+    // 构建认证头
+    const authHeaderName = aiConfig.authHeader || 'Authorization';
+    const authHeaderValue = authHeaderName === 'Authorization' 
+      ? `Bearer ${aiConfig.apiKey || ''}`
+      : aiConfig.apiKey || '';
+    
     return {
       baseUrl: aiConfig.apiUrl || '',
       apiKey: aiConfig.apiKey || '',
@@ -96,7 +103,7 @@ class AIConfigService {
       maxTokens: config.max_tokens || 2000,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${aiConfig.apiKey || ''}`
+        [authHeaderName]: authHeaderValue
       }
     };
   }

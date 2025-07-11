@@ -64,18 +64,21 @@ export function generateCreateTableSQL(
 
   // 添加索引
   if (config.includeIndexes) {
-    indexes.forEach(index => {
+    indexes.forEach((index, indexIndex) => {
+      // 使用数据结构中指定的索引名称，如果没有指定则生成包含表名的索引名称
+      const indexName = index.name || `${getIndexTypePrefix(index.type)}_${tableName}_${indexIndex + 1}_${index.fields.join('_')}`;
+      
       switch (index.type) {
         case 'normal':
-          sql += `CREATE INDEX ${index.name || `idx_${tableName}_${index.fields.join('_')}`} ON ${schema}.${tableName} (${index.fields.join(', ')});\n`;
+          sql += `CREATE INDEX ${indexName} ON ${schema}.${tableName} (${index.fields.join(', ')});\n`;
           break;
         case 'fulltext':
           // 全文索引（MySQL语法）
-          sql += `CREATE FULLTEXT INDEX ${index.name || `ft_${tableName}_${index.fields.join('_')}`} ON ${schema}.${tableName} (${index.fields.join(', ')});\n`;
+          sql += `CREATE FULLTEXT INDEX ${indexName} ON ${schema}.${tableName} (${index.fields.join(', ')});\n`;
           break;
         case 'spatial':
           // 空间索引（MySQL语法）
-          sql += `CREATE SPATIAL INDEX ${index.name || `sp_${tableName}_${index.fields.join('_')}`} ON ${schema}.${tableName} (${index.fields.join(', ')});\n`;
+          sql += `CREATE SPATIAL INDEX ${indexName} ON ${schema}.${tableName} (${index.fields.join(', ')});\n`;
           break;
       }
     });
@@ -161,6 +164,21 @@ function addComments(
 function escapeComment(comment: string): string {
   // 转义单引号，避免 SQL 注入
   return comment.replace(/'/g, "''");
+}
+
+function getIndexTypePrefix(indexType: string): string {
+  switch (indexType) {
+    case 'normal':
+      return 'idx';
+    case 'unique':
+      return 'uk';
+    case 'fulltext':
+      return 'ft';
+    case 'spatial':
+      return 'sp';
+    default:
+      return 'idx';
+  }
 }
 
 function getFieldType(field: Field): string {

@@ -14,6 +14,9 @@ export class AiConfig {
   @Column({ type: 'varchar', length: 500, nullable: false, name: 'api_key' })
   apiKey: string;
 
+  @Column({ type: 'varchar', length: 100, nullable: true, name: 'auth_header' })
+  authHeader: string;
+
   @Column({ type: 'varchar', length: 100, nullable: false })
   model: string;
 

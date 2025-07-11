@@ -42,6 +42,7 @@ export const buildTree = <T extends { code: string }>(
         
         const node: TreeNode = {
           value: path,
+          key: path, // 添加key属性
           label: config.getLabel(matchedItem, part, isLeaf),
           children: [],
           id: isLeaf ? `${item.id}` : `temp_${path}`,

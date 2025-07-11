@@ -219,7 +219,15 @@ const DatabaseTables: React.FC<DatabaseTablesProps> = ({
                     dataIndex: 'columns',
                     key: 'columns',
                     width: '50%',
-                    render: (columns: string[]) => columns.join(', '),
+                    render: (columns: any) => {
+                      if (Array.isArray(columns)) {
+                        return columns.join(', ');
+                      } else if (typeof columns === 'string') {
+                        return columns;
+                      } else {
+                        return '-';
+                      }
+                    },
                   },
                 ]}
                 dataSource={table.indexes}

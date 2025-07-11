@@ -256,7 +256,7 @@ const EnumManagement: React.FC<EnumManagementProps> = ({ visible, onClose, onEnu
       }
 
       // 验证修复后的枚举
-      if (fixedEnum.name && fixedEnum.code && fixedEnum.values) {
+      if (fixedEnum.name && fixedEnum.code && Array.isArray(fixedEnum.options)) {
         // 更新枚举
         await putEnumsId({ id: record.id! }, fixedEnum);
         message.success('AI 自动修复成功！');

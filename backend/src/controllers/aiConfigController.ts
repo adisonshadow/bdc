@@ -8,7 +8,7 @@ import { Logger } from '../utils/logger';
 export const createAiConfig = async (req: Request, res: Response) => {
   try {
     const aiConfigRepository = getDataSource().getRepository(AiConfig);
-    const { provider, apiUrl, apiKey, model, config } = req.body;
+    const { provider, apiUrl, apiKey, authHeader, model, config } = req.body;
     
     // 基本字段验证
     if (!provider || !apiUrl || !apiKey || !model) {
@@ -20,6 +20,7 @@ export const createAiConfig = async (req: Request, res: Response) => {
       provider,
       apiUrl,
       apiKey,
+      authHeader,
       model,
       config
     });
@@ -126,7 +127,7 @@ export const updateAiConfig = async (req: Request, res: Response) => {
   try {
     const aiConfigRepository = getDataSource().getRepository(AiConfig);
     const { id } = req.params;
-    const { provider, apiUrl, apiKey, model, config } = req.body;
+    const { provider, apiUrl, apiKey, authHeader, model, config } = req.body;
     
     // 查找现有AI配置
     const existing = await aiConfigRepository.findOne({ where: { id } });
@@ -138,6 +139,9 @@ export const updateAiConfig = async (req: Request, res: Response) => {
     existing.provider = provider || existing.provider;
     existing.apiUrl = apiUrl || existing.apiUrl;
     existing.apiKey = apiKey || existing.apiKey;
+    if (authHeader !== undefined) {
+      existing.authHeader = authHeader;
+    }
     existing.model = model || existing.model;
     if (config !== undefined) {
       existing.config = config;

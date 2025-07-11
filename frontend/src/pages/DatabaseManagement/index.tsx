@@ -134,6 +134,8 @@ const DatabaseManagement: React.FC = () => {
   const fetchSchemas = async () => {
     try {
       const response = await getSchemas({});
+      console.log('获取到的原始表结构数据:', response);
+      
       // 过滤并转换数据以确保类型匹配
       const validSchemas = (response || []).filter(schema => 
         schema.name && schema.code && schema.fields
@@ -148,10 +150,13 @@ const DatabaseManagement: React.FC = () => {
         updatedAt: schema.updatedAt,
         fields: schema.fields || []
       }));
+      
+      console.log('过滤后的有效表结构数据:', validSchemas);
       setSchemas(validSchemas);
       
       // 构建树形数据
       const treeData = buildTree(validSchemas, schemaTreeConfig);
+      console.log('构建的树形数据:', treeData);
       setSchemaTreeData(treeData);
       
       // 设置默认展开所有节点
@@ -167,6 +172,7 @@ const DatabaseManagement: React.FC = () => {
       collectKeys(treeData);
       setExpandedKeys(allKeys);
     } catch (error) {
+      console.error('获取表结构列表失败:', error);
       message.error('获取表结构列表失败');
     }
   };
@@ -189,7 +195,22 @@ const DatabaseManagement: React.FC = () => {
           message: '连接测试成功',
           timestamp: new Date().toISOString()
         });
-        fetchConnections(); // 刷新列表以更新状态
+        
+        // 刷新连接列表并更新选中的连接
+        const updatedResponse = await getDatabaseConnections({
+          page: 1,
+          limit: 100
+        });
+        if (updatedResponse.success && updatedResponse.data) {
+          const updatedConnections = updatedResponse.data.items || [];
+          setConnections(updatedConnections);
+          
+          // 更新选中的连接状态
+          const updatedConnection = updatedConnections.find(c => c.id === connection.id);
+          if (updatedConnection && selectedConnection?.id === connection.id) {
+            setSelectedConnection(updatedConnection);
+          }
+        }
       }
     } catch (error: any) {
       message.error(`连接测试失败: ${error.response?.data?.message || error.message}`);
@@ -373,7 +394,19 @@ const DatabaseManagement: React.FC = () => {
 
   // 处理表同步
   const handleMaterializeTables = async (values: any) => {
+    console.log('=== 开始同步 ===');
+    console.log('同步参数:', { 
+      selectedSchemas, 
+      selectedSchemasLength: selectedSchemas.length,
+      checkedKeys, 
+      checkedKeysLength: checkedKeys.length,
+      isAllSelected, 
+      isIndeterminate 
+    });
+    console.log('selectedSchemas 内容:', selectedSchemas);
+    
     if (selectedSchemas.length === 0) {
+      console.log('selectedSchemas 为空，显示警告');
       message.warning('请选择要同步的表结构');
       return;
     }
@@ -440,40 +473,37 @@ const DatabaseManagement: React.FC = () => {
 
   // 处理全选/取消全选
   const handleSelectAll = (checked: boolean) => {
+    console.log('handleSelectAll called with checked:', checked);
     if (checked) {
-      // 全选：获取所有叶子节点的key
+      // 全选：获取所有叶子节点的key和code
       const allLeafKeys: string[] = [];
-      const collectLeafKeys = (nodes: any[]) => {
+      const allLeafCodes: string[] = [];
+      
+      const collectLeafKeysAndCodes = (nodes: any[]) => {
         nodes.forEach(node => {
           if (node.children && node.children.length > 0) {
-            collectLeafKeys(node.children);
+            collectLeafKeysAndCodes(node.children);
           } else {
             // 只有叶子节点才添加到选中列表
-            allLeafKeys.push(node.key || node.value);
-          }
-        });
-      };
-      collectLeafKeys(schemaTreeData);
-      setCheckedKeys(allLeafKeys);
-      
-      // 更新选中的表结构
-      const leafCodes: string[] = [];
-      const collectLeafCodes = (nodes: any[], checkedKeys: string[]) => {
-        nodes.forEach(node => {
-          const nodeKey = node.key || node.value;
-          if (checkedKeys.includes(nodeKey)) {
-            if (node.children && node.children.length > 0) {
-              collectLeafCodes(node.children, checkedKeys);
+            const nodeKey = node.key || node.value;
+            allLeafKeys.push(nodeKey);
+            if (node.rawSchema) {
+              allLeafCodes.push(node.rawSchema.code);
+              console.log('找到叶子节点:', { key: nodeKey, code: node.rawSchema.code });
             } else {
-              if (node.rawSchema) {
-                leafCodes.push(node.rawSchema.code);
-              }
+              console.log('叶子节点但没有rawSchema:', { key: nodeKey, node });
             }
           }
         });
       };
-      collectLeafCodes(schemaTreeData, checkedKeys);
-      setSelectedSchemas(leafCodes);
+      
+      collectLeafKeysAndCodes(schemaTreeData);
+      console.log('收集到的叶子节点keys:', allLeafKeys);
+      console.log('收集到的叶子节点codes:', allLeafCodes);
+      
+      // 同时更新两个状态
+      setCheckedKeys(allLeafKeys);
+      setSelectedSchemas(allLeafCodes);
     } else {
       // 取消全选
       setCheckedKeys([]);
@@ -507,6 +537,11 @@ const DatabaseManagement: React.FC = () => {
   useEffect(() => {
     checkSelectionStatus();
   }, [checkedKeys, schemaTreeData]);
+
+  // 监听selectedSchemas变化，用于调试
+  useEffect(() => {
+    console.log('selectedSchemas changed:', selectedSchemas);
+  }, [selectedSchemas]);
 
 
 
@@ -1199,30 +1234,37 @@ const DatabaseManagement: React.FC = () => {
                       expandedKeys={expandedKeys}
                       checkedKeys={checkedKeys}
                       // height={300}
+                      fieldNames={{ key: 'value', title: 'label' }}
                       onExpand={(expandedKeysValue) => {
                         setExpandedKeys(expandedKeysValue as string[]);
                       }}
                       onCheck={(checkedKeysValue) => {
                         const keys = Array.isArray(checkedKeysValue) ? checkedKeysValue : checkedKeysValue.checked;
+                        console.log('Tree onCheck - keys:', keys);
                         setCheckedKeys(keys as string[]);
                         // 只收集叶子节点的code
                         const leafCodes: string[] = [];
                         const collectLeafCodes = (nodes: any[], checkedKeys: string[]) => {
                           nodes.forEach(node => {
                             const nodeKey = node.key || node.value;
+                            console.log('Tree onCheck - 检查节点:', { nodeKey, hasChildren: !!(node.children && node.children.length > 0), hasRawSchema: !!node.rawSchema });
                             if (checkedKeys.includes(nodeKey)) {
                               if (node.children && node.children.length > 0) {
                                 collectLeafCodes(node.children, checkedKeys);
                               } else {
                                 // 只有叶子节点才添加到选中列表
                                 if (node.rawSchema) {
+                                  console.log('Tree onCheck - 找到叶子节点:', node.rawSchema.code);
                                   leafCodes.push(node.rawSchema.code);
+                                } else {
+                                  console.log('Tree onCheck - 叶子节点但没有rawSchema:', node);
                                 }
                               }
                             }
                           });
                         };
                         collectLeafCodes(schemaTreeData, keys as string[]);
+                        console.log('Tree onCheck - leafCodes:', leafCodes);
                         setSelectedSchemas(leafCodes);
                       }}
                       onSelect={(selectedKeys, info) => {

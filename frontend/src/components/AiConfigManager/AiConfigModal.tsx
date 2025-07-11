@@ -10,6 +10,7 @@ interface AiConfig {
   provider?: string;
   apiUrl?: string;
   apiKey?: string;
+  authHeader?: string;
   model?: string;
   config?: Record<string, any>;
   createdAt?: string;
@@ -59,6 +60,7 @@ const AiConfigModal: React.FC<AiConfigModalProps> = ({
           provider: config.provider || '',
           apiUrl: config.apiUrl || '',
           apiKey: config.apiKey || '',
+          authHeader: config.authHeader || '',
           model: config.model || '',
           config: config.config ? JSON.stringify(config.config, null, 2) : ''
         });
@@ -71,6 +73,7 @@ const AiConfigModal: React.FC<AiConfigModalProps> = ({
           provider: '',
           apiUrl: '',
           apiKey: '',
+          authHeader: '',
           model: '',
           config: ''
         });
@@ -159,6 +162,7 @@ const AiConfigModal: React.FC<AiConfigModalProps> = ({
       provider: config.provider || '',
       apiUrl: config.apiUrl || '',
       apiKey: config.apiKey || '',
+      authHeader: config.authHeader || '',
       model: config.model || '',
       config: config.config ? JSON.stringify(config.config, null, 2) : ''
     });
@@ -174,6 +178,7 @@ const AiConfigModal: React.FC<AiConfigModalProps> = ({
       provider: '',
       apiUrl: '',
       apiKey: '',
+      authHeader: '',
       model: '',
       config: ''
     });
@@ -314,6 +319,13 @@ const AiConfigModal: React.FC<AiConfigModalProps> = ({
               rules={[{ required: true, message: '请输入API密钥' }]}
             >
               <Input.Password placeholder="请输入API密钥" />
+            </Form.Item>
+
+            <Form.Item
+              name="authHeader"
+              label="认证头名称"
+            >
+              <Input placeholder="例如：Authorization, X-goog-api-key（留空则使用默认Authorization）" />
             </Form.Item>
 
             <Form.Item

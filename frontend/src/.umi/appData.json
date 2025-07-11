@@ -220,6 +220,23 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ]
         },
@@ -325,7 +342,24 @@
             13,
             46,
             18,
-            29
+            29,
+            32,
+            35,
+            60,
+            25,
+            109,
+            14,
+            18,
+            23,
+            18,
+            16,
+            26,
+            14,
+            10,
+            16,
+            21,
+            15,
+            38
           ]
         },
         "register": 13
@@ -342,6 +376,23 @@
       "time": {
         "hooks": {
           "addEntryCode": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -884,6 +935,47 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
             0
           ],
           "onCheckCode": [
@@ -1777,6 +1869,98 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
             0,
             0,
             0,
@@ -2981,7 +3165,37 @@
             0,
             0,
             1,
-            1
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            0
           ]
         },
         "register": 0
@@ -3083,7 +3297,24 @@
             1,
             1,
             1,
-            1
+            1,
+            1,
+            1,
+            0,
+            2,
+            0,
+            0,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0
           ],
           "addRuntimePlugin": [
             0,
@@ -3162,6 +3393,23 @@
             0,
             0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -3330,7 +3578,24 @@
             2,
             3,
             1,
-            5
+            5,
+            8,
+            10,
+            2,
+            3,
+            2,
+            1,
+            1,
+            4,
+            1,
+            2,
+            1,
+            1,
+            1,
+            2,
+            1,
+            2,
+            1
           ],
           "addEntryImports": [
             0,
@@ -3400,6 +3665,40 @@
             0,
             0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -3622,12 +3921,63 @@
             45,
             30,
             15,
-            84
+            84,
+            33,
+            84,
+            37,
+            29,
+            38,
+            15,
+            13,
+            21,
+            7,
+            17,
+            26,
+            17,
+            6,
+            10,
+            11,
+            73,
+            16
           ],
           "addPolyfillImports": [
             0,
             0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -3983,6 +4333,40 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ]
         },
@@ -4071,6 +4455,23 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
             0,
             0,
             0,
@@ -4199,6 +4600,23 @@
             0,
             0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0
           ],
@@ -4391,7 +4809,41 @@
             15,
             5,
             21,
-            5
+            5,
+            7,
+            13,
+            23,
+            19,
+            11,
+            7,
+            8,
+            5,
+            362,
+            8,
+            6,
+            4,
+            5,
+            3,
+            10,
+            6,
+            4,
+            3,
+            5,
+            3,
+            5,
+            3,
+            4,
+            12,
+            3,
+            5,
+            4,
+            3,
+            4,
+            3,
+            7,
+            4,
+            6,
+            6
           ]
         },
         "register": 2
@@ -4531,7 +4983,24 @@
             21,
             20,
             9,
-            46
+            46,
+            16,
+            12,
+            15,
+            21,
+            19,
+            8,
+            7,
+            11,
+            6,
+            7,
+            30,
+            6,
+            6,
+            6,
+            6,
+            7,
+            26
           ]
         },
         "register": 1
@@ -4701,7 +5170,24 @@
             1,
             0,
             0,
-            2
+            2,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
+            0,
+            2,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1
           ]
         },
         "register": 1
@@ -5267,6 +5753,23 @@
             1,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ],
           "onGenerateFiles": [
@@ -5355,6 +5858,23 @@
             1,
             4,
             0,
+            0,
+            0,
+            2,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
             0
           ],
           "addTmpGenerateWatcherPaths": [
@@ -5566,6 +6086,40 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ],
           "addRuntimePlugin": [
@@ -5654,6 +6208,23 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ],
           "addRuntimePluginKey": [
@@ -5674,6 +6245,23 @@
             0,
             0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -5830,7 +6418,24 @@
             1,
             5,
             2,
-            7
+            7,
+            1,
+            4,
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0,
+            1,
+            1
           ],
           "addExtraBabelPlugins": [
             0
@@ -5950,6 +6555,23 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ],
           "addRuntimePluginKey": [
@@ -6033,6 +6655,23 @@
             0,
             0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -6126,7 +6765,24 @@
             1,
             1,
             0,
-            2
+            2,
+            0,
+            2,
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
           ],
           "addExtraModels": [
             0,
@@ -6205,6 +6861,23 @@
             0,
             0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
             0,
             0,
             0,
@@ -6321,12 +6994,46 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ],
           "modifyAppData": [
             0
           ],
           "addRuntimePlugin": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -6500,7 +7207,24 @@
             0,
             0,
             0,
-            0
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
           ],
           "onGenerateFiles": [
             4,
@@ -6588,7 +7312,24 @@
             3,
             6,
             3,
-            7
+            7,
+            5,
+            26,
+            4,
+            4,
+            4,
+            2,
+            3,
+            4,
+            1,
+            3,
+            1,
+            2,
+            3,
+            2,
+            2,
+            4,
+            12
           ]
         },
         "register": 2
@@ -6665,6 +7406,23 @@
             0,
             0,
             1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -6804,7 +7562,24 @@
             139,
             14,
             9,
-            33
+            33,
+            29,
+            82,
+            9,
+            14,
+            65,
+            7,
+            8,
+            22,
+            6,
+            8,
+            8,
+            18,
+            7,
+            10,
+            7,
+            8,
+            92
           ],
           "addTmpGenerateWatcherPaths": [
             0
@@ -6837,6 +7612,23 @@
       "time": {
         "hooks": {
           "addRuntimePluginKey": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0,
             0,
             0,
@@ -7061,6 +7853,23 @@
             0,
             0,
             0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
             0
           ],
           "onGenerateFiles": [
@@ -7149,7 +7958,24 @@
             1,
             0,
             1,
-            1
+            1,
+            1,
+            13,
+            0,
+            0,
+            5,
+            1,
+            0,
+            0,
+            1,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            2
           ]
         },
         "register": 1
@@ -8394,7 +9220,7 @@
       "parentId": "ant-design-pro-layout",
       "id": "5",
       "absPath": "/database-management",
-      "__content": "import React, { useState, useEffect } from 'react';\nimport { Table, Button, Space, Tag, message, Modal, Form, Input, Select, List, Flex, InputNumber, Badge, Popconfirm, Card, Descriptions, Timeline, Checkbox, Divider, Tree, Tabs, Splitter } from 'antd';\nimport { PlusOutlined, EditOutlined, DeleteOutlined, CheckCircleOutlined, CloseCircleOutlined, SyncOutlined, DatabaseOutlined, ClockCircleOutlined, CloudServerOutlined } from '@ant-design/icons';\nimport { getDatabaseConnections, postDatabaseConnections, deleteDatabaseConnectionsId, postDatabaseConnectionsIdTest, putDatabaseConnectionsId } from '@/services/BDC/api/databaseConnections';\nimport { postMaterializeTables } from '@/services/BDC/api/materializeTables';\nimport { getSchemas } from '@/services/BDC/api/schemaManagement';\nimport { buildTree } from '@/utils/treeBuilder';\nimport DatabaseTables from '@/components/DatabaseTables';\n\nconst { Option } = Select;\n\ninterface SyncRecord {\n  id: string;\n  connectionId: string;\n  connectionName: string;\n  operation: 'create' | 'update' | 'delete' | 'test' | 'materialize';\n  status: 'success' | 'failed' | 'pending';\n  message: string;\n  timestamp: string;\n  details?: any;\n  failureDetails?: string;\n}\n\ninterface SchemaListItem {\n  id?: string;\n  name: string;\n  code: string;\n  description?: string;\n  isActive?: boolean;\n  version?: number;\n  createdAt?: string;\n  updatedAt?: string;\n  fields: any[];\n}\n\n// 表结构树构建配置\nconst schemaTreeConfig = {\n  getLabel: (item: SchemaListItem, part: string, isLeaf: boolean) => {\n    return isLeaf ? `${part}（${item?.description || ''}）` : part;\n  },\n  buildExtraProps: (item: SchemaListItem, path: string, isLeaf: boolean) => ({\n    rawSchema: isLeaf ? item : undefined,\n    fields: isLeaf ? item?.fields : undefined,\n    key: path // 确保每个节点都有唯一的key\n  }),\n  getIsActive: (item: SchemaListItem, isLeaf: boolean) => isLeaf ? !!item?.isActive : true\n};\n\nconst DatabaseManagement: React.FC = () => {\n  const [loading, setLoading] = useState(false);\n  const [connections, setConnections] = useState<API.DatabaseConnection[]>([]);\n  const [selectedConnection, setSelectedConnection] = useState<API.DatabaseConnection | null>(null);\n  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);\n  const [isEditModalVisible, setIsEditModalVisible] = useState(false);\n  const [isMaterializeModalVisible, setIsMaterializeModalVisible] = useState(false);\n  const [editingConnection, setEditingConnection] = useState<API.DatabaseConnection | null>(null);\n  const [connectionForm] = Form.useForm();\n  const [materializeForm] = Form.useForm();\n  const [syncRecords, setSyncRecords] = useState<SyncRecord[]>([]);\n  const [schemas, setSchemas] = useState<SchemaListItem[]>([]);\n  const [selectedSchemas, setSelectedSchemas] = useState<string[]>([]);\n  const [materializeLoading, setMaterializeLoading] = useState(false);\n  const [schemaTreeData, setSchemaTreeData] = useState<any[]>([]);\n  const [expandedKeys, setExpandedKeys] = useState<string[]>([]);\n  const [checkedKeys, setCheckedKeys] = useState<string[]>([]);\n  const [isAllSelected, setIsAllSelected] = useState(false);\n  const [isIndeterminate, setIsIndeterminate] = useState(false);\n  const [previewSchema, setPreviewSchema] = useState<SchemaListItem | null>(null);\n\n  // 数据库类型选项\n  const databaseTypes = [\n    { label: 'PostgreSQL', value: 'postgresql' },\n    { label: 'MySQL', value: 'mysql' },\n    { label: 'MongoDB', value: 'mongodb' },\n    { label: 'SQL Server', value: 'sqlserver' },\n    { label: 'Oracle', value: 'oracle' }\n  ];\n\n  // 处理数据库类型变化\n  const handleDatabaseTypeChange = (type: string) => {\n    // 根据数据库类型设置默认值\n    switch (type) {\n      case 'postgresql':\n        connectionForm.setFieldsValue({\n          port: 5432,\n          schema: 'public'\n        });\n        break;\n      case 'mysql':\n        connectionForm.setFieldsValue({\n          port: 3306,\n          schema: undefined\n        });\n        break;\n      case 'mongodb':\n        connectionForm.setFieldsValue({\n          port: 27017,\n          schema: undefined\n        });\n        break;\n      case 'sqlserver':\n        connectionForm.setFieldsValue({\n          port: 1433,\n          schema: undefined\n        });\n        break;\n      case 'oracle':\n        connectionForm.setFieldsValue({\n          port: 1521,\n          schema: undefined\n        });\n        break;\n    }\n  };\n\n  // 获取数据库连接列表\n  const fetchConnections = async () => {\n    setLoading(true);\n    try {\n      const response = await getDatabaseConnections({\n        page: 1,\n        limit: 100\n      });\n      if (response.success && response.data) {\n        setConnections(response.data.items || []);\n      }\n    } catch (error) {\n      message.error('获取数据库连接列表失败');\n    }\n    setLoading(false);\n  };\n\n  // 获取表结构列表\n  const fetchSchemas = async () => {\n    try {\n      const response = await getSchemas({});\n      // 过滤并转换数据以确保类型匹配\n      const validSchemas = (response || []).filter(schema => \n        schema.name && schema.code && schema.fields\n      ).map(schema => ({\n        id: schema.id,\n        name: schema.name!,\n        code: schema.code!,\n        description: schema.description,\n        isActive: true, // 默认值\n        version: 1, // 默认值\n        createdAt: schema.createdAt,\n        updatedAt: schema.updatedAt,\n        fields: schema.fields || []\n      }));\n      setSchemas(validSchemas);\n      \n      // 构建树形数据\n      const treeData = buildTree(validSchemas, schemaTreeConfig);\n      setSchemaTreeData(treeData);\n      \n      // 设置默认展开所有节点\n      const allKeys: string[] = [];\n      const collectKeys = (nodes: any[]) => {\n        nodes.forEach(node => {\n          allKeys.push(node.value);\n          if (node.children) {\n            collectKeys(node.children);\n          }\n        });\n      };\n      collectKeys(treeData);\n      setExpandedKeys(allKeys);\n    } catch (error) {\n      message.error('获取表结构列表失败');\n    }\n  };\n\n\n\n  // 测试连接\n  const handleTestConnection = async (connection: API.DatabaseConnection) => {\n    try {\n      const response = await postDatabaseConnectionsIdTest({ id: connection.id! });\n      if (response.success) {\n        message.success('连接测试成功');\n        // 添加同步记录\n        addSyncRecord({\n          id: crypto.randomUUID(),\n          connectionId: connection.id!,\n          connectionName: connection.name,\n          operation: 'test',\n          status: 'success',\n          message: '连接测试成功',\n          timestamp: new Date().toISOString()\n        });\n        fetchConnections(); // 刷新列表以更新状态\n      }\n    } catch (error: any) {\n      message.error(`连接测试失败: ${error.response?.data?.message || error.message}`);\n      // 添加失败的同步记录\n      addSyncRecord({\n        id: crypto.randomUUID(),\n        connectionId: connection.id!,\n        connectionName: connection.name,\n        operation: 'test',\n        status: 'failed',\n        message: error.response?.data?.message || error.message,\n        timestamp: new Date().toISOString()\n      });\n    }\n  };\n\n  // 添加同步记录\n  const addSyncRecord = (record: SyncRecord) => {\n    setSyncRecords(prev => [record, ...prev.slice(0, 99)]); // 保留最近100条记录\n  };\n\n  // 创建数据库连接\n  const handleCreateConnection = async (values: any) => {\n    try {\n      const response = await postDatabaseConnections(values);\n      if (response.success) {\n        message.success('创建成功');\n        \n        // 显示警告信息（如果有）\n        if (response.data && 'warnings' in response.data && Array.isArray((response.data as any).warnings) && (response.data as any).warnings.length > 0) {\n          (response.data as any).warnings.forEach((warning: string) => {\n            message.warning(warning);\n          });\n        }\n        \n        setIsCreateModalVisible(false);\n        connectionForm.resetFields();\n        fetchConnections();\n        // 添加同步记录\n        addSyncRecord({\n          id: crypto.randomUUID(),\n          connectionId: response.data?.id || '',\n          connectionName: values.name,\n          operation: 'create',\n          status: 'success',\n          message: '数据库连接创建成功',\n          timestamp: new Date().toISOString()\n        });\n      }\n    } catch (error: any) {\n      message.error(`创建失败: ${error.response?.data?.message || error.message}`);\n    }\n  };\n\n  // 更新数据库连接\n  const handleUpdateConnection = async (values: any) => {\n    if (!editingConnection?.id) {\n      message.error('编辑的连接信息不完整');\n      return;\n    }\n\n    // 如果密码为空，则不包含在更新数据中\n    const updateData = { ...values };\n    if (!updateData.password || updateData.password.trim() === '') {\n      delete updateData.password;\n    }\n\n    try {\n      const response = await putDatabaseConnectionsId(\n        { id: editingConnection.id },\n        updateData\n      );\n      \n      if (response.success) {\n        message.success('更新成功');\n        \n        // 显示警告信息（如果有）\n        if (response.data && 'warnings' in response.data && Array.isArray((response.data as any).warnings) && (response.data as any).warnings.length > 0) {\n          (response.data as any).warnings.forEach((warning: string) => {\n            message.warning(warning);\n          });\n        }\n        \n        setIsEditModalVisible(false);\n        connectionForm.resetFields();\n        setEditingConnection(null);\n        fetchConnections();\n        \n        // 如果当前选中的连接被编辑了，更新选中状态\n        if (selectedConnection?.id === editingConnection.id) {\n          setSelectedConnection(response.data || null);\n        }\n        \n        // 添加同步记录\n        addSyncRecord({\n          id: crypto.randomUUID(),\n          connectionId: editingConnection.id,\n          connectionName: values.name,\n          operation: 'update',\n          status: 'success',\n          message: '数据库连接更新成功',\n          timestamp: new Date().toISOString()\n        });\n      }\n    } catch (error: any) {\n      message.error(`更新失败: ${error.response?.data?.message || error.message}`);\n      \n      // 添加失败的同步记录\n      addSyncRecord({\n        id: crypto.randomUUID(),\n        connectionId: editingConnection.id,\n        connectionName: editingConnection.name,\n        operation: 'update',\n        status: 'failed',\n        message: error.response?.data?.message || error.message,\n        timestamp: new Date().toISOString()\n      });\n    }\n  };\n\n  // 删除数据库连接\n  const handleDeleteConnection = async (id: string) => {\n    try {\n      const connection = connections.find(c => c.id === id);\n      await deleteDatabaseConnectionsId({ id });\n      message.success('删除成功');\n      if (selectedConnection?.id === id) {\n        setSelectedConnection(null);\n      }\n      fetchConnections();\n      // 添加同步记录\n      if (connection) {\n        addSyncRecord({\n          id: crypto.randomUUID(),\n          connectionId: id,\n          connectionName: connection.name,\n          operation: 'delete',\n          status: 'success',\n          message: '数据库连接删除成功',\n          timestamp: new Date().toISOString()\n        });\n      }\n    } catch (error: any) {\n      message.error(`删除失败: ${error.response?.data?.message || error.message}`);\n    }\n  };\n\n  // 获取状态标签颜色\n  const getStatusColor = (status: string) => {\n    switch (status) {\n      case 'active': return 'success';\n      case 'inactive': return 'default';\n      case 'testing': return 'processing';\n      case 'failed': return 'error';\n      default: return 'default';\n    }\n  };\n\n  // 获取状态文本\n  const getStatusText = (status: string) => {\n    switch (status) {\n      case 'active': return '活跃';\n      case 'inactive': return '未激活';\n      case 'testing': return '测试中';\n      case 'failed': return '失败';\n      default: return '未知';\n    }\n  };\n\n  // 获取数据库类型标签颜色\n  const getTypeColor = (type: string) => {\n    switch (type) {\n      case 'postgresql': return 'blue';\n      case 'mysql': return 'orange';\n      case 'mongodb': return 'green';\n      case 'sqlserver': return 'purple';\n      case 'oracle': return 'red';\n      default: return 'default';\n    }\n  };\n\n  // 处理表同步\n  const handleMaterializeTables = async (values: any) => {\n    if (selectedSchemas.length === 0) {\n      message.warning('请选择要同步的表结构');\n      return;\n    }\n\n    setMaterializeLoading(true);\n    try {\n      const response = await postMaterializeTables({\n        connectionId: selectedConnection!.id!,\n        schemaCodes: selectedSchemas,\n        config: {\n          overwrite: values.overwrite,\n          includeIndexes: values.includeIndexes,\n          includeConstraints: values.includeConstraints,\n          targetSchema: values.targetSchema,\n          tablePrefix: values.tablePrefix\n        }\n      });\n\n      if (response.success) {\n        message.success('表同步成功');\n        \n        // 添加同步记录\n        const successCount = response.results?.filter(r => r.success).length || 0;\n        const failCount = response.results?.filter(r => !r.success).length || 0;\n        \n        // 构建详细的失败信息\n        const failedResults = response.results?.filter(r => !r.success) || [];\n        const failureDetails = failedResults.map(r => \n          `${r.schemaCode}: ${r.message || r.error || '未知错误'}`\n        ).join('\\n');\n        \n        addSyncRecord({\n          id: crypto.randomUUID(),\n          connectionId: selectedConnection!.id!,\n          connectionName: selectedConnection!.name,\n          operation: 'materialize',\n          status: failCount === 0 ? 'success' : 'failed',\n          message: `成功同步 ${successCount} 个表${failCount > 0 ? `，失败 ${failCount} 个表` : ''}`,\n          timestamp: new Date().toISOString(),\n          details: response.results,\n          failureDetails: failCount > 0 ? failureDetails : undefined\n        });\n\n        setIsMaterializeModalVisible(false);\n        materializeForm.resetFields();\n        setSelectedSchemas([]);\n      }\n    } catch (error: any) {\n      message.error(`表同步失败: ${error.response?.data?.message || error.message}`);\n      \n      // 添加失败的同步记录\n      addSyncRecord({\n        id: crypto.randomUUID(),\n        connectionId: selectedConnection!.id!,\n        connectionName: selectedConnection!.name,\n        operation: 'materialize',\n        status: 'failed',\n        message: error.response?.data?.message || error.message,\n        timestamp: new Date().toISOString()\n      });\n    }\n    setMaterializeLoading(false);\n  };\n\n  // 处理全选/取消全选\n  const handleSelectAll = (checked: boolean) => {\n    if (checked) {\n      // 全选：获取所有叶子节点的key\n      const allLeafKeys: string[] = [];\n      const collectLeafKeys = (nodes: any[]) => {\n        nodes.forEach(node => {\n          if (node.children && node.children.length > 0) {\n            collectLeafKeys(node.children);\n          } else {\n            // 只有叶子节点才添加到选中列表\n            allLeafKeys.push(node.key || node.value);\n          }\n        });\n      };\n      collectLeafKeys(schemaTreeData);\n      setCheckedKeys(allLeafKeys);\n      \n      // 更新选中的表结构\n      const leafCodes: string[] = [];\n      const collectLeafCodes = (nodes: any[], checkedKeys: string[]) => {\n        nodes.forEach(node => {\n          const nodeKey = node.key || node.value;\n          if (checkedKeys.includes(nodeKey)) {\n            if (node.children && node.children.length > 0) {\n              collectLeafCodes(node.children, checkedKeys);\n            } else {\n              if (node.rawSchema) {\n                leafCodes.push(node.rawSchema.code);\n              }\n            }\n          }\n        });\n      };\n      collectLeafCodes(schemaTreeData, checkedKeys);\n      setSelectedSchemas(leafCodes);\n    } else {\n      // 取消全选\n      setCheckedKeys([]);\n      setSelectedSchemas([]);\n    }\n  };\n\n  // 检查是否全选\n  const checkSelectionStatus = () => {\n    const allLeafKeys: string[] = [];\n    const collectLeafKeys = (nodes: any[]) => {\n      nodes.forEach(node => {\n        if (node.children && node.children.length > 0) {\n          collectLeafKeys(node.children);\n        } else {\n          allLeafKeys.push(node.key || node.value);\n        }\n      });\n    };\n    collectLeafKeys(schemaTreeData);\n    \n    const selectedLeafKeys = checkedKeys.filter(key => \n      allLeafKeys.includes(key)\n    );\n    \n    setIsAllSelected(allLeafKeys.length > 0 && selectedLeafKeys.length === allLeafKeys.length);\n    setIsIndeterminate(selectedLeafKeys.length > 0 && selectedLeafKeys.length < allLeafKeys.length);\n  };\n\n  // 监听checkedKeys变化，更新全选状态\n  useEffect(() => {\n    checkSelectionStatus();\n  }, [checkedKeys, schemaTreeData]);\n\n\n\n  useEffect(() => {\n    fetchConnections();\n    fetchSchemas();\n  }, []);\n\n  // 渲染字段预览列表\n  const renderFieldPreview = () => {\n    if (!previewSchema) {\n      return (\n        <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>\n          请选择左侧的表结构查看字段详情\n        </div>\n      );\n    }\n\n    // 获取关系类型显示文本\n    const getRelationTypeText = (field: any) => {\n      const type = field.relationType || (field.relationConfig?.multiple ? 'oneToMany' : 'oneToOne');\n      switch (type) {\n        case 'oneToOne': return '1:1';\n        case 'oneToMany': return '1:n';\n        case 'manyToOne': return 'n:1';\n        case 'manyToMany': return 'm:n';\n        default: return '1:1';\n      }\n    };\n\n    // 获取目标数据表的描述信息\n    const getTargetSchemaDescription = (code: string | undefined) => {\n      if (!code) return '';\n      const schema = schemas.find(s => s.code === code);\n      return schema ? `${code}（${schema.name}）` : code;\n    };\n\n    // 获取枚举的描述信息\n    const getEnumDescription = (enumCode: string | undefined) => {\n      if (!enumCode) return enumCode || '';\n      return enumCode;\n    };\n\n    return (\n      <div style={{ padding: '6px 16px 16px 16px' }}>\n        <div style={{ marginBottom: '16px' }}>\n          <h4 style={{ margin: 0 }}>{previewSchema.name}\n          {previewSchema.description && (\n            <span style={{ color: '#666', fontSize: '12px', marginLeft: '14px' }}>\n              {previewSchema.description}\n            </span>\n          )}\n          </h4>\n        </div>\n        <List\n          dataSource={previewSchema.fields}\n          size=\"small\"\n          renderItem={(field: any, index: number) => (\n            <List.Item\n              key={field.id || index}\n              className=\"px-0\"\n            >\n              <List.Item.Meta\n                title={\n                  <Space>\n                    <span>{field.name}</span>\n                    {field.description && <span>({field.description})</span>}\n                    <Tag color=\"blue\">{field.type}</Tag>\n                    {/* 主键标识 - 暂时注释，等待前端更新 */}\n                    {/* {(field.type === 'uuid' || field.type === 'auto_increment') && field.isPrimaryKey && (\n                      <Tag color=\"red\">PK</Tag>\n                    )} */}\n                  </Space>\n                }\n                description={\n                  <div style={{ marginTop: '4px' }}>\n                    {/* 必填 */}\n                    {field.required && <Tag color=\"cyan\" bordered={false}>必填</Tag>}\n                    {/* 长度 */}\n                    {field.type === 'string' && field.length && (\n                      <Tag color=\"cyan\" bordered={false}>\n                        VARCHAR({field.length})\n                      </Tag>\n                    )}\n                    {/* 长文本 */}\n                    {field.type === 'text' && (\n                      <Tag color=\"cyan\" bordered={false}>\n                        TEXT\n                      </Tag>\n                    )}\n                    {/* 日期 */}\n                    {field.type === 'date' && field.dateConfig?.dateType && (\n                      <Tag color=\"cyan\" bordered={false}>{field.dateConfig.dateType}</Tag>\n                    )}\n                    {/* 枚举 */}\n                    {field.type === 'enum' && field.enumConfig && (\n                      <>\n                        <Tag color=\"cyan\" bordered={false}>\n                          枚举: {getEnumDescription(field.enumConfig?.targetEnumCode)}\n                        </Tag>\n                        {field.enumConfig?.multiple && (\n                          <Tag color=\"purple\" bordered={false}>允许多选</Tag>\n                        )}\n                      </>\n                    )}\n                    {/* 关联 */}\n                    {field.type === 'relation' && field.relationConfig && (\n                      <>\n                        <Tag color=\"cyan\" bordered={false}>\n                          {getRelationTypeText(field)}\n                        </Tag>\n                        <Tag color=\"cyan\" bordered={false}>\n                          关联: {getTargetSchemaDescription(field.relationConfig?.targetSchemaCode)}\n                        </Tag>\n                      </>\n                    )}\n                    {/* 媒体 */}\n                    {field.type === 'media' && field.mediaConfig && (\n                      <Tag color=\"cyan\" bordered={false}>媒体类型: {field.mediaConfig?.mediaType}</Tag>\n                    )}\n                    {/* API */}\n                    {field.type === 'api' && field.apiConfig && (\n                      <Tag color=\"cyan\" bordered={false}>API: {field.apiConfig?.endpoint}</Tag>\n                    )}\n                    {/* 数字类型 */}\n                    {field.type === 'number' && (\n                      <Tag color=\"cyan\" bordered={false}>数字</Tag>\n                    )}\n                  </div>\n                }\n              />\n            </List.Item>\n          )}\n        />\n      </div>\n    );\n  };\n\n  const connectionColumns = [\n    {\n      title: '连接名称',\n      dataIndex: 'name',\n      key: 'name',\n      render: (text: string, record: API.DatabaseConnection) => (\n        <div>\n          <div style={{ fontWeight: 'bold' }}>{text}</div>\n          {record.description && (\n            <div style={{ color: '#666', fontSize: '12px' }}>{record.description}</div>\n          )}\n        </div>\n      ),\n    },\n    {\n      title: '数据库类型',\n      dataIndex: 'type',\n      key: 'type',\n      render: (type: string) => (\n        <Tag color={getTypeColor(type)}>{type.toUpperCase()}</Tag>\n      ),\n    },\n    {\n      title: '连接信息',\n      key: 'connection',\n      hidden: true,\n      render: (record: API.DatabaseConnection) => (\n        <div style={{ fontSize: '12px' }}>\n          <div>{record.host}:{record.port}</div>\n          <div>{record.database}</div>\n        </div>\n      ),\n    },\n    {\n      title: '状态',\n      dataIndex: 'status',\n      key: 'status',\n      render: (status: string, record: API.DatabaseConnection) => (\n        <Space>\n          <Badge \n            status={record.lastTestSuccess ? 'success' : 'error'} \n            text={getStatusText(status)}\n          />\n          {record.lastTestSuccess && <CheckCircleOutlined style={{ color: '#52c41a' }} />}\n          {!record.lastTestSuccess && record.lastTestAt && <CloseCircleOutlined style={{ color: '#ff4d4f' }} />}\n        </Space>\n      ),\n    },\n    {\n      title: '操作',\n      key: 'action',\n      width: 60,\n      fixed: 'right',\n      render: (record: API.DatabaseConnection) => (\n        <Button\n          type=\"link\"\n          size=\"small\"\n          icon={<EditOutlined />}\n          onClick={(e) => {\n            e.stopPropagation(); // 阻止行点击事件\n            setEditingConnection(record);\n            // 设置表单值，但不包含密码字段\n            const formData = { ...record } as any;\n            if ('password' in formData) {\n              delete formData.password; // 编辑时不显示原密码\n            }\n            connectionForm.setFieldsValue(formData);\n            setIsEditModalVisible(true);\n          }}\n        />\n      ),\n    },\n  ];\n\n  return (\n    <div className=\"f-fullscreen\">\n      <Splitter style={{ height: \"calc(100vh - 57px)\" }}>\n        <Splitter.Panel defaultSize=\"50%\">\n          <div className=\"f-header\">\n            <label className=\"fw-bold\">数据库连接</label>\n            <Button\n              type=\"primary\"\n              icon={<PlusOutlined />}\n              onClick={() => {\n                connectionForm.resetFields();\n                setIsCreateModalVisible(true);\n              }}\n            >\n              新建数据库连接\n            </Button>\n          </div>\n          <div\n            className=\"pos-relative overflow-y\"\n            style={{ height: \"calc(100% - 50px)\" }}\n          >\n            <div className=\"pb-4\">\n              <Table\n                columns={connectionColumns as any}\n                dataSource={connections}\n                rowKey=\"id\"\n                loading={loading}\n                pagination={false}\n                size=\"small\"\n                onRow={(record) => ({\n                  onClick: () => setSelectedConnection(record),\n                  className: selectedConnection?.id === record.id ? \"ant-table-row-selected\" : \"\",\n                  style: { cursor: \"pointer\" },\n                })}\n              />\n            </div>\n          </div>\n        </Splitter.Panel>\n        <Splitter.Panel>\n          <div\n            className=\"pos-relative overflow-y\"\n            style={{ height: \"calc(100% - 50px)\" }}\n          >\n            <div className=\"pb-4\">\n              {selectedConnection ? (\n                <Tabs\n                  defaultActiveKey=\"connection\"\n                  centered\n                  style={{ height: '100%' }}\n                  items={[\n                    {\n                      key: 'connection',\n                      label: '连接信息',\n                      children: (\n                        <div style={{ padding: '16px' }}>\n                          <Space style={{ marginBottom: 16 }}>\n                            <Button\n                              type=\"primary\"\n                              size=\"small\"\n                              icon={<SyncOutlined />}\n                              onClick={() => handleTestConnection(selectedConnection)}\n                              loading={selectedConnection.status === 'testing'}\n                            >\n                              测试连接\n                            </Button>\n                            <Popconfirm\n                              title=\"删除数据库连接\"\n                              description={`确定要删除 \"${selectedConnection.name}\" 吗？此操作不可恢复。`}\n                              onConfirm={() => handleDeleteConnection(selectedConnection.id!)}\n                              okText=\"确定\"\n                              cancelText=\"取消\"\n                            >\n                              <Button\n                                type=\"primary\"\n                                danger\n                                size=\"small\"\n                                icon={<DeleteOutlined />}\n                              >\n                                删除连接\n                              </Button>\n                            </Popconfirm>\n                          </Space>\n                          <Card title=\"连接详情\">\n                            <Descriptions column={1} size=\"small\">\n                              <Descriptions.Item label=\"连接名称\">{selectedConnection.name}</Descriptions.Item>\n                              <Descriptions.Item label=\"数据库类型\">\n                                <Tag color={getTypeColor(selectedConnection.type)}>\n                                  {selectedConnection.type.toUpperCase()}\n                                </Tag>\n                              </Descriptions.Item>\n                              <Descriptions.Item label=\"主机地址\">{selectedConnection.host}:{selectedConnection.port}</Descriptions.Item>\n                              <Descriptions.Item label=\"数据库名\">{selectedConnection.database}</Descriptions.Item>\n                              <Descriptions.Item label=\"用户名\">{selectedConnection.username}</Descriptions.Item>\n                              <Descriptions.Item label=\"状态\">\n                                <Badge \n                                  status={selectedConnection.lastTestSuccess ? 'success' : 'error'} \n                                  text={getStatusText(selectedConnection.status || 'inactive')}\n                                />\n                              </Descriptions.Item>\n                              {selectedConnection.lastTestAt && (\n                                <Descriptions.Item label=\"最后测试时间\">\n                                  {new Date(selectedConnection.lastTestAt).toLocaleString()}\n                                </Descriptions.Item>\n                              )}\n                            </Descriptions>\n                          </Card>\n                        </div>\n                      ),\n                    },\n                    {\n                      key: 'sync',\n                      label: '同步',\n                      children: (\n                        <div style={{ padding: '16px' }}>\n                          {!selectedConnection.lastTestSuccess ? (\n                            <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>\n                              <SyncOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />\n                              <div>请先完成测试连接</div>\n                            </div>\n                          ) : (\n                            <>\n                              <Space style={{ marginBottom: 16 }}>\n                                <Button\n                                  type=\"primary\"\n                                  size=\"small\"\n                                  icon={<CloudServerOutlined />}\n                                  onClick={() => {\n                                    setIsMaterializeModalVisible(true);\n                                    materializeForm.resetFields();\n                                    setSelectedSchemas([]);\n                                    setCheckedKeys([]);\n                                    setIsAllSelected(false);\n                                    setIsIndeterminate(false);\n                                    setPreviewSchema(null);\n                                  }}\n                                >\n                                  同步\n                                </Button>\n                              </Space>\n                              <Card title=\"同步记录\">\n                                <Timeline>\n                                  {syncRecords\n                                    .filter(record => record.connectionId === selectedConnection.id)\n                                    .map(record => (\n                                      <Timeline.Item\n                                        key={record.id}\n                                        color={record.status === 'success' ? 'green' : record.status === 'failed' ? 'red' : 'blue'}\n                                        dot={record.operation === 'test' ? <SyncOutlined /> : <DatabaseOutlined />}\n                                      >\n                                        <div>\n                                          <div style={{ fontWeight: 'bold' }}>\n                                            {record.operation === 'create' && '创建连接'}\n                                            {record.operation === 'update' && '更新连接'}\n                                            {record.operation === 'delete' && '删除连接'}\n                                            {record.operation === 'test' && '测试连接'}\n                                            {record.operation === 'materialize' && '表同步'}\n                                          </div>\n                                          <div style={{ color: '#666', fontSize: '12px' }}>\n                                            {record.message}\n                                          </div>\n                                          {record.failureDetails && (\n                                            <div style={{ \n                                              color: '#ff4d4f', \n                                              fontSize: '11px', \n                                              marginTop: '4px',\n                                              backgroundColor: '#fff2f0',\n                                              padding: '4px 8px',\n                                              borderRadius: '4px',\n                                              border: '1px solid #ffccc7',\n                                              whiteSpace: 'pre-line'\n                                            }}>\n                                              <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>失败详情：</div>\n                                              {record.failureDetails}\n                                            </div>\n                                          )}\n                                          <div style={{ color: '#999', fontSize: '12px', marginTop: '4px' }}>\n                                            {new Date(record.timestamp).toLocaleString()}\n                                          </div>\n                                        </div>\n                                      </Timeline.Item>\n                                    ))}\n                                  {syncRecords.filter(record => record.connectionId === selectedConnection.id).length === 0 && (\n                                    <div style={{ textAlign: 'center', color: '#999', padding: '20px' }}>\n                                      暂无同步记录\n                                    </div>\n                                  )}\n                                </Timeline>\n                              </Card>\n                            </>\n                          )}\n                        </div>\n                      ),\n                    },\n                    {\n                      key: 'tables',\n                      label: '库表结构',\n                      children: (\n                        <div style={{ padding: '16px' }}>\n                          <DatabaseTables \n                            connectionId={selectedConnection?.id}\n                            lastTestSuccess={selectedConnection?.lastTestSuccess}\n                          />\n                        </div>\n                      ),\n                    },\n                  ]}\n                />\n              ) : (\n                <div style={{ textAlign: 'center', padding: '20px' }}>\n                  请选择左侧的数据库连接查看详细信息\n                </div>\n              )}\n            </div>\n          </div>\n        </Splitter.Panel>\n      </Splitter>\n\n      {/* 创建数据库连接模态框 */}\n      <Modal\n        title=\"新建数据库连接\"\n        open={isCreateModalVisible}\n        onOk={() => connectionForm.submit()}\n        onCancel={() => setIsCreateModalVisible(false)}\n        width={600}\n        maskClosable={false}\n      >\n        <Form\n          form={connectionForm}\n          layout=\"vertical\"\n          onFinish={handleCreateConnection}\n        >\n          <Form.Item\n            name=\"name\"\n            label=\"连接名称\"\n            rules={[{ required: true, message: '请输入连接名称' }]}\n          >\n            <Input placeholder=\"请输入连接名称\" />\n          </Form.Item>\n          \n          <Form.Item\n            name=\"description\"\n            label=\"连接描述\"\n          >\n            <Input.TextArea placeholder=\"请输入连接描述\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"type\"\n            label=\"数据库类型\"\n            rules={[{ required: true, message: '请选择数据库类型' }]}\n          >\n            <Select \n              placeholder=\"请选择数据库类型\"\n              onChange={handleDatabaseTypeChange}\n            >\n              {databaseTypes.map(type => (\n                <Option key={type.value} value={type.value}>{type.label}</Option>\n              ))}\n            </Select>\n          </Form.Item>\n\n          <Form.Item\n            name=\"host\"\n            label=\"主机地址\"\n            rules={[{ required: true, message: '请输入主机地址' }]}\n          >\n            <Input placeholder=\"localhost\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"port\"\n            label=\"端口号\"\n            rules={[{ required: true, message: '请输入端口号' }]}\n          >\n            <InputNumber \n              placeholder=\"5432\" \n              style={{ width: '100%' }}\n              min={1}\n              max={65535}\n            />\n          </Form.Item>\n\n          <Form.Item\n            name=\"database\"\n            label=\"数据库名称\"\n            rules={[{ required: true, message: '请输入数据库名称' }]}\n          >\n            <Input placeholder=\"请输入数据库名称\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"username\"\n            label=\"用户名\"\n            rules={[{ required: true, message: '请输入用户名' }]}\n          >\n            <Input placeholder=\"请输入用户名\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"password\"\n            label=\"密码\"\n            rules={[{ required: false, message: '请输入密码' }]}\n          >\n            <Input.Password placeholder=\"请输入密码（可选）\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"schema\"\n            label=\"Schema名称\"\n          >\n            <Input placeholder=\"public\" />\n          </Form.Item>\n        </Form>\n      </Modal>\n\n      {/* 编辑数据库连接模态框 */}\n      <Modal\n        title=\"编辑数据库连接\"\n        open={isEditModalVisible}\n        onOk={() => connectionForm.submit()}\n        onCancel={() => {\n          setIsEditModalVisible(false);\n          setEditingConnection(null);\n          connectionForm.resetFields();\n        }}\n        width={600}\n        maskClosable={false}\n      >\n        <Form\n          form={connectionForm}\n          layout=\"vertical\"\n          onFinish={handleUpdateConnection}\n        >\n          <Form.Item\n            name=\"name\"\n            label=\"连接名称\"\n            rules={[{ required: true, message: '请输入连接名称' }]}\n          >\n            <Input placeholder=\"请输入连接名称\" />\n          </Form.Item>\n          \n          <Form.Item\n            name=\"description\"\n            label=\"连接描述\"\n          >\n            <Input.TextArea placeholder=\"请输入连接描述\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"type\"\n            label=\"数据库类型\"\n            rules={[{ required: true, message: '请选择数据库类型' }]}\n          >\n            <Select \n              placeholder=\"请选择数据库类型\"\n              onChange={handleDatabaseTypeChange}\n              disabled={true} // 编辑时不允许修改数据库类型\n            >\n              {databaseTypes.map(type => (\n                <Option key={type.value} value={type.value}>{type.label}</Option>\n              ))}\n            </Select>\n          </Form.Item>\n\n          <Form.Item\n            name=\"host\"\n            label=\"主机地址\"\n            rules={[{ required: true, message: '请输入主机地址' }]}\n          >\n            <Input placeholder=\"localhost\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"port\"\n            label=\"端口号\"\n            rules={[{ required: true, message: '请输入端口号' }]}\n          >\n            <InputNumber \n              placeholder=\"5432\" \n              style={{ width: '100%' }}\n              min={1}\n              max={65535}\n            />\n          </Form.Item>\n\n          <Form.Item\n            name=\"database\"\n            label=\"数据库名称\"\n            rules={[{ required: true, message: '请输入数据库名称' }]}\n          >\n            <Input placeholder=\"请输入数据库名称\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"username\"\n            label=\"用户名\"\n            rules={[{ required: true, message: '请输入用户名' }]}\n          >\n            <Input placeholder=\"请输入用户名\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"password\"\n            label=\"密码\"\n            rules={[{ required: false, message: '请输入密码' }]}\n          >\n            <Input.Password placeholder=\"请输入新密码（留空则不修改）\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"schema\"\n            label=\"Schema名称\"\n          >\n            <Input placeholder=\"public\" />\n          </Form.Item>\n        </Form>\n      </Modal>\n\n      {/* 表同步模态框 */}\n      <Modal\n        title=\"将模型同步到数据库\"\n        open={isMaterializeModalVisible}\n        onOk={() => materializeForm.submit()}\n        onCancel={() => {\n          setIsMaterializeModalVisible(false);\n          setPreviewSchema(null);\n        }}\n        width={1000}\n        maskClosable={false}\n        confirmLoading={materializeLoading}\n        style={{ top: 20 }}\n      >\n        <Form\n          form={materializeForm}\n          layout=\"vertical\"\n          onFinish={handleMaterializeTables}\n          initialValues={{\n            overwrite: false,\n            includeIndexes: true,\n            includeConstraints: true,\n            targetSchema: selectedConnection?.schema || 'public',\n            tablePrefix: ''\n          }}\n        >\n          <div style={{ \n                height: '300px',\n                borderWidth: 1,\n                borderStyle: 'solid',\n                borderColor: '#424242',\n                borderRadius: 6,\n                background: '#141414',\n                marginBottom: '16px'\n            }}>\n            <Splitter style={{ height: '100%' }}>\n              <Splitter.Panel defaultSize=\"40%\">\n                <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>\n                  <div style={{ display: 'flex', alignItems: 'center' }}>\n                    <div style={{ display: 'flex', alignItems: 'center', margin: '4px 8px 12px 8px' }}>\n                      <h4 style={{ margin: 0, marginRight: '8px' }}>选择要同步的表</h4>\n                      <Checkbox\n                        checked={isAllSelected}\n                        indeterminate={isIndeterminate}\n                        onChange={(e) => handleSelectAll(e.target.checked)}\n                      >\n                        全选\n                      </Checkbox>\n                    </div>\n                  </div>\n                  <div style={{ \n                    flex: 1,\n                    overflowY: 'auto', \n                    borderRadius: '6px'\n                  }}>\n                    <Tree\n                      checkable\n                      showIcon\n                      treeData={schemaTreeData}\n                      expandedKeys={expandedKeys}\n                      checkedKeys={checkedKeys}\n                      // height={300}\n                      onExpand={(expandedKeysValue) => {\n                        setExpandedKeys(expandedKeysValue as string[]);\n                      }}\n                      onCheck={(checkedKeysValue) => {\n                        const keys = Array.isArray(checkedKeysValue) ? checkedKeysValue : checkedKeysValue.checked;\n                        setCheckedKeys(keys as string[]);\n                        // 只收集叶子节点的code\n                        const leafCodes: string[] = [];\n                        const collectLeafCodes = (nodes: any[], checkedKeys: string[]) => {\n                          nodes.forEach(node => {\n                            const nodeKey = node.key || node.value;\n                            if (checkedKeys.includes(nodeKey)) {\n                              if (node.children && node.children.length > 0) {\n                                collectLeafCodes(node.children, checkedKeys);\n                              } else {\n                                // 只有叶子节点才添加到选中列表\n                                if (node.rawSchema) {\n                                  leafCodes.push(node.rawSchema.code);\n                                }\n                              }\n                            }\n                          });\n                        };\n                        collectLeafCodes(schemaTreeData, keys as string[]);\n                        setSelectedSchemas(leafCodes);\n                      }}\n                      onSelect={(selectedKeys, info) => {\n                        // 当点击树节点时，预览对应的表结构\n                        if (info.node.rawSchema) {\n                          setPreviewSchema(info.node.rawSchema);\n                        } else {\n                          setPreviewSchema(null);\n                        }\n                      }}\n                      titleRender={(node) => (\n                        <div>\n                          <div style={{ fontWeight: 'bold' }}>{node.label}\n                          {node.rawSchema && (\n                            <span style={{ color: '#666', fontSize: '12px' }}>\n                              字段数: {node.rawSchema.fields?.length || 0}\n                            </span>\n                          )}\n                          </div>\n                        </div>\n                      )}\n                    />\n                    {schemaTreeData.length === 0 && (\n                      <div style={{ textAlign: 'center', color: '#999', padding: '20px' }}>\n                        暂无表结构定义\n                      </div>\n                    )}\n                  </div>\n                </div>\n              </Splitter.Panel>\n              <Splitter.Panel>\n                <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>\n                  {/* <div style={{ height: '32px', display: 'flex', alignItems: 'center' }}>\n                    <h4 style={{ margin: 0 }}>字段预览</h4>\n                  </div> */}\n                  <div style={{ \n                    flex: 1,\n                    overflowY: 'auto',\n                    borderRadius: '6px',\n                  }}>\n                    {renderFieldPreview()}\n                  </div>\n                </div>\n              </Splitter.Panel>\n            </Splitter>\n          </div>\n\n          <Form.Item\n            name=\"targetSchema\"\n            label=\"目标Schema\"\n            rules={[{ required: true, message: '请输入目标Schema名称' }]}\n          >\n            <Input placeholder=\"public\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"tablePrefix\"\n            label=\"表名前缀\"\n          >\n            <Input placeholder=\"可选，为空则使用原表名\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"overwrite\"\n            valuePropName=\"checked\"\n          >\n            <Checkbox>覆盖已存在的表</Checkbox>\n          </Form.Item>\n\n          <Form.Item\n            name=\"includeIndexes\"\n            valuePropName=\"checked\"\n          >\n            <Checkbox>包含索引</Checkbox>\n          </Form.Item>\n\n          <Form.Item\n            name=\"includeConstraints\"\n            valuePropName=\"checked\"\n          >\n            <Checkbox>包含约束</Checkbox>\n          </Form.Item>\n        </Form>\n      </Modal>\n    </div>\n  );\n};\n\nexport default DatabaseManagement; ",
+      "__content": "import React, { useState, useEffect } from 'react';\nimport { Table, Button, Space, Tag, message, Modal, Form, Input, Select, List, Flex, InputNumber, Badge, Popconfirm, Card, Descriptions, Timeline, Checkbox, Divider, Tree, Tabs, Splitter } from 'antd';\nimport { PlusOutlined, EditOutlined, DeleteOutlined, CheckCircleOutlined, CloseCircleOutlined, SyncOutlined, DatabaseOutlined, ClockCircleOutlined, CloudServerOutlined } from '@ant-design/icons';\nimport { getDatabaseConnections, postDatabaseConnections, deleteDatabaseConnectionsId, postDatabaseConnectionsIdTest, putDatabaseConnectionsId } from '@/services/BDC/api/databaseConnections';\nimport { postMaterializeTables } from '@/services/BDC/api/materializeTables';\nimport { getSchemas } from '@/services/BDC/api/schemaManagement';\nimport { buildTree } from '@/utils/treeBuilder';\nimport DatabaseTables from '@/components/DatabaseTables';\n\nconst { Option } = Select;\n\ninterface SyncRecord {\n  id: string;\n  connectionId: string;\n  connectionName: string;\n  operation: 'create' | 'update' | 'delete' | 'test' | 'materialize';\n  status: 'success' | 'failed' | 'pending';\n  message: string;\n  timestamp: string;\n  details?: any;\n  failureDetails?: string;\n}\n\ninterface SchemaListItem {\n  id?: string;\n  name: string;\n  code: string;\n  description?: string;\n  isActive?: boolean;\n  version?: number;\n  createdAt?: string;\n  updatedAt?: string;\n  fields: any[];\n}\n\n// 表结构树构建配置\nconst schemaTreeConfig = {\n  getLabel: (item: SchemaListItem, part: string, isLeaf: boolean) => {\n    return isLeaf ? `${part}（${item?.description || ''}）` : part;\n  },\n  buildExtraProps: (item: SchemaListItem, path: string, isLeaf: boolean) => ({\n    rawSchema: isLeaf ? item : undefined,\n    fields: isLeaf ? item?.fields : undefined,\n    key: path // 确保每个节点都有唯一的key\n  }),\n  getIsActive: (item: SchemaListItem, isLeaf: boolean) => isLeaf ? !!item?.isActive : true\n};\n\nconst DatabaseManagement: React.FC = () => {\n  const [loading, setLoading] = useState(false);\n  const [connections, setConnections] = useState<API.DatabaseConnection[]>([]);\n  const [selectedConnection, setSelectedConnection] = useState<API.DatabaseConnection | null>(null);\n  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);\n  const [isEditModalVisible, setIsEditModalVisible] = useState(false);\n  const [isMaterializeModalVisible, setIsMaterializeModalVisible] = useState(false);\n  const [editingConnection, setEditingConnection] = useState<API.DatabaseConnection | null>(null);\n  const [connectionForm] = Form.useForm();\n  const [materializeForm] = Form.useForm();\n  const [syncRecords, setSyncRecords] = useState<SyncRecord[]>([]);\n  const [schemas, setSchemas] = useState<SchemaListItem[]>([]);\n  const [selectedSchemas, setSelectedSchemas] = useState<string[]>([]);\n  const [materializeLoading, setMaterializeLoading] = useState(false);\n  const [schemaTreeData, setSchemaTreeData] = useState<any[]>([]);\n  const [expandedKeys, setExpandedKeys] = useState<string[]>([]);\n  const [checkedKeys, setCheckedKeys] = useState<string[]>([]);\n  const [isAllSelected, setIsAllSelected] = useState(false);\n  const [isIndeterminate, setIsIndeterminate] = useState(false);\n  const [previewSchema, setPreviewSchema] = useState<SchemaListItem | null>(null);\n\n  // 数据库类型选项\n  const databaseTypes = [\n    { label: 'PostgreSQL', value: 'postgresql' },\n    { label: 'MySQL', value: 'mysql' },\n    { label: 'MongoDB', value: 'mongodb' },\n    { label: 'SQL Server', value: 'sqlserver' },\n    { label: 'Oracle', value: 'oracle' }\n  ];\n\n  // 处理数据库类型变化\n  const handleDatabaseTypeChange = (type: string) => {\n    // 根据数据库类型设置默认值\n    switch (type) {\n      case 'postgresql':\n        connectionForm.setFieldsValue({\n          port: 5432,\n          schema: 'public'\n        });\n        break;\n      case 'mysql':\n        connectionForm.setFieldsValue({\n          port: 3306,\n          schema: undefined\n        });\n        break;\n      case 'mongodb':\n        connectionForm.setFieldsValue({\n          port: 27017,\n          schema: undefined\n        });\n        break;\n      case 'sqlserver':\n        connectionForm.setFieldsValue({\n          port: 1433,\n          schema: undefined\n        });\n        break;\n      case 'oracle':\n        connectionForm.setFieldsValue({\n          port: 1521,\n          schema: undefined\n        });\n        break;\n    }\n  };\n\n  // 获取数据库连接列表\n  const fetchConnections = async () => {\n    setLoading(true);\n    try {\n      const response = await getDatabaseConnections({\n        page: 1,\n        limit: 100\n      });\n      if (response.success && response.data) {\n        setConnections(response.data.items || []);\n      }\n    } catch (error) {\n      message.error('获取数据库连接列表失败');\n    }\n    setLoading(false);\n  };\n\n  // 获取表结构列表\n  const fetchSchemas = async () => {\n    try {\n      const response = await getSchemas({});\n      console.log('获取到的原始表结构数据:', response);\n      \n      // 过滤并转换数据以确保类型匹配\n      const validSchemas = (response || []).filter(schema => \n        schema.name && schema.code && schema.fields\n      ).map(schema => ({\n        id: schema.id,\n        name: schema.name!,\n        code: schema.code!,\n        description: schema.description,\n        isActive: true, // 默认值\n        version: 1, // 默认值\n        createdAt: schema.createdAt,\n        updatedAt: schema.updatedAt,\n        fields: schema.fields || []\n      }));\n      \n      console.log('过滤后的有效表结构数据:', validSchemas);\n      setSchemas(validSchemas);\n      \n      // 构建树形数据\n      const treeData = buildTree(validSchemas, schemaTreeConfig);\n      console.log('构建的树形数据:', treeData);\n      setSchemaTreeData(treeData);\n      \n      // 设置默认展开所有节点\n      const allKeys: string[] = [];\n      const collectKeys = (nodes: any[]) => {\n        nodes.forEach(node => {\n          allKeys.push(node.value);\n          if (node.children) {\n            collectKeys(node.children);\n          }\n        });\n      };\n      collectKeys(treeData);\n      setExpandedKeys(allKeys);\n    } catch (error) {\n      console.error('获取表结构列表失败:', error);\n      message.error('获取表结构列表失败');\n    }\n  };\n\n\n\n  // 测试连接\n  const handleTestConnection = async (connection: API.DatabaseConnection) => {\n    try {\n      const response = await postDatabaseConnectionsIdTest({ id: connection.id! });\n      if (response.success) {\n        message.success('连接测试成功');\n        // 添加同步记录\n        addSyncRecord({\n          id: crypto.randomUUID(),\n          connectionId: connection.id!,\n          connectionName: connection.name,\n          operation: 'test',\n          status: 'success',\n          message: '连接测试成功',\n          timestamp: new Date().toISOString()\n        });\n        \n        // 刷新连接列表并更新选中的连接\n        const updatedResponse = await getDatabaseConnections({\n          page: 1,\n          limit: 100\n        });\n        if (updatedResponse.success && updatedResponse.data) {\n          const updatedConnections = updatedResponse.data.items || [];\n          setConnections(updatedConnections);\n          \n          // 更新选中的连接状态\n          const updatedConnection = updatedConnections.find(c => c.id === connection.id);\n          if (updatedConnection && selectedConnection?.id === connection.id) {\n            setSelectedConnection(updatedConnection);\n          }\n        }\n      }\n    } catch (error: any) {\n      message.error(`连接测试失败: ${error.response?.data?.message || error.message}`);\n      // 添加失败的同步记录\n      addSyncRecord({\n        id: crypto.randomUUID(),\n        connectionId: connection.id!,\n        connectionName: connection.name,\n        operation: 'test',\n        status: 'failed',\n        message: error.response?.data?.message || error.message,\n        timestamp: new Date().toISOString()\n      });\n    }\n  };\n\n  // 添加同步记录\n  const addSyncRecord = (record: SyncRecord) => {\n    setSyncRecords(prev => [record, ...prev.slice(0, 99)]); // 保留最近100条记录\n  };\n\n  // 创建数据库连接\n  const handleCreateConnection = async (values: any) => {\n    try {\n      const response = await postDatabaseConnections(values);\n      if (response.success) {\n        message.success('创建成功');\n        \n        // 显示警告信息（如果有）\n        if (response.data && 'warnings' in response.data && Array.isArray((response.data as any).warnings) && (response.data as any).warnings.length > 0) {\n          (response.data as any).warnings.forEach((warning: string) => {\n            message.warning(warning);\n          });\n        }\n        \n        setIsCreateModalVisible(false);\n        connectionForm.resetFields();\n        fetchConnections();\n        // 添加同步记录\n        addSyncRecord({\n          id: crypto.randomUUID(),\n          connectionId: response.data?.id || '',\n          connectionName: values.name,\n          operation: 'create',\n          status: 'success',\n          message: '数据库连接创建成功',\n          timestamp: new Date().toISOString()\n        });\n      }\n    } catch (error: any) {\n      message.error(`创建失败: ${error.response?.data?.message || error.message}`);\n    }\n  };\n\n  // 更新数据库连接\n  const handleUpdateConnection = async (values: any) => {\n    if (!editingConnection?.id) {\n      message.error('编辑的连接信息不完整');\n      return;\n    }\n\n    // 如果密码为空，则不包含在更新数据中\n    const updateData = { ...values };\n    if (!updateData.password || updateData.password.trim() === '') {\n      delete updateData.password;\n    }\n\n    try {\n      const response = await putDatabaseConnectionsId(\n        { id: editingConnection.id },\n        updateData\n      );\n      \n      if (response.success) {\n        message.success('更新成功');\n        \n        // 显示警告信息（如果有）\n        if (response.data && 'warnings' in response.data && Array.isArray((response.data as any).warnings) && (response.data as any).warnings.length > 0) {\n          (response.data as any).warnings.forEach((warning: string) => {\n            message.warning(warning);\n          });\n        }\n        \n        setIsEditModalVisible(false);\n        connectionForm.resetFields();\n        setEditingConnection(null);\n        fetchConnections();\n        \n        // 如果当前选中的连接被编辑了，更新选中状态\n        if (selectedConnection?.id === editingConnection.id) {\n          setSelectedConnection(response.data || null);\n        }\n        \n        // 添加同步记录\n        addSyncRecord({\n          id: crypto.randomUUID(),\n          connectionId: editingConnection.id,\n          connectionName: values.name,\n          operation: 'update',\n          status: 'success',\n          message: '数据库连接更新成功',\n          timestamp: new Date().toISOString()\n        });\n      }\n    } catch (error: any) {\n      message.error(`更新失败: ${error.response?.data?.message || error.message}`);\n      \n      // 添加失败的同步记录\n      addSyncRecord({\n        id: crypto.randomUUID(),\n        connectionId: editingConnection.id,\n        connectionName: editingConnection.name,\n        operation: 'update',\n        status: 'failed',\n        message: error.response?.data?.message || error.message,\n        timestamp: new Date().toISOString()\n      });\n    }\n  };\n\n  // 删除数据库连接\n  const handleDeleteConnection = async (id: string) => {\n    try {\n      const connection = connections.find(c => c.id === id);\n      await deleteDatabaseConnectionsId({ id });\n      message.success('删除成功');\n      if (selectedConnection?.id === id) {\n        setSelectedConnection(null);\n      }\n      fetchConnections();\n      // 添加同步记录\n      if (connection) {\n        addSyncRecord({\n          id: crypto.randomUUID(),\n          connectionId: id,\n          connectionName: connection.name,\n          operation: 'delete',\n          status: 'success',\n          message: '数据库连接删除成功',\n          timestamp: new Date().toISOString()\n        });\n      }\n    } catch (error: any) {\n      message.error(`删除失败: ${error.response?.data?.message || error.message}`);\n    }\n  };\n\n  // 获取状态标签颜色\n  const getStatusColor = (status: string) => {\n    switch (status) {\n      case 'active': return 'success';\n      case 'inactive': return 'default';\n      case 'testing': return 'processing';\n      case 'failed': return 'error';\n      default: return 'default';\n    }\n  };\n\n  // 获取状态文本\n  const getStatusText = (status: string) => {\n    switch (status) {\n      case 'active': return '活跃';\n      case 'inactive': return '未激活';\n      case 'testing': return '测试中';\n      case 'failed': return '失败';\n      default: return '未知';\n    }\n  };\n\n  // 获取数据库类型标签颜色\n  const getTypeColor = (type: string) => {\n    switch (type) {\n      case 'postgresql': return 'blue';\n      case 'mysql': return 'orange';\n      case 'mongodb': return 'green';\n      case 'sqlserver': return 'purple';\n      case 'oracle': return 'red';\n      default: return 'default';\n    }\n  };\n\n  // 处理表同步\n  const handleMaterializeTables = async (values: any) => {\n    console.log('=== 开始同步 ===');\n    console.log('同步参数:', { \n      selectedSchemas, \n      selectedSchemasLength: selectedSchemas.length,\n      checkedKeys, \n      checkedKeysLength: checkedKeys.length,\n      isAllSelected, \n      isIndeterminate \n    });\n    console.log('selectedSchemas 内容:', selectedSchemas);\n    \n    if (selectedSchemas.length === 0) {\n      console.log('selectedSchemas 为空，显示警告');\n      message.warning('请选择要同步的表结构');\n      return;\n    }\n\n    setMaterializeLoading(true);\n    try {\n      const response = await postMaterializeTables({\n        connectionId: selectedConnection!.id!,\n        schemaCodes: selectedSchemas,\n        config: {\n          overwrite: values.overwrite,\n          includeIndexes: values.includeIndexes,\n          includeConstraints: values.includeConstraints,\n          targetSchema: values.targetSchema,\n          tablePrefix: values.tablePrefix\n        }\n      });\n\n      if (response.success) {\n        message.success('表同步成功');\n        \n        // 添加同步记录\n        const successCount = response.results?.filter(r => r.success).length || 0;\n        const failCount = response.results?.filter(r => !r.success).length || 0;\n        \n        // 构建详细的失败信息\n        const failedResults = response.results?.filter(r => !r.success) || [];\n        const failureDetails = failedResults.map(r => \n          `${r.schemaCode}: ${r.message || r.error || '未知错误'}`\n        ).join('\\n');\n        \n        addSyncRecord({\n          id: crypto.randomUUID(),\n          connectionId: selectedConnection!.id!,\n          connectionName: selectedConnection!.name,\n          operation: 'materialize',\n          status: failCount === 0 ? 'success' : 'failed',\n          message: `成功同步 ${successCount} 个表${failCount > 0 ? `，失败 ${failCount} 个表` : ''}`,\n          timestamp: new Date().toISOString(),\n          details: response.results,\n          failureDetails: failCount > 0 ? failureDetails : undefined\n        });\n\n        setIsMaterializeModalVisible(false);\n        materializeForm.resetFields();\n        setSelectedSchemas([]);\n      }\n    } catch (error: any) {\n      message.error(`表同步失败: ${error.response?.data?.message || error.message}`);\n      \n      // 添加失败的同步记录\n      addSyncRecord({\n        id: crypto.randomUUID(),\n        connectionId: selectedConnection!.id!,\n        connectionName: selectedConnection!.name,\n        operation: 'materialize',\n        status: 'failed',\n        message: error.response?.data?.message || error.message,\n        timestamp: new Date().toISOString()\n      });\n    }\n    setMaterializeLoading(false);\n  };\n\n  // 处理全选/取消全选\n  const handleSelectAll = (checked: boolean) => {\n    console.log('handleSelectAll called with checked:', checked);\n    if (checked) {\n      // 全选：获取所有叶子节点的key和code\n      const allLeafKeys: string[] = [];\n      const allLeafCodes: string[] = [];\n      \n      const collectLeafKeysAndCodes = (nodes: any[]) => {\n        nodes.forEach(node => {\n          if (node.children && node.children.length > 0) {\n            collectLeafKeysAndCodes(node.children);\n          } else {\n            // 只有叶子节点才添加到选中列表\n            const nodeKey = node.key || node.value;\n            allLeafKeys.push(nodeKey);\n            if (node.rawSchema) {\n              allLeafCodes.push(node.rawSchema.code);\n              console.log('找到叶子节点:', { key: nodeKey, code: node.rawSchema.code });\n            } else {\n              console.log('叶子节点但没有rawSchema:', { key: nodeKey, node });\n            }\n          }\n        });\n      };\n      \n      collectLeafKeysAndCodes(schemaTreeData);\n      console.log('收集到的叶子节点keys:', allLeafKeys);\n      console.log('收集到的叶子节点codes:', allLeafCodes);\n      \n      // 同时更新两个状态\n      setCheckedKeys(allLeafKeys);\n      setSelectedSchemas(allLeafCodes);\n    } else {\n      // 取消全选\n      setCheckedKeys([]);\n      setSelectedSchemas([]);\n    }\n  };\n\n  // 检查是否全选\n  const checkSelectionStatus = () => {\n    const allLeafKeys: string[] = [];\n    const collectLeafKeys = (nodes: any[]) => {\n      nodes.forEach(node => {\n        if (node.children && node.children.length > 0) {\n          collectLeafKeys(node.children);\n        } else {\n          allLeafKeys.push(node.key || node.value);\n        }\n      });\n    };\n    collectLeafKeys(schemaTreeData);\n    \n    const selectedLeafKeys = checkedKeys.filter(key => \n      allLeafKeys.includes(key)\n    );\n    \n    setIsAllSelected(allLeafKeys.length > 0 && selectedLeafKeys.length === allLeafKeys.length);\n    setIsIndeterminate(selectedLeafKeys.length > 0 && selectedLeafKeys.length < allLeafKeys.length);\n  };\n\n  // 监听checkedKeys变化，更新全选状态\n  useEffect(() => {\n    checkSelectionStatus();\n  }, [checkedKeys, schemaTreeData]);\n\n  // 监听selectedSchemas变化，用于调试\n  useEffect(() => {\n    console.log('selectedSchemas changed:', selectedSchemas);\n  }, [selectedSchemas]);\n\n\n\n  useEffect(() => {\n    fetchConnections();\n    fetchSchemas();\n  }, []);\n\n  // 渲染字段预览列表\n  const renderFieldPreview = () => {\n    if (!previewSchema) {\n      return (\n        <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>\n          请选择左侧的表结构查看字段详情\n        </div>\n      );\n    }\n\n    // 获取关系类型显示文本\n    const getRelationTypeText = (field: any) => {\n      const type = field.relationType || (field.relationConfig?.multiple ? 'oneToMany' : 'oneToOne');\n      switch (type) {\n        case 'oneToOne': return '1:1';\n        case 'oneToMany': return '1:n';\n        case 'manyToOne': return 'n:1';\n        case 'manyToMany': return 'm:n';\n        default: return '1:1';\n      }\n    };\n\n    // 获取目标数据表的描述信息\n    const getTargetSchemaDescription = (code: string | undefined) => {\n      if (!code) return '';\n      const schema = schemas.find(s => s.code === code);\n      return schema ? `${code}（${schema.name}）` : code;\n    };\n\n    // 获取枚举的描述信息\n    const getEnumDescription = (enumCode: string | undefined) => {\n      if (!enumCode) return enumCode || '';\n      return enumCode;\n    };\n\n    return (\n      <div style={{ padding: '6px 16px 16px 16px' }}>\n        <div style={{ marginBottom: '16px' }}>\n          <h4 style={{ margin: 0 }}>{previewSchema.name}\n          {previewSchema.description && (\n            <span style={{ color: '#666', fontSize: '12px', marginLeft: '14px' }}>\n              {previewSchema.description}\n            </span>\n          )}\n          </h4>\n        </div>\n        <List\n          dataSource={previewSchema.fields}\n          size=\"small\"\n          renderItem={(field: any, index: number) => (\n            <List.Item\n              key={field.id || index}\n              className=\"px-0\"\n            >\n              <List.Item.Meta\n                title={\n                  <Space>\n                    <span>{field.name}</span>\n                    {field.description && <span>({field.description})</span>}\n                    <Tag color=\"blue\">{field.type}</Tag>\n                    {/* 主键标识 - 暂时注释，等待前端更新 */}\n                    {/* {(field.type === 'uuid' || field.type === 'auto_increment') && field.isPrimaryKey && (\n                      <Tag color=\"red\">PK</Tag>\n                    )} */}\n                  </Space>\n                }\n                description={\n                  <div style={{ marginTop: '4px' }}>\n                    {/* 必填 */}\n                    {field.required && <Tag color=\"cyan\" bordered={false}>必填</Tag>}\n                    {/* 长度 */}\n                    {field.type === 'string' && field.length && (\n                      <Tag color=\"cyan\" bordered={false}>\n                        VARCHAR({field.length})\n                      </Tag>\n                    )}\n                    {/* 长文本 */}\n                    {field.type === 'text' && (\n                      <Tag color=\"cyan\" bordered={false}>\n                        TEXT\n                      </Tag>\n                    )}\n                    {/* 日期 */}\n                    {field.type === 'date' && field.dateConfig?.dateType && (\n                      <Tag color=\"cyan\" bordered={false}>{field.dateConfig.dateType}</Tag>\n                    )}\n                    {/* 枚举 */}\n                    {field.type === 'enum' && field.enumConfig && (\n                      <>\n                        <Tag color=\"cyan\" bordered={false}>\n                          枚举: {getEnumDescription(field.enumConfig?.targetEnumCode)}\n                        </Tag>\n                        {field.enumConfig?.multiple && (\n                          <Tag color=\"purple\" bordered={false}>允许多选</Tag>\n                        )}\n                      </>\n                    )}\n                    {/* 关联 */}\n                    {field.type === 'relation' && field.relationConfig && (\n                      <>\n                        <Tag color=\"cyan\" bordered={false}>\n                          {getRelationTypeText(field)}\n                        </Tag>\n                        <Tag color=\"cyan\" bordered={false}>\n                          关联: {getTargetSchemaDescription(field.relationConfig?.targetSchemaCode)}\n                        </Tag>\n                      </>\n                    )}\n                    {/* 媒体 */}\n                    {field.type === 'media' && field.mediaConfig && (\n                      <Tag color=\"cyan\" bordered={false}>媒体类型: {field.mediaConfig?.mediaType}</Tag>\n                    )}\n                    {/* API */}\n                    {field.type === 'api' && field.apiConfig && (\n                      <Tag color=\"cyan\" bordered={false}>API: {field.apiConfig?.endpoint}</Tag>\n                    )}\n                    {/* 数字类型 */}\n                    {field.type === 'number' && (\n                      <Tag color=\"cyan\" bordered={false}>数字</Tag>\n                    )}\n                  </div>\n                }\n              />\n            </List.Item>\n          )}\n        />\n      </div>\n    );\n  };\n\n  const connectionColumns = [\n    {\n      title: '连接名称',\n      dataIndex: 'name',\n      key: 'name',\n      render: (text: string, record: API.DatabaseConnection) => (\n        <div>\n          <div style={{ fontWeight: 'bold' }}>{text}</div>\n          {record.description && (\n            <div style={{ color: '#666', fontSize: '12px' }}>{record.description}</div>\n          )}\n        </div>\n      ),\n    },\n    {\n      title: '数据库类型',\n      dataIndex: 'type',\n      key: 'type',\n      render: (type: string) => (\n        <Tag color={getTypeColor(type)}>{type.toUpperCase()}</Tag>\n      ),\n    },\n    {\n      title: '连接信息',\n      key: 'connection',\n      hidden: true,\n      render: (record: API.DatabaseConnection) => (\n        <div style={{ fontSize: '12px' }}>\n          <div>{record.host}:{record.port}</div>\n          <div>{record.database}</div>\n        </div>\n      ),\n    },\n    {\n      title: '状态',\n      dataIndex: 'status',\n      key: 'status',\n      render: (status: string, record: API.DatabaseConnection) => (\n        <Space>\n          <Badge \n            status={record.lastTestSuccess ? 'success' : 'error'} \n            text={getStatusText(status)}\n          />\n          {record.lastTestSuccess && <CheckCircleOutlined style={{ color: '#52c41a' }} />}\n          {!record.lastTestSuccess && record.lastTestAt && <CloseCircleOutlined style={{ color: '#ff4d4f' }} />}\n        </Space>\n      ),\n    },\n    {\n      title: '操作',\n      key: 'action',\n      width: 60,\n      fixed: 'right',\n      render: (record: API.DatabaseConnection) => (\n        <Button\n          type=\"link\"\n          size=\"small\"\n          icon={<EditOutlined />}\n          onClick={(e) => {\n            e.stopPropagation(); // 阻止行点击事件\n            setEditingConnection(record);\n            // 设置表单值，但不包含密码字段\n            const formData = { ...record } as any;\n            if ('password' in formData) {\n              delete formData.password; // 编辑时不显示原密码\n            }\n            connectionForm.setFieldsValue(formData);\n            setIsEditModalVisible(true);\n          }}\n        />\n      ),\n    },\n  ];\n\n  return (\n    <div className=\"f-fullscreen\">\n      <Splitter style={{ height: \"calc(100vh - 57px)\" }}>\n        <Splitter.Panel defaultSize=\"50%\">\n          <div className=\"f-header\">\n            <label className=\"fw-bold\">数据库连接</label>\n            <Button\n              type=\"primary\"\n              icon={<PlusOutlined />}\n              onClick={() => {\n                connectionForm.resetFields();\n                setIsCreateModalVisible(true);\n              }}\n            >\n              新建数据库连接\n            </Button>\n          </div>\n          <div\n            className=\"pos-relative overflow-y\"\n            style={{ height: \"calc(100% - 50px)\" }}\n          >\n            <div className=\"pb-4\">\n              <Table\n                columns={connectionColumns as any}\n                dataSource={connections}\n                rowKey=\"id\"\n                loading={loading}\n                pagination={false}\n                size=\"small\"\n                onRow={(record) => ({\n                  onClick: () => setSelectedConnection(record),\n                  className: selectedConnection?.id === record.id ? \"ant-table-row-selected\" : \"\",\n                  style: { cursor: \"pointer\" },\n                })}\n              />\n            </div>\n          </div>\n        </Splitter.Panel>\n        <Splitter.Panel>\n          <div\n            className=\"pos-relative overflow-y\"\n            style={{ height: \"calc(100% - 50px)\" }}\n          >\n            <div className=\"pb-4\">\n              {selectedConnection ? (\n                <Tabs\n                  defaultActiveKey=\"connection\"\n                  centered\n                  style={{ height: '100%' }}\n                  items={[\n                    {\n                      key: 'connection',\n                      label: '连接信息',\n                      children: (\n                        <div style={{ padding: '16px' }}>\n                          <Space style={{ marginBottom: 16 }}>\n                            <Button\n                              type=\"primary\"\n                              size=\"small\"\n                              icon={<SyncOutlined />}\n                              onClick={() => handleTestConnection(selectedConnection)}\n                              loading={selectedConnection.status === 'testing'}\n                            >\n                              测试连接\n                            </Button>\n                            <Popconfirm\n                              title=\"删除数据库连接\"\n                              description={`确定要删除 \"${selectedConnection.name}\" 吗？此操作不可恢复。`}\n                              onConfirm={() => handleDeleteConnection(selectedConnection.id!)}\n                              okText=\"确定\"\n                              cancelText=\"取消\"\n                            >\n                              <Button\n                                type=\"primary\"\n                                danger\n                                size=\"small\"\n                                icon={<DeleteOutlined />}\n                              >\n                                删除连接\n                              </Button>\n                            </Popconfirm>\n                          </Space>\n                          <Card title=\"连接详情\">\n                            <Descriptions column={1} size=\"small\">\n                              <Descriptions.Item label=\"连接名称\">{selectedConnection.name}</Descriptions.Item>\n                              <Descriptions.Item label=\"数据库类型\">\n                                <Tag color={getTypeColor(selectedConnection.type)}>\n                                  {selectedConnection.type.toUpperCase()}\n                                </Tag>\n                              </Descriptions.Item>\n                              <Descriptions.Item label=\"主机地址\">{selectedConnection.host}:{selectedConnection.port}</Descriptions.Item>\n                              <Descriptions.Item label=\"数据库名\">{selectedConnection.database}</Descriptions.Item>\n                              <Descriptions.Item label=\"用户名\">{selectedConnection.username}</Descriptions.Item>\n                              <Descriptions.Item label=\"状态\">\n                                <Badge \n                                  status={selectedConnection.lastTestSuccess ? 'success' : 'error'} \n                                  text={getStatusText(selectedConnection.status || 'inactive')}\n                                />\n                              </Descriptions.Item>\n                              {selectedConnection.lastTestAt && (\n                                <Descriptions.Item label=\"最后测试时间\">\n                                  {new Date(selectedConnection.lastTestAt).toLocaleString()}\n                                </Descriptions.Item>\n                              )}\n                            </Descriptions>\n                          </Card>\n                        </div>\n                      ),\n                    },\n                    {\n                      key: 'sync',\n                      label: '同步',\n                      children: (\n                        <div style={{ padding: '16px' }}>\n                          {!selectedConnection.lastTestSuccess ? (\n                            <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>\n                              <SyncOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />\n                              <div>请先完成测试连接</div>\n                            </div>\n                          ) : (\n                            <>\n                              <Space style={{ marginBottom: 16 }}>\n                                <Button\n                                  type=\"primary\"\n                                  size=\"small\"\n                                  icon={<CloudServerOutlined />}\n                                  onClick={() => {\n                                    setIsMaterializeModalVisible(true);\n                                    materializeForm.resetFields();\n                                    setSelectedSchemas([]);\n                                    setCheckedKeys([]);\n                                    setIsAllSelected(false);\n                                    setIsIndeterminate(false);\n                                    setPreviewSchema(null);\n                                  }}\n                                >\n                                  同步\n                                </Button>\n                              </Space>\n                              <Card title=\"同步记录\">\n                                <Timeline>\n                                  {syncRecords\n                                    .filter(record => record.connectionId === selectedConnection.id)\n                                    .map(record => (\n                                      <Timeline.Item\n                                        key={record.id}\n                                        color={record.status === 'success' ? 'green' : record.status === 'failed' ? 'red' : 'blue'}\n                                        dot={record.operation === 'test' ? <SyncOutlined /> : <DatabaseOutlined />}\n                                      >\n                                        <div>\n                                          <div style={{ fontWeight: 'bold' }}>\n                                            {record.operation === 'create' && '创建连接'}\n                                            {record.operation === 'update' && '更新连接'}\n                                            {record.operation === 'delete' && '删除连接'}\n                                            {record.operation === 'test' && '测试连接'}\n                                            {record.operation === 'materialize' && '表同步'}\n                                          </div>\n                                          <div style={{ color: '#666', fontSize: '12px' }}>\n                                            {record.message}\n                                          </div>\n                                          {record.failureDetails && (\n                                            <div style={{ \n                                              color: '#ff4d4f', \n                                              fontSize: '11px', \n                                              marginTop: '4px',\n                                              backgroundColor: '#fff2f0',\n                                              padding: '4px 8px',\n                                              borderRadius: '4px',\n                                              border: '1px solid #ffccc7',\n                                              whiteSpace: 'pre-line'\n                                            }}>\n                                              <div style={{ fontWeight: 'bold', marginBottom: '2px' }}>失败详情：</div>\n                                              {record.failureDetails}\n                                            </div>\n                                          )}\n                                          <div style={{ color: '#999', fontSize: '12px', marginTop: '4px' }}>\n                                            {new Date(record.timestamp).toLocaleString()}\n                                          </div>\n                                        </div>\n                                      </Timeline.Item>\n                                    ))}\n                                  {syncRecords.filter(record => record.connectionId === selectedConnection.id).length === 0 && (\n                                    <div style={{ textAlign: 'center', color: '#999', padding: '20px' }}>\n                                      暂无同步记录\n                                    </div>\n                                  )}\n                                </Timeline>\n                              </Card>\n                            </>\n                          )}\n                        </div>\n                      ),\n                    },\n                    {\n                      key: 'tables',\n                      label: '库表结构',\n                      children: (\n                        <div style={{ padding: '16px' }}>\n                          <DatabaseTables \n                            connectionId={selectedConnection?.id}\n                            lastTestSuccess={selectedConnection?.lastTestSuccess}\n                          />\n                        </div>\n                      ),\n                    },\n                  ]}\n                />\n              ) : (\n                <div style={{ textAlign: 'center', padding: '20px' }}>\n                  请选择左侧的数据库连接查看详细信息\n                </div>\n              )}\n            </div>\n          </div>\n        </Splitter.Panel>\n      </Splitter>\n\n      {/* 创建数据库连接模态框 */}\n      <Modal\n        title=\"新建数据库连接\"\n        open={isCreateModalVisible}\n        onOk={() => connectionForm.submit()}\n        onCancel={() => setIsCreateModalVisible(false)}\n        width={600}\n        maskClosable={false}\n      >\n        <Form\n          form={connectionForm}\n          layout=\"vertical\"\n          onFinish={handleCreateConnection}\n        >\n          <Form.Item\n            name=\"name\"\n            label=\"连接名称\"\n            rules={[{ required: true, message: '请输入连接名称' }]}\n          >\n            <Input placeholder=\"请输入连接名称\" />\n          </Form.Item>\n          \n          <Form.Item\n            name=\"description\"\n            label=\"连接描述\"\n          >\n            <Input.TextArea placeholder=\"请输入连接描述\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"type\"\n            label=\"数据库类型\"\n            rules={[{ required: true, message: '请选择数据库类型' }]}\n          >\n            <Select \n              placeholder=\"请选择数据库类型\"\n              onChange={handleDatabaseTypeChange}\n            >\n              {databaseTypes.map(type => (\n                <Option key={type.value} value={type.value}>{type.label}</Option>\n              ))}\n            </Select>\n          </Form.Item>\n\n          <Form.Item\n            name=\"host\"\n            label=\"主机地址\"\n            rules={[{ required: true, message: '请输入主机地址' }]}\n          >\n            <Input placeholder=\"localhost\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"port\"\n            label=\"端口号\"\n            rules={[{ required: true, message: '请输入端口号' }]}\n          >\n            <InputNumber \n              placeholder=\"5432\" \n              style={{ width: '100%' }}\n              min={1}\n              max={65535}\n            />\n          </Form.Item>\n\n          <Form.Item\n            name=\"database\"\n            label=\"数据库名称\"\n            rules={[{ required: true, message: '请输入数据库名称' }]}\n          >\n            <Input placeholder=\"请输入数据库名称\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"username\"\n            label=\"用户名\"\n            rules={[{ required: true, message: '请输入用户名' }]}\n          >\n            <Input placeholder=\"请输入用户名\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"password\"\n            label=\"密码\"\n            rules={[{ required: false, message: '请输入密码' }]}\n          >\n            <Input.Password placeholder=\"请输入密码（可选）\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"schema\"\n            label=\"Schema名称\"\n          >\n            <Input placeholder=\"public\" />\n          </Form.Item>\n        </Form>\n      </Modal>\n\n      {/* 编辑数据库连接模态框 */}\n      <Modal\n        title=\"编辑数据库连接\"\n        open={isEditModalVisible}\n        onOk={() => connectionForm.submit()}\n        onCancel={() => {\n          setIsEditModalVisible(false);\n          setEditingConnection(null);\n          connectionForm.resetFields();\n        }}\n        width={600}\n        maskClosable={false}\n      >\n        <Form\n          form={connectionForm}\n          layout=\"vertical\"\n          onFinish={handleUpdateConnection}\n        >\n          <Form.Item\n            name=\"name\"\n            label=\"连接名称\"\n            rules={[{ required: true, message: '请输入连接名称' }]}\n          >\n            <Input placeholder=\"请输入连接名称\" />\n          </Form.Item>\n          \n          <Form.Item\n            name=\"description\"\n            label=\"连接描述\"\n          >\n            <Input.TextArea placeholder=\"请输入连接描述\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"type\"\n            label=\"数据库类型\"\n            rules={[{ required: true, message: '请选择数据库类型' }]}\n          >\n            <Select \n              placeholder=\"请选择数据库类型\"\n              onChange={handleDatabaseTypeChange}\n              disabled={true} // 编辑时不允许修改数据库类型\n            >\n              {databaseTypes.map(type => (\n                <Option key={type.value} value={type.value}>{type.label}</Option>\n              ))}\n            </Select>\n          </Form.Item>\n\n          <Form.Item\n            name=\"host\"\n            label=\"主机地址\"\n            rules={[{ required: true, message: '请输入主机地址' }]}\n          >\n            <Input placeholder=\"localhost\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"port\"\n            label=\"端口号\"\n            rules={[{ required: true, message: '请输入端口号' }]}\n          >\n            <InputNumber \n              placeholder=\"5432\" \n              style={{ width: '100%' }}\n              min={1}\n              max={65535}\n            />\n          </Form.Item>\n\n          <Form.Item\n            name=\"database\"\n            label=\"数据库名称\"\n            rules={[{ required: true, message: '请输入数据库名称' }]}\n          >\n            <Input placeholder=\"请输入数据库名称\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"username\"\n            label=\"用户名\"\n            rules={[{ required: true, message: '请输入用户名' }]}\n          >\n            <Input placeholder=\"请输入用户名\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"password\"\n            label=\"密码\"\n            rules={[{ required: false, message: '请输入密码' }]}\n          >\n            <Input.Password placeholder=\"请输入新密码（留空则不修改）\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"schema\"\n            label=\"Schema名称\"\n          >\n            <Input placeholder=\"public\" />\n          </Form.Item>\n        </Form>\n      </Modal>\n\n      {/* 表同步模态框 */}\n      <Modal\n        title=\"将模型同步到数据库\"\n        open={isMaterializeModalVisible}\n        onOk={() => materializeForm.submit()}\n        onCancel={() => {\n          setIsMaterializeModalVisible(false);\n          setPreviewSchema(null);\n        }}\n        width={1000}\n        maskClosable={false}\n        confirmLoading={materializeLoading}\n        style={{ top: 20 }}\n      >\n        <Form\n          form={materializeForm}\n          layout=\"vertical\"\n          onFinish={handleMaterializeTables}\n          initialValues={{\n            overwrite: false,\n            includeIndexes: true,\n            includeConstraints: true,\n            targetSchema: selectedConnection?.schema || 'public',\n            tablePrefix: ''\n          }}\n        >\n          <div style={{ \n                height: '300px',\n                borderWidth: 1,\n                borderStyle: 'solid',\n                borderColor: '#424242',\n                borderRadius: 6,\n                background: '#141414',\n                marginBottom: '16px'\n            }}>\n            <Splitter style={{ height: '100%' }}>\n              <Splitter.Panel defaultSize=\"40%\">\n                <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>\n                  <div style={{ display: 'flex', alignItems: 'center' }}>\n                    <div style={{ display: 'flex', alignItems: 'center', margin: '4px 8px 12px 8px' }}>\n                      <h4 style={{ margin: 0, marginRight: '8px' }}>选择要同步的表</h4>\n                      <Checkbox\n                        checked={isAllSelected}\n                        indeterminate={isIndeterminate}\n                        onChange={(e) => handleSelectAll(e.target.checked)}\n                      >\n                        全选\n                      </Checkbox>\n                    </div>\n                  </div>\n                  <div style={{ \n                    flex: 1,\n                    overflowY: 'auto', \n                    borderRadius: '6px'\n                  }}>\n                    <Tree\n                      checkable\n                      showIcon\n                      treeData={schemaTreeData}\n                      expandedKeys={expandedKeys}\n                      checkedKeys={checkedKeys}\n                      // height={300}\n                      fieldNames={{ key: 'value', title: 'label' }}\n                      onExpand={(expandedKeysValue) => {\n                        setExpandedKeys(expandedKeysValue as string[]);\n                      }}\n                      onCheck={(checkedKeysValue) => {\n                        const keys = Array.isArray(checkedKeysValue) ? checkedKeysValue : checkedKeysValue.checked;\n                        console.log('Tree onCheck - keys:', keys);\n                        setCheckedKeys(keys as string[]);\n                        // 只收集叶子节点的code\n                        const leafCodes: string[] = [];\n                        const collectLeafCodes = (nodes: any[], checkedKeys: string[]) => {\n                          nodes.forEach(node => {\n                            const nodeKey = node.key || node.value;\n                            console.log('Tree onCheck - 检查节点:', { nodeKey, hasChildren: !!(node.children && node.children.length > 0), hasRawSchema: !!node.rawSchema });\n                            if (checkedKeys.includes(nodeKey)) {\n                              if (node.children && node.children.length > 0) {\n                                collectLeafCodes(node.children, checkedKeys);\n                              } else {\n                                // 只有叶子节点才添加到选中列表\n                                if (node.rawSchema) {\n                                  console.log('Tree onCheck - 找到叶子节点:', node.rawSchema.code);\n                                  leafCodes.push(node.rawSchema.code);\n                                } else {\n                                  console.log('Tree onCheck - 叶子节点但没有rawSchema:', node);\n                                }\n                              }\n                            }\n                          });\n                        };\n                        collectLeafCodes(schemaTreeData, keys as string[]);\n                        console.log('Tree onCheck - leafCodes:', leafCodes);\n                        setSelectedSchemas(leafCodes);\n                      }}\n                      onSelect={(selectedKeys, info) => {\n                        // 当点击树节点时，预览对应的表结构\n                        if (info.node.rawSchema) {\n                          setPreviewSchema(info.node.rawSchema);\n                        } else {\n                          setPreviewSchema(null);\n                        }\n                      }}\n                      titleRender={(node) => (\n                        <div>\n                          <div style={{ fontWeight: 'bold' }}>{node.label}\n                          {node.rawSchema && (\n                            <span style={{ color: '#666', fontSize: '12px' }}>\n                              字段数: {node.rawSchema.fields?.length || 0}\n                            </span>\n                          )}\n                          </div>\n                        </div>\n                      )}\n                    />\n                    {schemaTreeData.length === 0 && (\n                      <div style={{ textAlign: 'center', color: '#999', padding: '20px' }}>\n                        暂无表结构定义\n                      </div>\n                    )}\n                  </div>\n                </div>\n              </Splitter.Panel>\n              <Splitter.Panel>\n                <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>\n                  {/* <div style={{ height: '32px', display: 'flex', alignItems: 'center' }}>\n                    <h4 style={{ margin: 0 }}>字段预览</h4>\n                  </div> */}\n                  <div style={{ \n                    flex: 1,\n                    overflowY: 'auto',\n                    borderRadius: '6px',\n                  }}>\n                    {renderFieldPreview()}\n                  </div>\n                </div>\n              </Splitter.Panel>\n            </Splitter>\n          </div>\n\n          <Form.Item\n            name=\"targetSchema\"\n            label=\"目标Schema\"\n            rules={[{ required: true, message: '请输入目标Schema名称' }]}\n          >\n            <Input placeholder=\"public\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"tablePrefix\"\n            label=\"表名前缀\"\n          >\n            <Input placeholder=\"可选，为空则使用原表名\" />\n          </Form.Item>\n\n          <Form.Item\n            name=\"overwrite\"\n            valuePropName=\"checked\"\n          >\n            <Checkbox>覆盖已存在的表</Checkbox>\n          </Form.Item>\n\n          <Form.Item\n            name=\"includeIndexes\"\n            valuePropName=\"checked\"\n          >\n            <Checkbox>包含索引</Checkbox>\n          </Form.Item>\n\n          <Form.Item\n            name=\"includeConstraints\"\n            valuePropName=\"checked\"\n          >\n            <Checkbox>包含约束</Checkbox>\n          </Form.Item>\n        </Form>\n      </Modal>\n    </div>\n  );\n};\n\nexport default DatabaseManagement; ",
       "__isJSFile": true,
       "__absFile": "/Users/yanfang/MOM/BDC/frontend/src/pages/DatabaseManagement/index.tsx"
     },
@@ -9731,7 +10557,7 @@
             "format": "esm"
           },
           "src/components/AiConfigManager/AiConfigModal.tsx": {
-            "bytes": 10601,
+            "bytes": 11012,
             "imports": [
               {
                 "path": "react",
@@ -9762,7 +10588,7 @@
             "format": "esm"
           },
           "src/components/AiConfigManager/index.tsx": {
-            "bytes": 6785,
+            "bytes": 6974,
             "imports": [
               {
                 "path": "react",
@@ -10431,7 +11257,7 @@
             "format": "esm"
           },
           "src/utils/treeBuilder.ts": {
-            "bytes": 3844,
+            "bytes": 3884,
             "imports": [],
             "format": "esm"
           },
@@ -10446,7 +11272,7 @@
             "format": "esm"
           },
           "src/AIHelper/aiConfigService.ts": {
-            "bytes": 2975,
+            "bytes": 3213,
             "imports": [
               {
                 "path": "src/services/BDC/api/aiConfigManagement.ts",
@@ -10730,7 +11556,7 @@
             "format": "esm"
           },
           "src/components/AICreateSchema/index.tsx": {
-            "bytes": 69322,
+            "bytes": 64124,
             "imports": [
               {
                 "path": "react",
@@ -11000,7 +11826,7 @@
             "format": "esm"
           },
           "src/components/EnumManagement/index.tsx": {
-            "bytes": 18733,
+            "bytes": 18749,
             "imports": [
               {
                 "path": "react",
@@ -11271,7 +12097,7 @@
             "format": "esm"
           },
           "src/pages/DatabaseManagement/index.tsx": {
-            "bytes": 48266,
+            "bytes": 50363,
             "imports": [
               {
                 "path": "react",
@@ -13455,10 +14281,10 @@
                 "bytesInOutput": 557
               },
               "src/components/AiConfigManager/AiConfigModal.tsx": {
-                "bytesInOutput": 12358
+                "bytesInOutput": 12966
               },
               "src/components/AiConfigManager/index.tsx": {
-                "bytesInOutput": 6882
+                "bytesInOutput": 7063
               },
               "src/app.tsx": {
                 "bytesInOutput": 3870
@@ -13539,7 +14365,7 @@
                 "bytesInOutput": 1738
               },
               "src/utils/treeBuilder.ts": {
-                "bytesInOutput": 2392
+                "bytesInOutput": 2450
               },
               "src/components/SchemaValidator/rules.ts": {
                 "bytesInOutput": 18543
@@ -13548,7 +14374,7 @@
                 "bytesInOutput": 1546
               },
               "src/AIHelper/aiConfigService.ts": {
-                "bytesInOutput": 2643
+                "bytesInOutput": 2825
               },
               "src/AIHelper/aiService.ts": {
                 "bytesInOutput": 6950
@@ -13584,7 +14410,7 @@
                 "bytesInOutput": 9002
               },
               "src/components/AICreateSchema/index.tsx": {
-                "bytesInOutput": 67420
+                "bytesInOutput": 62613
               },
               "src/pages/SchemaManagement/ormGenerator.ts": {
                 "bytesInOutput": 12714
@@ -13602,13 +14428,13 @@
                 "bytesInOutput": 16894
               },
               "src/components/EnumManagement/index.tsx": {
-                "bytesInOutput": 20467
+                "bytesInOutput": 20483
               },
               "src/pages/SchemaManagement/FieldList.tsx": {
                 "bytesInOutput": 11043
               },
               "src/pages/SchemaManagement/index.tsx": {
-                "bytesInOutput": 94332
+                "bytesInOutput": 94355
               },
               "src/services/BDC/api/databaseConnections.ts": {
                 "bytesInOutput": 1864
@@ -13620,7 +14446,7 @@
                 "bytesInOutput": 10704
               },
               "src/pages/DatabaseManagement/index.tsx": {
-                "bytesInOutput": 55814
+                "bytesInOutput": 58190
               },
               "src/pages/SchemaGraph/index.tsx": {
                 "bytesInOutput": 27644
@@ -13647,7 +14473,7 @@
                 "bytesInOutput": 2017
               }
             },
-            "bytes": 574756
+            "bytes": 573393
           }
         }
       }
@@ -18008,7 +18834,7 @@
           "type": "ImportDeclaration"
         },
         {
-          "end": 330,
+          "end": 367,
           "importKind": "value",
           "source": "@/AIHelper",
           "specifiers": [
@@ -18021,13 +18847,23 @@
               "imported": "useAiConfig",
               "local": "useAiConfig",
               "type": "ImportSpecifier"
+            },
+            {
+              "imported": "parseAIResponse",
+              "local": "parseAIResponse",
+              "type": "ImportSpecifier"
+            },
+            {
+              "imported": "validateParsedData",
+              "local": "validateParsedData",
+              "type": "ImportSpecifier"
             }
           ],
           "start": 274,
           "type": "ImportDeclaration"
         },
         {
-          "end": 388,
+          "end": 425,
           "importKind": "value",
           "source": "@/AIHelper/config",
           "specifiers": [
@@ -18042,11 +18878,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 331,
+          "start": 368,
           "type": "ImportDeclaration"
         },
         {
-          "end": 498,
+          "end": 535,
           "importKind": "value",
           "source": "@/AIHelper/modelDesignPromptGenerator",
           "specifiers": [
@@ -18061,11 +18897,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 389,
+          "start": 426,
           "type": "ImportDeclaration"
         },
         {
-          "end": 563,
+          "end": 600,
           "importKind": "type",
           "source": "@/components/SchemaValidator/types",
           "specifiers": [
@@ -18075,11 +18911,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 499,
+          "start": 536,
           "type": "ImportDeclaration"
         },
         {
-          "end": 611,
+          "end": 648,
           "importKind": "value",
           "source": "@/components/AILoading",
           "specifiers": [
@@ -18088,11 +18924,11 @@
               "type": "ImportDefaultSpecifier"
             }
           ],
-          "start": 564,
+          "start": 601,
           "type": "ImportDeclaration"
         },
         {
-          "end": 677,
+          "end": 714,
           "importKind": "value",
           "source": "@/components/SchemaConfirmation",
           "specifiers": [
@@ -18101,11 +18937,11 @@
               "type": "ImportDefaultSpecifier"
             }
           ],
-          "start": 612,
+          "start": 649,
           "type": "ImportDeclaration"
         },
         {
-          "end": 750,
+          "end": 787,
           "importKind": "value",
           "source": "@/services/BDC/api/enumManagement",
           "specifiers": [
@@ -18120,11 +18956,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 678,
+          "start": 715,
           "type": "ImportDeclaration"
         },
         {
-          "end": 829,
+          "end": 866,
           "importKind": "value",
           "source": "@/services/BDC/api/schemaManagement",
           "specifiers": [
@@ -18139,7 +18975,7 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 751,
+          "start": 788,
           "type": "ImportDeclaration"
         }
       ],
@@ -18424,13 +19260,13 @@
           "type": "ImportDeclaration"
         },
         {
-          "end": 202,
+          "end": 206,
           "importKind": "value",
           "source": "@ant-design/icons",
           "specifiers": [
             {
-              "imported": "RobotOutlined",
-              "local": "RobotOutlined",
+              "imported": "CaretDownOutlined",
+              "local": "CaretDownOutlined",
               "type": "ImportSpecifier"
             },
             {
@@ -18448,7 +19284,7 @@
           "type": "ImportDeclaration"
         },
         {
-          "end": 343,
+          "end": 347,
           "importKind": "value",
           "source": "@/services/BDC/api/aiConfigManagement",
           "specifiers": [
@@ -18478,11 +19314,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 203,
+          "start": 207,
           "type": "ImportDeclaration"
         },
         {
-          "end": 453,
+          "end": 457,
           "importKind": "value",
           "source": "@/utils/aiConfigStorage",
           "specifiers": [
@@ -18502,11 +19338,11 @@
               "type": "ImportSpecifier"
             }
           ],
-          "start": 344,
+          "start": 348,
           "type": "ImportDeclaration"
         },
         {
-          "end": 498,
+          "end": 502,
           "importKind": "value",
           "source": "./AiConfigModal",
           "specifiers": [
@@ -18515,15 +19351,15 @@
               "type": "ImportDefaultSpecifier"
             }
           ],
-          "start": 454,
+          "start": 458,
           "type": "ImportDeclaration"
         },
         {
-          "end": 521,
+          "end": 525,
           "importKind": "value",
           "source": "./index.less",
           "specifiers": [],
-          "start": 499,
+          "start": 503,
           "type": "ImportDeclaration"
         }
       ],

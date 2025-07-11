@@ -271,6 +271,7 @@ CREATE TABLE IF NOT EXISTS bdc.ai_configs (
     provider VARCHAR(50) NOT NULL,
     api_url VARCHAR(500) NOT NULL,
     api_key VARCHAR(500) NOT NULL,
+    auth_header VARCHAR(100),
     model VARCHAR(100) NOT NULL,
     config JSONB,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -295,6 +296,7 @@ COMMENT ON COLUMN bdc.ai_configs.id IS 'AI 配置 ID（系统自动生成）';
 COMMENT ON COLUMN bdc.ai_configs.provider IS 'AI 服务提供商';
 COMMENT ON COLUMN bdc.ai_configs.api_url IS 'API 地址';
 COMMENT ON COLUMN bdc.ai_configs.api_key IS 'API 密钥（加密存储）';
+COMMENT ON COLUMN bdc.ai_configs.auth_header IS '认证头名称（如：Authorization, X-goog-api-key等）';
 COMMENT ON COLUMN bdc.ai_configs.model IS 'AI 模型名称';
 COMMENT ON COLUMN bdc.ai_configs.config IS '额外配置参数（JSON格式）';
 COMMENT ON COLUMN bdc.ai_configs.created_at IS '创建时间';
