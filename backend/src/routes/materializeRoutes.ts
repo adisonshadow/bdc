@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { materializeTables, getMaterializeHistory } from '../controllers/materializeController';
-// import { authenticateToken } from '../middlewares/auth';
+import { authenticateToken } from '../middlewares/auth';
 
 const router = Router();
 
 // 所有路由都需要认证
-// router.use(authenticateToken);
+router.use(authenticateToken);
 
 /**
  * @swagger

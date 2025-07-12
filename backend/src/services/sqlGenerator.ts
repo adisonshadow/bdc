@@ -103,8 +103,15 @@ function addComments(
         commentSQL += `COMMENT ON TABLE ${schema}.${tableName} IS '${escapeComment(dataStructure.description)}';\n`;
       }
       fields.forEach(field => {
-        if (field.description) {
-          commentSQL += `COMMENT ON COLUMN ${schema}.${tableName}.${field.name} IS '${escapeComment(field.description)}';\n`;
+        let comment = field.description || '';
+        
+        // 为枚举字段添加特殊注释
+        if (field.type === 'enum' && field.enumConfig?.targetEnumCode) {
+          comment = `${comment} (枚举代码：${field.enumConfig.targetEnumCode})`.trim();
+        }
+        
+        if (comment) {
+          commentSQL += `COMMENT ON COLUMN ${schema}.${tableName}.${field.name} IS '${escapeComment(comment)}';\n`;
         }
       });
       break;
@@ -115,8 +122,15 @@ function addComments(
         commentSQL += `ALTER TABLE ${schema}.${tableName} COMMENT = '${escapeComment(dataStructure.description)}';\n`;
       }
       fields.forEach(field => {
-        if (field.description) {
-          commentSQL += `ALTER TABLE ${schema}.${tableName} MODIFY COLUMN ${field.name} ${getFieldType(field)} COMMENT '${escapeComment(field.description)}';\n`;
+        let comment = field.description || '';
+        
+        // 为枚举字段添加特殊注释
+        if (field.type === 'enum' && field.enumConfig?.targetEnumCode) {
+          comment = `${comment} (枚举代码：${field.enumConfig.targetEnumCode})`.trim();
+        }
+        
+        if (comment) {
+          commentSQL += `ALTER TABLE ${schema}.${tableName} MODIFY COLUMN ${field.name} ${getFieldType(field)} COMMENT '${escapeComment(comment)}';\n`;
         }
       });
       break;
@@ -127,8 +141,15 @@ function addComments(
         commentSQL += `COMMENT ON TABLE ${schema}.${tableName} IS '${escapeComment(dataStructure.description)}';\n`;
       }
       fields.forEach(field => {
-        if (field.description) {
-          commentSQL += `COMMENT ON COLUMN ${schema}.${tableName}.${field.name} IS '${escapeComment(field.description)}';\n`;
+        let comment = field.description || '';
+        
+        // 为枚举字段添加特殊注释
+        if (field.type === 'enum' && field.enumConfig?.targetEnumCode) {
+          comment = `${comment} (枚举代码：${field.enumConfig.targetEnumCode})`.trim();
+        }
+        
+        if (comment) {
+          commentSQL += `COMMENT ON COLUMN ${schema}.${tableName}.${field.name} IS '${escapeComment(comment)}';\n`;
         }
       });
       break;
@@ -139,8 +160,15 @@ function addComments(
         commentSQL += `EXEC sp_addextendedproperty 'MS_Description', '${escapeComment(dataStructure.description)}', 'SCHEMA', '${schema}', 'TABLE', '${tableName}';\n`;
       }
       fields.forEach(field => {
-        if (field.description) {
-          commentSQL += `EXEC sp_addextendedproperty 'MS_Description', '${escapeComment(field.description)}', 'SCHEMA', '${schema}', 'TABLE', '${tableName}', 'COLUMN', '${field.name}';\n`;
+        let comment = field.description || '';
+        
+        // 为枚举字段添加特殊注释
+        if (field.type === 'enum' && field.enumConfig?.targetEnumCode) {
+          comment = `${comment} (枚举代码：${field.enumConfig.targetEnumCode})`.trim();
+        }
+        
+        if (comment) {
+          commentSQL += `EXEC sp_addextendedproperty 'MS_Description', '${escapeComment(comment)}', 'SCHEMA', '${schema}', 'TABLE', '${tableName}', 'COLUMN', '${field.name}';\n`;
         }
       });
       break;
@@ -151,8 +179,15 @@ function addComments(
         commentSQL += `COMMENT ON TABLE ${schema}.${tableName} IS '${escapeComment(dataStructure.description)}';\n`;
       }
       fields.forEach(field => {
-        if (field.description) {
-          commentSQL += `COMMENT ON COLUMN ${schema}.${tableName}.${field.name} IS '${escapeComment(field.description)}';\n`;
+        let comment = field.description || '';
+        
+        // 为枚举字段添加特殊注释
+        if (field.type === 'enum' && field.enumConfig?.targetEnumCode) {
+          comment = `${comment} (枚举代码：${field.enumConfig.targetEnumCode})`.trim();
+        }
+        
+        if (comment) {
+          commentSQL += `COMMENT ON COLUMN ${schema}.${tableName}.${field.name} IS '${escapeComment(comment)}';\n`;
         }
       });
       break;
